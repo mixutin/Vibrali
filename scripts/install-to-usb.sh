@@ -151,7 +151,7 @@ echo
 echo "Vibrali will ERASE the following disk:"
 lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$DEVICE"
 echo
-if (("${#SELECTED_PROFILES[@]}" > 0)); then
+if ((${#SELECTED_PROFILES[@]} > 0)); then
   (
     IFS=,
     echo "Optional profiles: ${SELECTED_PROFILES[*]}"
