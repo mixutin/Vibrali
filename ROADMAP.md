@@ -93,7 +93,7 @@ Goal: after boot, the system should already feel like a finished security workst
 - [x] Clipboard and screenshot tooling
 - [x] Archive/extraction tooling
 - [x] Persistent SSH/Git developer setup documentation
-- [ ] HiDPI defaults
+- [x] HiDPI defaults
 - [ ] Multi-monitor validation
 - [ ] Suspend/resume validation
 - [x] Laptop power-management tuning
