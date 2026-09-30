@@ -93,9 +93,13 @@ test_release_contract() {
   echo "release installer artifact contract: ok"
 }
 
-for cmd in curl sha256sum awk split cmp zstd; do
+for cmd in curl sha256sum awk split cmp; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
+
+if [[ $# -gt 0 ]]; then
+  command -v zstd >/dev/null 2>&1 || fail "missing command: zstd"
+fi
 
 test_direct_download
 test_split_download
