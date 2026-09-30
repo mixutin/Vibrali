@@ -2,7 +2,9 @@
 set -Eeuo pipefail
 
 REPO="mixutin/Vibrali"
-BASE="https://github.com/$REPO/releases/latest/download"
+STABLE_BASE="https://github.com/$REPO/releases/latest/download"
+RELEASES_API="https://api.github.com/repos/$REPO/releases?per_page=1"
+BASE=""
 IMAGE_NAME="vibrali-usb-amd64.img.zst"
 TTY=/dev/tty
 TMP=""
@@ -43,6 +45,25 @@ EOF
   printf "%b\n" "$c0"
 }
 
+latest_release_tag_from_json() {
+  sed -n 's/^[[:space:]]*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1
+}
+
+resolve_release_base() {
+  local metadata tag
+
+  if curl -fsIL "$STABLE_BASE/SHA256SUMS" >/dev/null 2>&1; then
+    printf '%s\n' "$STABLE_BASE"
+    return 0
+  fi
+
+  metadata="$(curl -fsSL --retry 2 --retry-connrefused "$RELEASES_API" 2>/dev/null || true)"
+  tag="$(printf '%s\n' "$metadata" | latest_release_tag_from_json)"
+
+  [[ -n "$tag" ]] || return 1
+  printf 'https://github.com/%s/releases/download/%s\n' "$REPO" "$tag"
+}
+
 download_file() {
   local url="$1"
   local destination="$2"
@@ -69,8 +90,8 @@ download_release() {
   mkdir -p "$tmp"
 
   say "[1/5] Downloading release manifest"
-  curl -fsSL --retry 5 --retry-all-errors "$base/SHA256SUMS" -o "$tmp/SHA256SUMS" ||
-    die "No downloadable Vibrali release is available yet."
+  curl -fsSL --retry 2 --retry-connrefused "$base/SHA256SUMS" -o "$tmp/SHA256SUMS" ||
+    die "The selected Vibrali release does not contain a downloadable checksum manifest."
 
   say "[2/5] Downloading the latest Vibrali USB image"
 
@@ -123,6 +144,13 @@ main() {
   command -v sudo >/dev/null 2>&1 || die "sudo is required."
   sudo -v
   ok "Host prerequisites ready"
+
+  if ! BASE="$(resolve_release_base)"; then
+    die "No published Vibrali image release exists yet. The installer is ready, but a release image must be published first."
+  fi
+  if [[ "$BASE" != "$STABLE_BASE" ]]; then
+    warn "No stable release exists yet; using the newest published preview (${BASE##*/})."
+  fi
 
   download_release "$BASE" "$TMP" "$IMAGE_NAME"
   IMAGE="$DOWNLOADED_IMAGE"
