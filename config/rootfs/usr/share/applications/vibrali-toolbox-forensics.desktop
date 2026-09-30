@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Forensics Toolbox
+Comment=Open a shell with installed Forensics tools listed
+Exec=/usr/local/bin/vibrali-toolbox forensics
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliForensics;
