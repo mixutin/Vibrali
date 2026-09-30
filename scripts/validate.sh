@@ -65,5 +65,7 @@ diff -u \
   <(./scripts/install-to-usb.sh --list-profiles)
 
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
+grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
+bash ./scripts/test-installer-cli.sh
 
 echo "Vibrali repository validation passed."

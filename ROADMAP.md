@@ -377,9 +377,9 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 
 - [x] debootstrap installation
 - [x] Selectable package profiles
-- [ ] Add dry-run mode
-- [ ] Add explicit minimum-size check
-- [ ] Add removable-device detection/warning
+- [x] Add dry-run mode
+- [x] Add explicit minimum-size check
+- [x] Add removable-device detection/warning
 - [ ] Add optional encrypted-root mode
 - [ ] Add install log
 - [ ] Add post-install verification summary
@@ -411,7 +411,7 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [x] ShellCheck CI
 - [x] Package-manifest validation
 - [x] Profile-discovery validation
-- [ ] Add Bash tests for installer argument parsing
+- [x] Add Bash tests for installer argument parsing
 - [ ] Add destructive-device safety tests using fake/loop devices
 - [ ] Add raw-disk QEMU boot integration test
 - [ ] Verify EFI boot in QEMU

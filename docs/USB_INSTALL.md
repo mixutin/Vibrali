@@ -20,9 +20,10 @@ The steps below describe the slower developer/source installation path.
 
 ## Recommended hardware
 
-Use a USB 3.x SSD or an NVMe/SATA SSD in a good USB enclosure. A 64 GB device is a
-reasonable development minimum; 128 GB or more leaves room for tools, captures, VMs and
-CTF files.
+Use a USB 3.x SSD or an NVMe/SATA SSD in a good USB enclosure. The source installer
+enforces a 12 GiB absolute minimum, but 64 GB is the practical recommendation for a
+full pentesting workstation. 128 GB or more leaves much more room for tools, captures,
+VMs, wordlists and CTF files.
 
 ## Build-host dependencies
 
@@ -70,6 +71,23 @@ By default, source installs use `--profiles all`, matching the full release imag
 Profiles only control packages installed during the source bootstrap. They do not remove
 packages from a prebuilt release image.
 
+## Preflight without changing the disk
+
+Before a source install, inspect the exact target and selected profiles with:
+
+~~~bash
+./scripts/install-to-usb.sh \
+  --device /dev/sdX \
+  --profiles all \
+  --dry-run
+~~~
+
+Dry-run mode does not require root, does not require `--yes-really-erase`, and exits
+before partitioning, formatting or mounting anything. It validates that the target is a
+whole disk, refuses the running root disk, enforces the minimum device size, displays
+model/serial/transport/removable metadata, and warns when a target does not look like
+removable or USB storage.
+
 ## Install
 
 Full profile set:
@@ -92,9 +110,9 @@ sudo ./scripts/install-to-usb.sh \
   --yes-really-erase
 ~~~
 
-The script displays the target model/size/serial, shows the selected optional profiles,
-and requires the full device path to be typed again before partitioning. It then prompts
-for the initial user's password.
+The script displays the target model/size/serial/transport/removable status, shows the
+selected optional profiles, checks the target size, and requires the full device path to
+be typed again before partitioning. It then prompts for the initial user's password.
 
 ## What the installer creates
 
