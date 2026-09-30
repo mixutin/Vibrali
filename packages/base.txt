@@ -39,8 +39,10 @@ systemd-sysv
 tmux
 tree
 unzip
+util-linux
 vim
 wget
 xz-utils
 zip
+zram-tools
 zstd
