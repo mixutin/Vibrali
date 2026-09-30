@@ -105,6 +105,10 @@ check "networkmanager-active" systemctl is-active --quiet NetworkManager
 check "lightdm-active" systemctl is-active --quiet lightdm
 check "xfce-installed" test -x /usr/bin/startxfce4
 check "efi-fallback-loader" test -f /boot/efi/EFI/BOOT/BOOTX64.EFI
+check "efi-signed-shim-source" test -f /usr/lib/shim/shimx64.efi.signed
+check "efi-signed-grub-source" test -f /usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed
+check "efi-fallback-is-signed-shim" cmp -s /boot/efi/EFI/BOOT/BOOTX64.EFI /usr/lib/shim/shimx64.efi.signed
+check "efi-removable-grub-is-signed" cmp -s /boot/efi/EFI/BOOT/grubx64.efi /usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed
 check "profile-registry" test -s /etc/vibrali/profiles
 check "root-writable" test -w /
 check "nftables-active" systemctl is-active --quiet nftables
