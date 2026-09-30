@@ -30,6 +30,7 @@ case "${1:-}" in
     ;;
   on)
     need_root
+    nft delete table inet vibrali 2>/dev/null || true
     nft -f /etc/nftables.conf
     systemctl enable nftables >/dev/null
     systemctl start nftables
@@ -43,6 +44,7 @@ case "${1:-}" in
     ;;
   reload)
     need_root
+    nft delete table inet vibrali 2>/dev/null || true
     nft -f /etc/nftables.conf
     echo "Vibrali firewall baseline reloaded."
     ;;
