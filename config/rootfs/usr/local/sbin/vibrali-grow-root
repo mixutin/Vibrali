@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RELEASE_MARKER=/etc/vibrali/release-image
+DONE_MARKER=/var/lib/vibrali/root-grown
+
+[[ -e "$RELEASE_MARKER" ]] || exit 0
+[[ -e "$DONE_MARKER" ]] && exit 0
+
+root_source="$(findmnt -n -o SOURCE /)"
+root_source="$(readlink -f "$root_source")"
+
+partnum="$(lsblk -n -o PARTN "$root_source" 2>/dev/null | tr -d "[:space:]")"
+parent="$(lsblk -n -o PKNAME "$root_source" 2>/dev/null | head -n 1 | tr -d "[:space:]")"
+
+if [[ -z "$partnum" || -z "$parent" ]]; then
+  echo "Vibrali root grow: unsupported root device $root_source; leaving unchanged." >&2
+  exit 0
+fi
+
+disk="/dev/$parent"
+echo "Vibrali root grow: checking $root_source on $disk partition $partnum..."
+
+set +e
+grow_output="$(growpart "$disk" "$partnum" 2>&1)"
+grow_rc=$?
+set -e
+
+if (( grow_rc != 0 )); then
+  if grep -Fq "NOCHANGE:" <<<"$grow_output"; then
+    echo "Vibrali root grow: no additional disk space is currently available."
+    exit 0
+  fi
+  printf "%s\n" "$grow_output" >&2
+  echo "Vibrali root grow: partition growth failed; will retry next boot." >&2
+  exit "$grow_rc"
+fi
+
+printf "%s\n" "$grow_output"
+udevadm settle 2>/dev/null || true
+resize2fs "$root_source"
+
+mkdir -p "$(dirname "$DONE_MARKER")"
+{
+  printf "device=%s\n" "$root_source"
+  printf "disk=%s\n" "$disk"
+  printf "completed_utc=%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} > "$DONE_MARKER"
+
+echo "Vibrali root grow: filesystem expanded successfully."
