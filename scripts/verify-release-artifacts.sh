@@ -18,7 +18,7 @@ fail() {
   exit 1
 }
 
-for cmd in sha256sum zstd python3 dd stat sort awk; do
+for cmd in sha256sum zstd python3 dd stat sort awk sed; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
 
@@ -124,7 +124,7 @@ if usb[efi_offset + 82:efi_offset + 90] != b"FAT32   ":
 
 root_offset = partitions["VIBRALI_ROOT"][0] * sector
 superblock = root_offset + 1024
-if superblock + 0x7A >= len(usb):
+if superblock + 0x88 > len(usb):
     fail("USB prefix is too short to inspect the ext4 superblock")
 
 ext4_magic = struct.unpack_from("<H", usb, superblock + 0x38)[0]
