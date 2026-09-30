@@ -4,7 +4,9 @@
       "URL": "https://mixutin.github.io/Vibrali/",
       "StartPage": "homepage"
     },
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
     "DisableTelemetry": true,
-    "DisableFirefoxStudies": true
+    "DontCheckDefaultBrowser": true
   }
 }
