@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Network Toolbox
+Comment=Open a shell with installed Network tools listed
+Exec=/usr/local/bin/vibrali-toolbox network
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliNetwork;
