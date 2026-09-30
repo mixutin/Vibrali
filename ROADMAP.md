@@ -277,7 +277,7 @@ Goal: one USB should boot and remain usable across a broad range of x86_64 PCs.
 
 ### Compatibility documentation
 
-- [ ] Create `docs/HARDWARE.md`
+- [x] Create `docs/HARDWARE.md`
 - [ ] Add known-good laptops/desktops
 - [ ] Add known-problematic hardware
 - [ ] Add Wi-Fi adapter matrix
@@ -311,7 +311,7 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 - [ ] Review browser/cache write amplification
 - [x] Document minimum/recommended device endurance
 - [x] Add backup/export guidance for user data
-- [ ] Add restore/recovery procedure
+- [x] Add restore/recovery procedure
 
 ### Phase 4 exit gate
 
@@ -392,8 +392,8 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [ ] Include filesystem recovery tools
 - [ ] Add "install Vibrali" launcher
 - [ ] Add graphical USB installer
-- [ ] Add recovery workflow for broken GRUB
-- [ ] Add recovery workflow for broken initramfs
+- [x] Add recovery workflow for broken GRUB
+- [x] Add recovery workflow for broken initramfs
 - [ ] Add recovery workflow for LUKS installs
 
 ### Phase 6 exit gate
@@ -449,12 +449,12 @@ Goal: turn source code into trustworthy, installable versioned Vibrali releases.
 - [ ] Publish first real versioned preview release
 - [ ] Download and install that release on physical hardware
 - [ ] Add signed checksum file
-- [ ] Add release changelog template
-- [ ] Add known-issues section to releases
-- [ ] Define preview/beta/stable channels
-- [ ] Define support policy
-- [ ] Define versioning policy
-- [ ] Define image-retention policy
+- [x] Add release changelog template
+- [x] Add known-issues section to releases
+- [x] Define preview/beta/stable channels
+- [x] Define support policy
+- [x] Define versioning policy
+- [x] Define image-retention policy
 - [ ] Verify release reproducibility/document build inputs
 - [ ] Publish Vibrali 1.0
 
@@ -479,15 +479,15 @@ Goal: everything a user or contributor needs is understandable without reading t
 - [x] Release documentation
 - [x] Branding documentation
 - [ ] Add hardware compatibility guide
-- [ ] Add troubleshooting guide
-- [ ] Add recovery guide
+- [x] Add troubleshooting guide
+- [x] Add recovery guide
 - [ ] Add encrypted-install guide
-- [ ] Add contributor guide
-- [ ] Add development/test guide
-- [ ] Add release checklist
+- [x] Add contributor guide
+- [x] Add development/test guide
+- [x] Add release checklist
 - [ ] Add tool-profile reference
 - [ ] Add screenshots to README/site
-- [ ] Add FAQ
+- [x] Add FAQ
 - [ ] Review all docs against current behavior before 1.0
 
 ---
