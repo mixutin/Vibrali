@@ -1,0 +1,5 @@
+# Vibrali sudo baseline.
+# Keep authentication prompts meaningful on a portable workstation.
+Defaults use_pty
+Defaults timestamp_timeout=5
+Defaults passwd_timeout=1
