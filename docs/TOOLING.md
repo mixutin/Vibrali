@@ -50,3 +50,7 @@ it never executes the downloaded file. See `external-tools/README.md` for the po
 review checklist.
 
 Neofetch 7.1.0 is the first existing Vibrali dependency migrated to this framework.
+
+## Profile reference
+
+See [TOOL_PROFILES.md](TOOL_PROFILES.md) for profile purposes, representative runtime checks and source-installer selection examples.
