@@ -155,3 +155,9 @@ removable EFI path.
 
 For sensitive work, wait for the planned LUKS2 installer mode or manually encrypt
 sensitive project data.
+
+
+## After installation
+
+See [WORKSTATION.md](WORKSTATION.md) for the persistent work-folder layout, SSH/Git
+configuration, zram/TRIM health checks and backup guidance.
