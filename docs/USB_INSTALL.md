@@ -161,3 +161,22 @@ sensitive project data.
 
 See [WORKSTATION.md](WORKSTATION.md) for the persistent work-folder layout, SSH/Git
 configuration, zram/TRIM health checks and backup guidance.
+
+
+## Download/write recovery
+
+The guided release installer downloads image data to temporary `.partial` files and uses curl resume support. A dropped connection is retried, and the installer smoke tests cover resuming an interrupted direct image download before checksum verification.
+
+The installer verifies SHA-256 before touching the target disk. A checksum mismatch is always a hard stop.
+
+Once writing begins, a failed decompression or `dd` write is treated as a partial/invalid target. The installer prints an explicit warning not to boot that drive. Check the enclosure, cable, USB port and storage health, then run the installer again; the image is written from the start.
+
+If personalization is interrupted after the new root filesystem is mounted, the exit cleanup attempts to unmount it before removing temporary files.
+
+The guided installer requires a target of at least 12 GiB because current release images use a 12 GiB raw-disk layout. The practical workstation recommendation remains 64 GB or larger.
+
+## Re-running the guided installer
+
+Re-running against an existing Vibrali drive is a **replacement install**, not an in-place repair. The installer detects the `VIBRALI_ROOT` label when present, warns that the existing installation will be replaced, shows the target model/serial again and still requires the destructive `VIBRALI` confirmation.
+
+Back up projects, keys, captures and configuration before re-flashing an existing Vibrali drive.
