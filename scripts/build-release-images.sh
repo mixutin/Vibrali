@@ -129,6 +129,14 @@ rm -f "$QCOW"
 LOCK_MOUNT="$CI_MOUNT"
 mount "$ROOT_PART" "$LOCK_MOUNT"
 chroot "$LOCK_MOUNT" usermod --lock vibrali
+password_state="$(chroot "$LOCK_MOUNT" passwd -S vibrali | awk '{print $2}')"
+case "$password_state" in
+  L|LK) ;;
+  *)
+    echo "Refusing to publish USB image: vibrali account is not locked (state: $password_state)." >&2
+    exit 1
+    ;;
+esac
 : > "$LOCK_MOUNT/etc/machine-id"
 rm -f "$LOCK_MOUNT/var/lib/dbus/machine-id"
 sync
