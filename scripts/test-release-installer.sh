@@ -139,6 +139,38 @@ JSON
     fail "latest release tag parser did not return the preview tag"
 }
 
+test_existing_install_still_requires_confirmation() {
+  local fake_tty="$TEST_TMP/existing-install-confirmation"
+  local output status
+
+  printf 'NOT-VIBRALI\n' > "$fake_tty"
+
+  lsblk() {
+    if [[ "$*" == "-nr -o LABEL /dev/fake-vibrali" ]]; then
+      printf 'VIBRALI_ROOT\n'
+      return 0
+    fi
+    if [[ "$*" == "-d -o NAME,SIZE,MODEL,SERIAL,TRAN /dev/fake-vibrali" ]]; then
+      printf 'NAME SIZE MODEL SERIAL TRAN\n'
+      printf 'fake 64G TEST EXISTING usb\n'
+      return 0
+    fi
+    return 1
+  }
+
+  set +e
+  output="$(TTY="$fake_tty" confirm_target_erase /dev/fake-vibrali 2>&1)"
+  status=$?
+  set -e
+  unset -f lsblk
+
+  [[ $status -ne 0 ]] || fail "existing Vibrali target bypassed destructive confirmation"
+  grep -q 'existing Vibrali installation was detected' <<<"$output" ||
+    fail "existing Vibrali target did not show the replacement warning"
+  grep -q 'Cancelled' <<<"$output" ||
+    fail "existing Vibrali target did not cancel on incorrect confirmation"
+}
+
 test_piped_entrypoint() {
   local output
 
@@ -152,6 +184,7 @@ test_piped_entrypoint() {
 }
 
 test_release_tag_parser
+test_existing_install_still_requires_confirmation
 test_piped_entrypoint
 test_direct_download
 test_split_download
