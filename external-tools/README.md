@@ -8,7 +8,7 @@ configured Debian repositories must enter the image through a reviewable pinned 
 `manifest.txt` uses one pipe-delimited record per tool:
 
 ~~~text
-name|version|https-url|sha256|license|kind
+name|version|https-url|sha256|license|kind|update_source
 ~~~
 
 Rules enforced by `scripts/validate-external-tools.sh`:
@@ -19,6 +19,7 @@ Rules enforced by `scripts/validate-external-tools.sh`:
 - every artifact has an exact lowercase SHA-256,
 - a license identifier must be recorded,
 - artifact kind is currently `file` or `archive`,
+- update sources are `none`, `github-release:owner/repo`, or `github-tag:owner/repo`,
 - tool names must be unique.
 
 ## Fetching a pinned artifact
@@ -48,3 +49,21 @@ Before adding a non-Debian tool:
 
 Tools with unstable "latest" URLs or unverifiable install scripts should not be added to
 release images.
+
+
+## Auditing upstream versions
+
+Pinned artifacts never auto-update. The scheduled audit only compares each pinned version
+to its declared upstream source and fails when review is needed:
+
+~~~bash
+./scripts/audit-external-tools.sh
+~~~
+
+Exit status `3` means at least one pin is behind upstream. Review the upstream release,
+license and artifact changes, then update the pinned URL and SHA-256 manually. A source or
+API failure exits `1`.
+
+The weekly rolling-build workflow runs this audit using the GitHub-provided token for API
+rate limits. This is intentionally separate from fetching/installing tools: audit results
+cannot change release contents without a reviewed repository change.
