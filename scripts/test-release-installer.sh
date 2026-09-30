@@ -122,6 +122,19 @@ if [[ $# -gt 0 ]]; then
   command -v zstd >/dev/null 2>&1 || fail "missing command: zstd"
 fi
 
+test_piped_entrypoint() {
+  local output
+
+  output="$(
+    sed 's/^  main "\$@"$/  printf "%s\\n" "piped-entrypoint-ok"/' "$ROOT/site/install.sh" |
+      bash
+  )"
+
+  [[ "$output" == "piped-entrypoint-ok" ]] ||
+    fail "piped installer entrypoint did not execute safely under set -u"
+}
+
+test_piped_entrypoint
 test_direct_download
 test_split_download
 test_resumed_download
