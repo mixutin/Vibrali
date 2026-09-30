@@ -118,7 +118,9 @@ sudo ./scripts/install-to-usb.sh --device /dev/sdX --yes-really-erase
 
 See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using physical media. After
 installation, [docs/WORKSTATION.md](docs/WORKSTATION.md) covers the persistent work
-folders, SSH/Git setup, storage-health checks and backups.
+folders, SSH/Git setup, storage-health checks and backups. For repair work, see
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) and
+[docs/RECOVERY.md](docs/RECOVERY.md).
 
 ## Default desktop
 
