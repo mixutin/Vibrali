@@ -243,7 +243,7 @@ Goal: one USB should boot and remain usable across a broad range of x86_64 PCs.
 - [ ] Test legacy BIOS boot on at least one system
 - [ ] Test systems where USB appears as SATA/SCSI/NVMe bridge storage
 - [ ] Test boot after kernel upgrade
-- [ ] Test boot after initramfs regeneration
+- [x] Test boot after initramfs regeneration
 - [ ] Test boot after GRUB upgrade
 
 ### Firmware and CPU support
