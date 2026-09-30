@@ -15,9 +15,21 @@ Then follow [USB_INSTALL.md](USB_INSTALL.md).
 
 ## Validation
 
+Run the fast repository checks with:
+
 ~~~bash
 ./scripts/validate.sh
 ~~~
+
+The installer also has a root-only loop-device safety test that creates disposable sparse
+disk images, verifies that `--dry-run` does not modify them, rejects an undersized target,
+and confirms a real install cannot proceed without `--yes-really-erase`:
+
+~~~bash
+sudo ./scripts/test-installer-device-safety.sh
+~~~
+
+CI runs both layers. The safety test never points at a physical disk.
 
 ## Live/recovery image
 

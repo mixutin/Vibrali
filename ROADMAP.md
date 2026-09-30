@@ -412,7 +412,7 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [x] Package-manifest validation
 - [x] Profile-discovery validation
 - [x] Add Bash tests for installer argument parsing
-- [ ] Add destructive-device safety tests using fake/loop devices
+- [x] Add destructive-device safety tests using fake/loop devices
 - [ ] Add raw-disk QEMU boot integration test
 - [ ] Verify EFI boot in QEMU
 - [ ] Verify writable root in QEMU
