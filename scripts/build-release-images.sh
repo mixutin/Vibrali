@@ -99,6 +99,11 @@ install -Dm0644 "$PROBE_UNIT_SOURCE" "$CI_MOUNT/etc/systemd/system/vibrali-ci-pr
 mkdir -p "$CI_MOUNT/etc/systemd/system/graphical.target.wants"
 ln -sfn /etc/systemd/system/vibrali-ci-probe.service \
   "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
+
+echo "Regenerating initramfs and GRUB configuration before CI boot..."
+chroot "$CI_MOUNT" update-initramfs -u -k all
+chroot "$CI_MOUNT" update-grub
+
 sync
 umount "$CI_MOUNT"
 
