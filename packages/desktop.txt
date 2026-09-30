@@ -14,6 +14,7 @@ numix-gtk-theme
 papirus-icon-theme
 plymouth
 plymouth-themes
+power-profiles-daemon
 qt5-style-kvantum
 screenfetch
 starship
