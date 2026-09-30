@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODE="${1:-auto}"
+
+usage() {
+  cat <<'EOF'
+Usage: vibrali-display-scale [auto|1x|2x]
+
+Sets XFCE global display scaling for the current user.
+auto selects 2x only when the primary display reports clearly high DPI.
+EOF
+}
+
+case "$MODE" in
+  auto|1x|2x) ;;
+  -h|--help) usage; exit 0 ;;
+  *) echo "Unknown scale mode: $MODE" >&2; usage >&2; exit 2 ;;
+esac
+
+command -v xfconf-query >/dev/null 2>&1 || {
+  echo "xfconf-query is required; run this inside an XFCE session." >&2
+  exit 1
+}
+
+detect_auto_scale() {
+  local line width_px width_mm dpi
+
+  command -v xrandr >/dev/null 2>&1 || { printf "1\n"; return; }
+
+  line="$(xrandr --current 2>/dev/null | awk '/ connected primary / {print; exit}')"
+  if [[ -z "$line" ]]; then
+    line="$(xrandr --current 2>/dev/null | awk '/ connected [0-9]+x[0-9]+\+/ {print; exit}')"
+  fi
+
+  if [[ "$line" =~ ([0-9]+)x([0-9]+)\+[0-9]+\+[0-9]+.*[[:space:]]([0-9]+)mm[[:space:]]x[[:space:]]([0-9]+)mm ]]; then
+    width_px="${BASH_REMATCH[1]}"
+    width_mm="${BASH_REMATCH[3]}"
+    dpi="$(awk -v px="$width_px" -v mm="$width_mm" 'BEGIN { if (mm > 0) printf "%.0f", px * 25.4 / mm; else print 0 }')"
+    if [[ "$dpi" =~ ^[0-9]+$ ]] && (( dpi >= 170 )); then
+      printf "2\n"
+      return
+    fi
+  fi
+
+  printf "1\n"
+}
+
+set_int() {
+  local channel="$1" property="$2" value="$3"
+  if xfconf-query -c "$channel" -p "$property" >/dev/null 2>&1; then
+    xfconf-query -c "$channel" -p "$property" -s "$value"
+  else
+    xfconf-query -c "$channel" -p "$property" --create -t int -s "$value"
+  fi
+}
+
+case "$MODE" in
+  auto) SCALE="$(detect_auto_scale)" ;;
+  1x) SCALE=1 ;;
+  2x) SCALE=2 ;;
+esac
+
+set_int xsettings /Gdk/WindowScalingFactor "$SCALE"
+if (( SCALE == 2 )); then
+  set_int xsettings /Gtk/CursorThemeSize 32
+else
+  set_int xsettings /Gtk/CursorThemeSize 16
+fi
+
+printf "Vibrali display scaling set to %sx\n" "$SCALE"
