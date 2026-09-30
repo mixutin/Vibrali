@@ -430,13 +430,8 @@ for profile in "${SELECTED_PROFILES[@]}"; do
   printf '%s\n' "$profile" >> "$TARGET/etc/vibrali/profiles"
 done
 
-NEOFETCH_URL="https://raw.githubusercontent.com/dylanaraps/neofetch/7.1.0/neofetch"
-NEOFETCH_SHA256="3dc33493e54029fb1528251552093a9f9a2894fcf94f9c3a6f809136a42348c7"
-NEOFETCH_TMP="$(mktemp)"
-curl -fsSL "$NEOFETCH_URL" -o "$NEOFETCH_TMP"
-printf "%s  %s\n" "$NEOFETCH_SHA256" "$NEOFETCH_TMP" | sha256sum -c -
-install -Dm0755 "$NEOFETCH_TMP" "$TARGET/usr/local/lib/vibrali/neofetch"
-rm -f "$NEOFETCH_TMP"
+NEOFETCH_SOURCE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" neofetch)"
+install -Dm0755 "$NEOFETCH_SOURCE" "$TARGET/usr/local/lib/vibrali/neofetch"
 
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF

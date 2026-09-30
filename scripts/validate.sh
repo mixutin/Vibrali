@@ -10,11 +10,15 @@ required=(
   docs/ARCHITECTURE.md
   docs/USB_INSTALL.md
   docs/WORKSTATION.md
+  external-tools/README.md
+  external-tools/manifest.txt
   packages/base.txt
   packages/desktop.txt
   packages/network.txt
   scripts/install-to-usb.sh
   scripts/build-release-images.sh
+  scripts/fetch-external-tool.sh
+  scripts/validate-external-tools.sh
   scripts/validate-tool-profiles.sh
   site/index.html
   site/style.css
@@ -80,6 +84,7 @@ diff -u \
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
 bash ./scripts/test-installer-cli.sh
+bash ./scripts/validate-external-tools.sh
 bash ./scripts/validate-tool-profiles.sh
 
 echo "Vibrali repository validation passed."

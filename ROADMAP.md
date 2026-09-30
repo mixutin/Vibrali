@@ -214,13 +214,13 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 ### Tool supply-chain rules
 
-- [ ] Create pinned external-tool framework
-- [ ] Require version pinning for non-Debian tools
-- [ ] Require SHA-256 or signature verification
-- [ ] Record upstream download URL/source
-- [ ] Avoid arbitrary root `curl | sh` installers
+- [x] Create pinned external-tool framework
+- [x] Require version pinning for non-Debian tools
+- [x] Require SHA-256 or signature verification
+- [x] Record upstream download URL/source
+- [x] Avoid arbitrary root `curl | sh` installers
 - [ ] Add automated external-tool version audit
-- [ ] Add tool-license notes where redistribution matters
+- [x] Add tool-license notes where redistribution matters
 
 ### Phase 2 exit gate
 
