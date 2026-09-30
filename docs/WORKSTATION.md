@@ -114,6 +114,7 @@ chmod 700 ~/.ssh 2>/dev/null || true
 find ~/.ssh -type f -name 'id_*' ! -name '*.pub' -exec chmod 600 {} + 2>/dev/null || true
 ~~~
 
-Bootloader and filesystem repair procedures are tracked separately in the recovery
-roadmap and should be performed from rescue media when the Vibrali root filesystem must
-remain unmounted.
+Bootloader and filesystem repair procedures are documented in
+[RECOVERY.md](RECOVERY.md) and should be performed from rescue media when the Vibrali
+root filesystem must remain unmounted. Start with
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md) for non-destructive diagnosis.
