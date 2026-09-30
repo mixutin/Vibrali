@@ -20,6 +20,7 @@ required=(
   scripts/verify-release-artifacts.sh
   scripts/test-qemu-release.sh
   scripts/test-release-installer.sh
+  .github/workflows/rolling-build.yml
   scripts/ci/vibrali-ci-probe
   scripts/ci/vibrali-ci-probe.service
   scripts/fetch-external-tool.sh

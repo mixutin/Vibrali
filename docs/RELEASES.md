@@ -46,3 +46,21 @@ understands split USB images and reconstructs them before checksum verification.
 
 The QEMU development image retains the documented initial password. The USB release image
 does not: the guided installer sets a new password after flashing.
+
+
+## Rolling build validation
+
+A separate `Rolling Build Test` workflow runs every Sunday at 04:23 UTC and can also be
+started manually. It performs the full build and verification path without publishing a
+release:
+
+1. validates the repository and ShellCheck rules,
+2. builds the USB and QEMU images,
+3. verifies hashes, compression and image structure,
+4. smoke-tests the release installer against the built USB artifact,
+5. boots the disposable QEMU CI image twice with OVMF,
+6. and verifies the same persistence/service/tool checks used by release builds.
+
+The workflow has read-only repository permissions. It does not create tags, releases or
+upload public artifacts. Concurrent rolling builds share one concurrency group, so a stale
+run is cancelled rather than allowed to accumulate behind a newer run.

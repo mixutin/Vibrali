@@ -425,7 +425,7 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [x] Add image filesystem sanity checks
 - [x] Add release checksum verification test
 - [x] Add installer smoke test against release artifacts
-- [ ] Add scheduled rolling-build test
+- [x] Add scheduled rolling-build test
 
 ### Phase 7 exit gate
 

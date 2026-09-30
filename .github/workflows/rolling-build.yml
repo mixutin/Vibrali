@@ -1,0 +1,52 @@
+name: Rolling Build Test
+
+on:
+  schedule:
+    - cron: "23 4 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vibrali-rolling-build
+  cancel-in-progress: true
+
+jobs:
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install image build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap gdisk dosfstools e2fsprogs grub2-common \
+            grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
+            zstd rsync curl shellcheck
+
+      - name: Validate source
+        run: |
+          chmod +x scripts/*.sh site/install.sh
+          ./scripts/validate.sh
+          shellcheck scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
+
+      - name: Build USB and QEMU images
+        env:
+          VIBRALI_IMAGE_SIZE: 12G
+        run: sudo -E ./scripts/build-release-images.sh dist
+
+      - name: Verify release artifacts
+        run: ./scripts/verify-release-artifacts.sh dist
+
+      - name: Smoke-test release installer
+        run: ./scripts/test-release-installer.sh dist
+
+      - name: Boot-test QEMU image
+        run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
+
+      - name: Clean CI-only image
+        if: always()
+        run: sudo rm -rf dist/.ci
