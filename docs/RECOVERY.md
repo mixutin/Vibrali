@@ -12,11 +12,18 @@ Identify the Vibrali disk and partitions:
 lsblk -o NAME,SIZE,MODEL,SERIAL,TRAN,FSTYPE,LABEL,UUID,MOUNTPOINTS
 ~~~
 
-The expected layout is:
+The standard unencrypted layout is:
 
 1. BIOS Boot partition
 2. FAT32 EFI System Partition
 3. ext4 root filesystem
+
+An install created with `--encrypt-root` instead uses:
+
+1. BIOS Boot partition
+2. FAT32 EFI System Partition
+3. ext4 `/boot`
+4. LUKS2 root container
 
 Examples below use `/dev/sdX2` for EFI and `/dev/sdX3` for root. Replace them with the actual device.
 
@@ -165,8 +172,53 @@ sudo umount /mnt/boot/efi
 sudo umount /mnt
 ~~~
 
-## LUKS recovery
+## LUKS2 encrypted-root recovery
 
-Encrypted-root installation is not yet a supported Vibrali feature. Do not follow untested Vibrali-specific LUKS recovery instructions until the encrypted installer mode is implemented and documented.
+For a source installation created with `--encrypt-root`, identify the encrypted
+partition by its partition label rather than assuming a device name:
 
-If you manually encrypted a Vibrali-derived system, use the Debian/cryptsetup recovery process appropriate to your custom layout and make a backup before changing headers or keyslots.
+~~~bash
+lsblk -o NAME,SIZE,FSTYPE,LABEL,PARTLABEL,UUID
+sudo cryptsetup open /dev/disk/by-partlabel/VIBRALI_CRYPT vibrali-root
+sudo mount /dev/mapper/vibrali-root /mnt
+sudo mount /dev/disk/by-partlabel/VIBRALI_BOOT /mnt/boot
+sudo mount /dev/disk/by-partlabel/VIBRALI_EFI /mnt/boot/efi
+~~~
+
+The unlock uses a LUKS passphrase and is not tied to the rescue machine's TPM.
+
+To add a separate recovery passphrase while the device is healthy:
+
+~~~bash
+sudo cryptsetup luksAddKey /dev/disk/by-partlabel/VIBRALI_CRYPT
+~~~
+
+Keep the recovery passphrase somewhere separate from the USB. `luksAddKey` creates an
+additional usable keyslot while retaining the existing one. citeturn639404search2
+
+Also make a LUKS header backup and store it on a different trusted device:
+
+~~~bash
+sudo cryptsetup luksHeaderBackup \
+  /dev/disk/by-partlabel/VIBRALI_CRYPT \
+  --header-backup-file /path/on/separate-disk/vibrali-luks-header.img
+~~~
+
+A LUKS header backup includes keyslot metadata and is sensitive; protect it like a secret.
+If the on-device header is damaged, the backup can be used with
+`cryptsetup luksHeaderRestore`. Restoring replaces the current header/keyslots, so only
+use a verified backup appropriate to that exact encrypted volume. citeturn639404search0turn639404search6
+
+For an encrypted chroot repair, open the LUKS mapping first, mount root, then mount the
+separate boot and EFI partitions before bind-mounting `/dev`, `/proc`, `/sys`, and
+`/run`. Rebuild with:
+
+~~~bash
+sudo chroot /mnt
+apt install --reinstall cryptsetup-initramfs initramfs-tools linux-image-amd64
+update-initramfs -u -k all
+update-grub
+~~~
+
+Do not delete the last known-good keyslot, and keep an independent backup of important
+user data before changing LUKS metadata.
