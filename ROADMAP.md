@@ -149,8 +149,8 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify Gobuster
 - [x] Verify Wfuzz
 - [ ] Add Burp Suite Community using pinned verified upstream release
-- [ ] Add optional Chromium-based testing browser
-- [ ] Add browser proxy/certificate setup documentation
+- [x] Add Chromium-based testing browser
+- [x] Add browser proxy/certificate setup documentation
 
 ### Password / authentication testing
 
@@ -158,7 +158,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify John the Ripper
 - [x] Verify Hydra
 - [ ] Add optional large wordlist profile
-- [ ] Document GPU acceleration limitations/compatibility
+- [x] Document GPU acceleration limitations/compatibility
 - [x] Verify common Kerberos/LDAP tooling
 
 ### Exploit development / pwn
@@ -210,7 +210,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [ ] Add optional Go toolchain
 - [ ] Add optional Rust toolchain
 - [ ] Add optional Node.js tooling
-- [ ] Add virtualenv/pipx workflow documentation
+- [x] Add virtualenv/pipx workflow documentation
 
 ### Tool supply-chain rules
 
@@ -497,7 +497,7 @@ Goal: everything a user or contributor needs is understandable without reading t
 All items below must be checked before declaring Vibrali 1.0 complete.
 
 - [x] Latest `main` CI is green
-- [ ] Release build is reproducible enough to document
+- [x] Release build is reproducible enough to document
 - [ ] UEFI boot is verified on at least 3 different x86_64 computers
 - [ ] Legacy BIOS support is either verified or explicitly removed from 1.0 support scope
 - [ ] Networking works on the published compatibility set

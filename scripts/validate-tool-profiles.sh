@@ -23,10 +23,10 @@ require_packages() {
 }
 
 require_packages base \
-  build-essential curl git jq openssh-client python3 python3-venv ripgrep rsync tmux util-linux wget zram-tools
+  build-essential curl git jq openssh-client pipx python3 python3-venv ripgrep rsync tmux util-linux wget zram-tools
 
 require_packages desktop \
-  firefox-esr network-manager starship thunar-archive-plugin xarchiver \
+  chromium firefox-esr network-manager starship thunar-archive-plugin xarchiver \
   xfce4 xfce4-clipman xfce4-screenshooter xfce4-terminal zenity zsh
 
 require_packages network \

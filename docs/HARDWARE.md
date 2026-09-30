@@ -51,6 +51,30 @@ No physical incompatibilities have been recorded yet.
 | --- | --- | --- | --- | --- |
 | _Awaiting physical validation_ | — | — | — | — |
 
+## GPU acceleration and password-auditing portability
+
+CPU-based Hashcat/John workflows are portable across the supported x86_64 baseline, but
+GPU acceleration is host-specific. The USB can carry the applications and configuration;
+the usable accelerator still depends on the current machine's GPU, kernel driver and
+OpenCL/CUDA runtime.
+
+Vibrali does not install a proprietary NVIDIA driver or CUDA stack by default. Doing so
+would add kernel/DKMS and vendor-version coupling that can reduce portability between
+unrelated PCs. AMD and Intel acceleration also depends on the runtime exposed by the
+current host GPU/driver combination.
+
+After moving the USB to a machine, inspect what Hashcat can actually use:
+
+~~~bash
+lspci -nnk | grep -A3 -E 'VGA|3D|Display'
+hashcat -I
+~~~
+
+If no suitable backend is reported, Hashcat can still be used with the available CPU
+backend where supported, or the machine can be configured with the appropriate vendor
+runtime for that specific hardware. Record GPU/driver results in this hardware matrix
+rather than assuming a setup that worked on one PC is portable to another.
+
 ## Storage and enclosure guidance
 
 Prefer a real SSD over a low-end thumb drive.
