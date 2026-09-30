@@ -70,10 +70,12 @@ check "nftables-baseline-loaded" nft list table inet vibrali
 check "apparmor-active" systemctl is-active --quiet apparmor
 
 check "tool-base-python" python3 --version
+check "tool-base-pipx" pipx --version
 check "tool-base-curl" curl --version
 check "tool-base-wget" wget --version
 check "tool-base-jq" jq --version
 check "tool-desktop-firefox" check_command firefox-esr
+check "tool-desktop-chromium" chromium --version
 
 check "tool-network-nmap" nmap --version
 check "tool-network-masscan" masscan --version
