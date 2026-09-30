@@ -370,7 +370,7 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Set hostname after flashing
 - [ ] Improve error messages for failed writes
 - [ ] Verify interrupted-download recovery
-- [ ] Verify split-image reconstruction
+- [x] Verify split-image reconstruction
 - [ ] Verify re-running installer safely
 
 ### Source installer
@@ -424,7 +424,7 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [ ] Verify representative security tools launch
 - [x] Add image filesystem sanity checks
 - [x] Add release checksum verification test
-- [ ] Add installer smoke test against release artifacts
+- [x] Add installer smoke test against release artifacts
 - [ ] Add scheduled rolling-build test
 
 ### Phase 7 exit gate
