@@ -78,6 +78,25 @@ For removable-storage endurance, Vibrali also applies user-overridable Firefox d
 
 These are `default` enterprise-policy preferences rather than locked preferences, so a user can change them in Firefox when a workflow benefits from disk caching or a shorter crash-recovery interval. Increasing the session-store interval can mean that the newest tab-state changes are not captured if Firefox or the computer crashes abruptly.
 
+## Display scaling
+
+On the first XFCE login, Vibrali checks the primary display geometry with `xrandr` and uses
+2x global GTK/XFCE scaling only when the display is clearly HiDPI (about 170 DPI or higher).
+Otherwise it stays at 1x. The choice is stored in the persistent user profile and is not
+reapplied on every login, so manual changes remain yours.
+
+You can change it at any time:
+
+~~~bash
+vibrali-display-scale 1x
+vibrali-display-scale 2x
+vibrali-display-scale auto
+~~~
+
+The helper changes XFCE global window scaling and cursor size. Mixed-DPI multi-monitor
+behavior is still a physical-hardware validation item; Vibrali does not force a per-output
+layout or scaling arrangement.
+
 ## Laptop power profiles
 
 Vibrali installs Debian's `power-profiles-daemon` as a conservative portable-laptop
