@@ -69,7 +69,7 @@ download_release() {
   mkdir -p "$tmp"
 
   say "[1/5] Downloading release manifest"
-  curl -fsSL --retry 3 "$base/SHA256SUMS" -o "$tmp/SHA256SUMS" ||
+  curl -fsSL --retry 5 --retry-all-errors "$base/SHA256SUMS" -o "$tmp/SHA256SUMS" ||
     die "No downloadable Vibrali release is available yet."
 
   say "[2/5] Downloading the latest Vibrali USB image"
@@ -116,7 +116,7 @@ main() {
   say "Portable full-system USB installer"
   printf "This will download the latest signed-by-checksum Vibrali image and write it to a disk.\n\n"
 
-  for cmd in curl lsblk findmnt sha256sum zstd dd mount mountpoint chroot awk sed blockdev readlink; do
+  for cmd in curl lsblk findmnt sha256sum zstd dd mount mountpoint chroot awk sed grep mv blockdev readlink; do
     command -v "$cmd" >/dev/null 2>&1 || die "Missing required command: $cmd"
   done
 
