@@ -1,0 +1,9 @@
+libssl-dev
+openssl
+pari-gp
+python3-cryptography
+python3-gmpy2
+python3-pycryptodome
+python3-sympy
+python3-z3
+z3

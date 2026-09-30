@@ -1,0 +1,11 @@
+dirb
+dirsearch
+dnsrecon
+ffuf
+fierce
+gobuster
+nikto
+recon-ng
+sqlmap
+wfuzz
+whatweb

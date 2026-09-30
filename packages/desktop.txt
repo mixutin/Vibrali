@@ -1,0 +1,7 @@
+firefox-esr
+lightdm
+network-manager
+network-manager-gnome
+xfce4
+xfce4-goodies
+xterm

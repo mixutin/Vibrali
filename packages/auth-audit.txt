@@ -1,0 +1,6 @@
+crunch
+hashcat
+hashcat-data
+hashid
+hydra
+john

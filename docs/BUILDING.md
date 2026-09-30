@@ -1,22 +1,38 @@
-# Building Vibrali
+# Building and installing Vibrali
 
-Debian 13 is the reference build host.
+## Primary development path
 
-Install dependencies:
+Vibrali currently builds the target system directly onto a USB/SSD with debootstrap.
 
-```bash
+Install host dependencies:
+
+~~~bash
 sudo apt update
-sudo apt install live-build debootstrap squashfs-tools xorriso isolinux syslinux-common qemu-system-x86
-```
+sudo apt install debootstrap gdisk dosfstools e2fsprogs grub2-common
+~~~
 
-Build with:
+Then follow [USB_INSTALL.md](USB_INSTALL.md).
 
-```bash
+## Validation
+
+~~~bash
+./scripts/validate.sh
+~~~
+
+## Live/recovery image
+
+The repository still contains early Debian live-build configuration. This is being kept
+for the future installer/recovery environment, not as Vibrali's primary persistent
+system.
+
+The experimental live image can currently be built with:
+
+~~~bash
+sudo apt install live-build debootstrap squashfs-tools xorriso isolinux syslinux-common
 ./scripts/build.sh
-```
+~~~
 
-Clean generated state with `./scripts/clean.sh`, validate with
-`./scripts/validate.sh`, and test the resulting ISO with `./scripts/run-qemu.sh`.
+## QEMU
 
-The build script uses a disposable workspace under `.work/` and places images in
-`build/`.
+The existing run-qemu helper targets the experimental ISO workflow. A native raw-disk
+QEMU test path is on the roadmap.

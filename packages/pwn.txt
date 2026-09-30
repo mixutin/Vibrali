@@ -1,0 +1,7 @@
+clang
+g++
+gcc
+make
+python3-pwntools
+ruby
+ruby-dev

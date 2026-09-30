@@ -1,0 +1,4 @@
+krb5-user
+ldap-utils
+python3-impacket
+remmina

@@ -7,22 +7,36 @@ required=(
   README.md
   ROADMAP.md
   SECURITY.md
-  config/package-lists/core.list.chroot
-  config/package-lists/pentest.list.chroot
-  scripts/build.sh
+  docs/ARCHITECTURE.md
+  docs/USB_INSTALL.md
+  packages/base.txt
+  packages/desktop.txt
+  packages/network.txt
+  scripts/install-to-usb.sh
 )
 
 for path in "${required[@]}"; do
   test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
 done
 
-while IFS= read -r file; do bash -n "$file"; done < <(find scripts -type f -name '*.sh' -print)
-while IFS= read -r file; do sh -n "$file"; done < <(find config/hooks -type f -print)
+while IFS= read -r file; do
+  bash -n "$file"
+done < <(find scripts -type f -name '*.sh' -print)
+
+while IFS= read -r file; do
+  sh -n "$file"
+done < <(find config/hooks -type f -print)
 
 python3 - <<'PY'
 from pathlib import Path
-for path in Path("config/package-lists").glob("*.list.chroot"):
-    packages = [x.strip() for x in path.read_text().splitlines() if x.strip()]
+paths = list(Path("packages").glob("*.txt"))
+paths += list(Path("config/package-lists").glob("*.list.chroot"))
+for path in paths:
+    packages = [
+        line.strip()
+        for line in path.read_text().splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
     if packages != sorted(set(packages)):
         raise SystemExit(f"{path}: package list must be sorted and unique")
 print("package manifests: ok")

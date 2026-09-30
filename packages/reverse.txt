@@ -1,0 +1,13 @@
+apktool
+binutils
+elfutils
+gdb
+gdb-multiarch
+lldb
+ltrace
+nasm
+patchelf
+qemu-user
+qemu-user-static
+strace
+valgrind

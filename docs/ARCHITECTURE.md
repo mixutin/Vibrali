@@ -1,16 +1,45 @@
 # Architecture
 
-Vibrali initially uses Debian `live-build`.
+## Primary model: native USB installation
 
-The project separates three concerns:
+Vibrali's primary mode is a normal Debian installation onto a removable block device.
+It does not depend on a compressed read-only root plus OverlayFS for persistence.
 
-1. **Base system** — Debian packages and live boot infrastructure.
-2. **Vibrali layer** — package profiles, branding, defaults and hooks.
-3. **Persistent state** — an optional writable overlay on removable media.
+The target disk uses GPT:
 
-The compressed live root remains read-only. Runtime changes use an overlay filesystem.
-With persistence enabled, selected state is stored on a partition labeled
-`persistence`.
+~~~text
+1  BIOS_BOOT      1 MiB      GPT type EF02
+2  VIBRALI_EFI    512 MiB    FAT32 / EFI System Partition
+3  VIBRALI_ROOT   remaining  ext4 / normal writable root
+~~~
 
-Debian gives Vibrali a mature live-image toolchain, package provenance, broad hardware
-support and an independent base that can be customized incrementally.
+The root filesystem contains the same kind of persistent state as a conventional Debian
+installation: /etc, /var, /opt, /home, installed packages, kernels and application data.
+
+## Portable boot
+
+UEFI GRUB is installed with removable-media semantics. This places the loader at the
+standard EFI fallback path so booting does not depend on a firmware entry created on
+the installation host.
+
+A small BIOS Boot partition allows an i386-pc GRUB installation for older systems.
+
+Mounts use filesystem UUIDs rather than /dev/sdX names because the device name can change
+between computers.
+
+## Hardware portability
+
+The installed kernel and initramfs should remain generic and include broad storage, USB,
+networking and input support. Hardware-specific tuning must not assume one host.
+
+NetworkManager is used so interfaces can be rediscovered and configured on each machine.
+
+## Identity
+
+A portable installation should not inherit the build host's machine identity. The USB
+gets its own hostname and user during installation and initializes its machine-id on boot.
+
+## Recovery
+
+A separate Live/rescue environment remains useful, but it is not the main persistence
+mechanism. It can later become the graphical installer and recovery system.

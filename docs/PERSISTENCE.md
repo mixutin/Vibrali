@@ -1,27 +1,32 @@
-# Persistent USB
+# Persistence
 
-Vibrali targets Debian Live persistence.
+Vibrali's primary installation is natively persistent.
 
-A typical USB contains the live image and a second ext4 partition labeled
-`persistence`. At the root of that partition create `persistence.conf` containing:
+There is no special persistence partition, persistence.conf file or OverlayFS requirement
+for the normal USB installation. The Linux root partition is a standard writable ext4
+filesystem.
 
-```text
-/ union
-```
+This means normal system operations persist, including:
 
-This requests a persistent overlay for the live filesystem.
+- package installation and upgrades,
+- kernel updates,
+- /etc configuration,
+- /var application state,
+- user home directories,
+- development environments,
+- security-tool databases and projects.
 
-## Safety
+## Live mode
 
-Partitioning or flashing the wrong block device can permanently destroy data. Verify the
-target device by model, size and serial number before changing it.
+A future Live/rescue image may optionally support Debian Live persistence, but that mode
+is separate from the main Vibrali workstation design.
+
+## Storage recommendation
+
+A quality USB SSD or NVMe enclosure is recommended. Cheap flash drives can have poor
+random-write performance and limited endurance under a full desktop Linux workload.
 
 ## Encryption
 
-Encrypted persistence is planned but is not enabled by the starter configuration yet.
-Treat an unencrypted persistent USB as sensitive.
-
-## Recovery
-
-If persistence is damaged, boot without the `persistence` kernel option. The underlying
-live image should remain usable.
+LUKS2 full-root encryption is planned. It must remain portable and must not require a
+specific computer's TPM to unlock the drive.

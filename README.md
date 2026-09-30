@@ -2,12 +2,12 @@
 
 # ⚡ Vibrali
 
-### Persistent USB Linux for pentesting, CTFs, reverse engineering and security research.
+### Your full pentesting Linux workstation, carried on a USB drive.
 
-**Boot it. Carry it. Keep your tools.**
+**Plug in. Boot. Work. Unplug. Everything is still there.**
 
 [![Validate](https://github.com/mixutin/Vibrali/actions/workflows/validate.yml/badge.svg)](https://github.com/mixutin/Vibrali/actions/workflows/validate.yml)
-[![Debian](https://img.shields.io/badge/base-Debian%20Live-D70A53?logo=debian&logoColor=white)](https://www.debian.org/)
+[![Debian](https://img.shields.io/badge/base-Debian%2013-D70A53?logo=debian&logoColor=white)](https://www.debian.org/)
 [![Status](https://img.shields.io/badge/status-early%20development-orange)](ROADMAP.md)
 
 </div>
@@ -16,126 +16,157 @@
 
 ## What is Vibrali?
 
-**Vibrali** is a USB-first Linux distribution for authorized penetration testing, CTFs,
-reverse engineering, digital forensics and security research.
+**Vibrali** is a portable Linux distribution for authorized pentesting, CTFs, reverse
+engineering, digital forensics and security research.
 
-It is designed around **persistence**: your tools, notes, captures, configs and project
-files can survive reboots while the base operating system stays portable.
+The main Vibrali experience is **not a read-only Live ISO with a persistence overlay**.
+Vibrali installs a normal Debian system directly onto removable storage.
 
-The project takes inspiration from the engineering approach of
-[Vibrix](https://github.com/mixutin/Vibrix), while using a mature Linux base so Vibrali
-can become useful quickly.
+That means the USB behaves much more like an external SSD:
+
+- the root filesystem is normally writable,
+- apt install and apt upgrade work normally,
+- kernel and initramfs updates persist,
+- /etc, /var, /opt and /home are genuinely writable,
+- development environments and toolchains stay installed,
+- and the same system can be booted on different x86_64 PCs.
 
 > Use Vibrali only on systems and networks you own or have explicit permission to test.
 
-## Design goals
+## Portable disk architecture
 
-- **USB first** — bootable removable workstation for x86_64 PCs.
-- **Persistent** — optional writable state across reboots.
-- **Reproducible** — images generated from version-controlled config.
-- **Security focused** — networking, web, pwn, reversing and forensics.
-- **Developer ready** — Python, C/C++, debuggers and common CLI tooling.
-- **Recoverable** — live mode remains usable without persistence.
-- **Transparent** — prefer distro packages and auditable build scripts.
+~~~text
+                    VIBRALI USB
+                         |
+              GPT partition table
+                         |
+        +----------------+------------------+
+        |                |                  |
+   BIOS boot         EFI System         Linux root
+     1 MiB             512 MiB            rest
+      EF02              FAT32              ext4
+        |                |                  |
+   legacy GRUB     EFI/BOOT/BOOTX64.EFI     /
+                                             |
+                         +-------------------+---------------+
+                         |                   |               |
+                       /etc                /var            /home
+                    system config       packages/logs    projects/data
+~~~
 
-## Architecture
+The EFI bootloader is installed in **removable-media mode** rather than depending on one
+computer's firmware NVRAM entry. That is important for moving the drive between PCs.
 
-```text
-                    VIBRALI
-                       │
-              Debian Live base
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-    Live system     Toolsets      Persistence
-        │              │              │
-   UEFI / BIOS      network       workspace
-   hardware         reverse       configs
-   desktop          forensics     notes/data
-```
+## What persists?
 
-The first implementation uses **Debian live-build**. That gets us to a bootable,
-auditable ISO without reinventing the Linux base.
+Everything on the root filesystem persists because this is a normal installation.
+
+Examples:
+
+- installed APT packages,
+- Python virtual environments,
+- Rust and Go toolchains,
+- Burp projects and browser profiles,
+- SSH keys and Git configuration,
+- CTF challenge files,
+- packet captures,
+- wordlists,
+- Docker/container state when installed,
+- desktop settings,
+- kernel updates and drivers.
+
+There is no persistence.conf or OverlayFS layer in the primary installation mode.
 
 ## Starter toolset
 
 | Area | Examples |
 | --- | --- |
 | Network | Nmap, tcpdump, Wireshark/TShark, Socat, Netcat, DNS tools |
-| Web | curl, wget, jq, Chromium, Firefox ESR |
+| Web | curl, wget, jq, Firefox ESR |
 | Reverse engineering | GDB, LLDB, binutils, strace, ltrace |
 | Development | GCC, Clang, make, Python 3, pip, virtualenv |
 | Forensics | binwalk, Sleuth Kit, ExifTool, foremost, TestDisk |
-| Wireless utilities | iw, wireless-tools, rfkill |
+| Wireless | Aircrack-ng, iw, wireless-tools, rfkill |
 | Workflow | Git, tmux, ripgrep, fd, rsync, OpenSSH |
 
-Larger specialist suites will become optional profiles instead of bloating the base ISO.
+Tool manifests live under packages/. The plan is to grow these into modular profiles
+for web, network, pwn, reversing, crypto, forensics and wireless work.
+
+## Install to a USB
+
+**Warning: the target device is erased.**
+
+On a Debian/Ubuntu host, install the builder dependencies:
+
+~~~bash
+sudo apt update
+sudo apt install debootstrap gdisk dosfstools e2fsprogs grub2-common
+~~~
+
+Then:
+
+~~~bash
+git clone https://github.com/mixutin/Vibrali.git
+cd Vibrali
+sudo ./scripts/install-to-usb.sh \
+  --device /dev/sdX \
+  --username vibrali \
+  --yes-really-erase
+~~~
+
+The installer requires you to type the full device path again before it erases anything.
+
+See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using it on physical media.
+
+## Portability
+
+Vibrali is being designed for a broad x86_64 hardware target rather than one specific
+PC. The installer uses UUID-based mounts and installs GRUB to the standard removable EFI
+path.
+
+For the first development builds, **Secure Boot should be disabled**. Signed boot support
+is a later milestone.
+
+A fast USB 3.x SSD or NVMe enclosure is strongly preferred over a cheap flash drive.
+A full Linux installation generates considerably more writes than a conventional Live
+USB.
+
+## Live/recovery mode
+
+A Live image can still be useful for rescue, diagnostics and installing Vibrali, but it
+is secondary to the normal writable USB installation.
+
+The existing live-build work remains experimental while the native USB workflow becomes
+the primary target.
 
 ## Repository layout
 
-```text
+~~~text
 Vibrali/
 ├── assets/                 branding
-├── config/                 Debian live-build configuration
-│   ├── hooks/live/
-│   ├── includes.chroot/
-│   └── package-lists/
-├── docs/                   architecture and usage docs
-├── scripts/                build and validation helpers
+├── config/                 shared and live/recovery configuration
+├── docs/                   architecture and installation docs
+├── packages/               native-system package manifests
+├── scripts/                installer, build and validation helpers
 ├── .github/workflows/      CI
 ├── ROADMAP.md
 └── README.md
-```
+~~~
 
-## Build
+## Development
 
-On Debian/Ubuntu:
+Run:
 
-```bash
-sudo apt update
-sudo apt install live-build debootstrap squashfs-tools xorriso isolinux syslinux-common
-git clone https://github.com/mixutin/Vibrali.git
-cd Vibrali
-./scripts/build.sh
-```
+~~~bash
+./scripts/validate.sh
+~~~
 
-The ISO is copied to `build/`. See [docs/BUILDING.md](docs/BUILDING.md).
+before opening a pull request.
 
-## Test in QEMU
-
-```bash
-./scripts/run-qemu.sh
-```
-
-## Persistent USB
-
-A typical device contains the live image plus a second ext4 partition labeled
-`persistence`. Its root contains:
-
-```text
-persistence.conf
-```
-
-with:
-
-```text
-/ union
-```
-
-Read [docs/PERSISTENCE.md](docs/PERSISTENCE.md) before partitioning a USB drive.
-
-## Roadmap
-
-Near-term work includes the first boot-tested ISO, custom branding, persistence testing,
-tool profiles, hardware compatibility work, encrypted persistence, signed releases and
-eventually a graphical USB creator. See [ROADMAP.md](ROADMAP.md).
-
-## Contributing
-
-Run `./scripts/validate.sh` before opening a pull request. See
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design and
+[ROADMAP.md](ROADMAP.md) for upcoming work.
 
 ## License
 
-Project-specific source and configuration are GPL-3.0-only. Packaged tools keep their
-upstream licenses.
+Project-specific source and configuration are GPL-3.0-only. Packaged software retains
+its upstream license.

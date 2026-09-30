@@ -1,0 +1,9 @@
+autopsy
+binwalk
+foremost
+libimage-exiftool-perl
+scalpel
+sleuthkit
+steghide
+testdisk
+yara

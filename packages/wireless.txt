@@ -1,0 +1,10 @@
+aircrack-ng
+bully
+hcxdumptool
+hcxtools
+iw
+macchanger
+pixiewps
+reaver
+rfkill
+wireless-tools

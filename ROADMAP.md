@@ -1,61 +1,71 @@
 # Vibrali Roadmap
 
-## Phase 0 — Foundation
+## Phase 0 — Native USB foundation
 
-- [x] Project identity and README
-- [x] Debian live-build skeleton
-- [x] Core and security package manifests
-- [x] Build and validation scripts
-- [x] Persistence documentation
-- [x] CI validation
-- [ ] Produce the first boot-tested ISO
+- [x] Define full-install USB architecture
+- [x] GPT layout with BIOS + EFI + writable Linux root
+- [x] Debian bootstrap installer
+- [x] Portable removable-media GRUB setup
+- [x] UUID-based fstab
+- [x] User/password provisioning
+- [x] Package manifests
+- [x] Destructive-target safety checks
+- [ ] Complete first physical USB installation
+- [ ] Boot-test on multiple x86_64 PCs
 
 ## Phase 1 — Developer preview
 
-- [ ] Confirm BIOS and UEFI boot
-- [ ] Add branded boot menu
-- [ ] Add lightweight desktop environment
-- [ ] Add terminal and shell defaults
-- [ ] Add QEMU boot smoke test
-- [ ] Publish SHA256 checksums
+- [ ] Verify UEFI portability across vendors
+- [ ] Verify legacy BIOS boot
+- [ ] Add first-boot welcome flow
+- [ ] Add Vibrali desktop branding
+- [ ] Tune XFCE defaults
+- [ ] Add QEMU raw-disk integration test
+- [ ] Publish checksums and installation notes
 
-## Phase 2 — Persistent USB
+## Phase 2 — Portable workstation hardening
 
-- [ ] Validate persistence on physical hardware
-- [ ] Add encrypted persistence
-- [ ] Add safe interactive USB creation helper
-- [ ] Test 32 GB, 64 GB and 128 GB media
-- [ ] Add recovery workflow
-- [ ] Add persistence health checker
+- [ ] LUKS2 encrypted root option
+- [ ] TPM-independent encrypted portability
+- [ ] Recovery key workflow
+- [ ] SSD/flash endurance tuning
+- [ ] zram default
+- [ ] Safe filesystem recovery documentation
+- [ ] Secure Boot support
+- [ ] Signed boot artifacts
 
-## Phase 3 — Tool profiles
+## Phase 3 — Security tooling
 
-- [ ] vibrali-core
-- [ ] vibrali-web
-- [ ] vibrali-network
-- [ ] vibrali-pwn
-- [ ] vibrali-reverse
-- [ ] vibrali-crypto
-- [ ] vibrali-forensics
-- [ ] vibrali-wireless
+- [x] base and desktop manifests
+- [x] web profile
+- [x] network profile
+- [x] pwn profile
+- [x] reverse profile
+- [x] crypto profile
+- [x] forensics profile
+- [x] wireless profile
+- [x] authentication-audit profile
+- [x] directory-services profile
+- [ ] optional profile selector
+- [ ] pinned upstream tool framework
+- [ ] large optional wordlist profile
 
 ## Phase 4 — Hardware and UX
 
 - [ ] Wi-Fi compatibility matrix
-- [ ] USB Ethernet testing
+- [ ] USB Ethernet compatibility matrix
+- [ ] Intel/AMD CPU microcode validation
+- [ ] GPU compatibility notes
 - [ ] HiDPI and multi-monitor defaults
-- [ ] Power-management tuning
-- [ ] Custom wallpaper and theme
-- [ ] First-boot welcome app
+- [ ] laptop power-management tuning
+- [ ] custom wallpaper, theme and terminal profile
 
-## Phase 5 — Releases
+## Phase 5 — Distribution
 
-- [ ] Versioned ISO releases
-- [ ] Signed release manifests
+- [ ] Bootable installer/rescue ISO
+- [ ] Prebuilt portable raw image
+- [ ] Graphical USB installer
+- [ ] Versioned releases
 - [ ] Automated release pipeline
 - [ ] Stable and rolling channels
-
-## Longer term
-
-ARM64 images, disposable workspaces, snapshot/rollback, reproducible-build verification,
-Secure Boot research and an offline documentation bundle.
+- [ ] ARM64 research
