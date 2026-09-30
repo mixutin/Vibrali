@@ -59,4 +59,10 @@ require_packages directory-services \
 require_packages defensive \
   chkrootkit lynis
 
+require_packages containers \
+  buildah fuse-overlayfs podman podman-compose skopeo uidmap
+
+require_packages dev-runtimes \
+  cargo golang-go nodejs npm rustc
+
 echo "advertised tool profile contracts: ok"
