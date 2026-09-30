@@ -61,6 +61,8 @@ ROOT_PART="${LOOP}p3"
 sync
 echo "Injecting CI-only boot probe..."
 mount "$ROOT_PART" "$CI_MOUNT"
+mkdir -p "$CI_MOUNT/etc/vibrali"
+: > "$CI_MOUNT/etc/vibrali/release-image"
 
 echo "Recording release build provenance..."
 SOURCE_COMMIT="${VIBRALI_SOURCE_COMMIT:-}"
@@ -104,6 +106,7 @@ umount "$CI_MOUNT"
 
 echo "Creating CI-instrumented QEMU smoke image..."
 qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$CI_QCOW"
+qemu-img resize "$CI_QCOW" +2G
 
 echo "Removing CI-only instrumentation..."
 mount "$ROOT_PART" "$CI_MOUNT"
