@@ -14,7 +14,8 @@ The workflow:
 8. boots the disposable QEMU image twice with OVMF to test UEFI boot and persistence,
 9. removes the CI-only image,
 10. splits oversized public assets when necessary,
-11. and creates a GitHub Release.
+11. signs `SHA256SUMS` keylessly with Sigstore/Cosign and verifies the GitHub Actions signer identity,
+12. and creates a GitHub Release.
 
 Artifact and smoke verification run **before** anything is published. A checksum mismatch,
 corrupt zstd stream, missing expected partition, wrong filesystem signature, invalid QCOW2
@@ -70,3 +71,35 @@ run is cancelled rather than allowed to accumulate behind a newer run.
 Release channels, semantic versioning, support windows and binary-retention rules are defined in [RELEASE_POLICY.md](RELEASE_POLICY.md).
 
 Before publishing any public image, complete [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Draft release notes from [RELEASE_NOTES_TEMPLATE.md](RELEASE_NOTES_TEMPLATE.md) so hardware assumptions and known issues are stated explicitly.
+
+
+## Verify a published release
+
+Each public release publishes two verification files:
+
+- `SHA256SUMS` — SHA-256 hashes for the original compressed USB and QEMU images.
+- `SHA256SUMS.sigstore.json` — a Sigstore bundle containing the checksum-manifest signature, short-lived signing certificate and transparency-log proof.
+
+Install a current Cosign release, then download those two files plus the image you want to verify. First verify that the checksum manifest was signed by Vibrali's GitHub Actions release workflow:
+
+~~~bash
+cosign verify-blob SHA256SUMS \
+  --bundle SHA256SUMS.sigstore.json \
+  --certificate-identity-regexp '^https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/(tags/v.+|heads/.+)$' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+~~~
+
+Then verify the downloaded image against the authenticated checksum manifest:
+
+~~~bash
+sha256sum -c SHA256SUMS --ignore-missing
+~~~
+
+For a split USB release, concatenate the numbered parts in order before running the checksum command:
+
+~~~bash
+cat vibrali-usb-amd64.img.zst.part-* > vibrali-usb-amd64.img.zst
+sha256sum -c SHA256SUMS --ignore-missing
+~~~
+
+The Sigstore signature authenticates the checksum manifest; the SHA-256 check then authenticates the image bytes named by that manifest. Keyless signing uses an ephemeral certificate tied to the GitHub Actions OIDC identity rather than a long-lived private signing key stored in the repository.
