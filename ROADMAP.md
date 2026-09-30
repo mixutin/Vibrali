@@ -173,7 +173,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 ### Reverse engineering
 
-- [ ] Verify GDB
+- [x] Verify GDB
 - [x] Verify LLDB
 - [x] Verify strace/ltrace
 - [x] Verify QEMU user-mode
