@@ -159,10 +159,7 @@ test_existing_install_still_requires_confirmation() {
   }
 
   set +e
-  output="$(
-    TTY="$fake_tty"
-    confirm_target_erase /dev/fake-vibrali
-  2>&1)"
+  output="$(TTY="$fake_tty" confirm_target_erase /dev/fake-vibrali 2>&1)"
   status=$?
   set -e
   unset -f lsblk
