@@ -18,6 +18,9 @@ required=(
   site/style.css
   site/install.sh
   config/rootfs/etc/os-release
+  config/rootfs/usr/local/bin/vibrali-welcome
+  config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
+  config/rootfs/usr/share/applications/vibrali-welcome.desktop
   assets/brand/vibrali-logo.png
   assets/brand/vibrali-wallpaper-default.png
 )
@@ -31,6 +34,7 @@ while IFS= read -r file; do
 done < <(find scripts -type f -name '*.sh' -print)
 
 bash -n site/install.sh
+bash -n config/rootfs/usr/local/bin/vibrali-welcome
 
 while IFS= read -r file; do
   sh -n "$file"
