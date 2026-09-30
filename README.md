@@ -132,6 +132,10 @@ free storage, kernel/hostname information and the exact security-tool profiles i
 on that USB. The screen can be reopened later from the application menu or with
 `vibrali-welcome --show`.
 
+The desktop also includes persistent clipboard history, Xfce screenshots and Thunar
+archive integration. Bash and Zsh provide small workflow helpers such as `netstate`,
+`vprofiles`, `mkcd` and a localhost-only `serve` command for quick local file serving.
+
 ## QEMU / KVM
 
 Tagged releases also publish a compressed QCOW2 image. See [docs/VM.md](docs/VM.md).
