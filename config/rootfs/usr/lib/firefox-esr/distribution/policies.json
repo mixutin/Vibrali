@@ -7,6 +7,21 @@
     "DisableFirefoxStudies": true,
     "DisablePocket": true,
     "DisableTelemetry": true,
-    "DontCheckDefaultBrowser": true
+    "DontCheckDefaultBrowser": true,
+    "Preferences": {
+      "browser.cache.disk.enable": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.cache.memory.enable": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.sessionstore.interval": {
+        "Value": 60000,
+        "Status": "default",
+        "Type": "number"
+      }
+    }
   }
 }

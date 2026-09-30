@@ -110,7 +110,19 @@ import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-json.loads(Path("config/rootfs/usr/lib/firefox-esr/distribution/policies.json").read_text())
+firefox_policy = json.loads(Path("config/rootfs/usr/lib/firefox-esr/distribution/policies.json").read_text())
+preferences = firefox_policy["policies"].get("Preferences", {})
+expected_preferences = {
+    "browser.cache.disk.enable": False,
+    "browser.cache.memory.enable": True,
+    "browser.sessionstore.interval": 60000,
+}
+for preference, expected in expected_preferences.items():
+    entry = preferences.get(preference)
+    if not isinstance(entry, dict) or entry.get("Value") != expected or entry.get("Status") != "default":
+        raise SystemExit(f"Firefox portable-storage preference missing/invalid: {preference}")
+if preferences["browser.sessionstore.interval"].get("Type") != "number":
+    raise SystemExit("Firefox sessionstore interval must be explicitly typed as a number")
 ET.parse("config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu")
 
 categories = {

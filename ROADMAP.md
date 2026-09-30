@@ -308,7 +308,7 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 - [x] Add zram default
 - [x] Review swap strategy
 - [x] Review journald retention for removable media
-- [ ] Review browser/cache write amplification
+- [x] Review browser/cache write amplification
 - [x] Document minimum/recommended device endurance
 - [x] Add backup/export guidance for user data
 - [x] Add restore/recovery procedure
