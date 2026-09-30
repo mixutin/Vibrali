@@ -42,6 +42,46 @@ check_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# shellcheck disable=SC2317
+check_socat_ncat_loopback() {
+  local dir port server
+  dir="$(mktemp -d)"
+  port=39091
+  timeout 8 socat -u "TCP4-LISTEN:${port},bind=127.0.0.1,reuseaddr" - > "$dir/out" 2>"$dir/socat.err" &
+  server=$!
+  sleep 0.5
+  printf "vibrali-loopback\n" | ncat 127.0.0.1 "$port"
+  wait "$server"
+  grep -qx "vibrali-loopback" "$dir/out"
+  rm -rf "$dir"
+}
+
+# shellcheck disable=SC2317
+check_nonroot_dumpcap() {
+  local capture pid
+  capture=/tmp/vibrali-ci-nonroot.pcapng
+  rm -f "$capture"
+  id -nG vibrali | tr " " "\n" | grep -Fxq wireshark
+  getcap /usr/bin/dumpcap | grep -Eq "cap_net_(admin,net_raw|raw,net_admin)"
+  runuser -u vibrali -- timeout 8 dumpcap -q -i lo -c 1 -w "$capture" >/tmp/vibrali-ci-dumpcap.log 2>&1 &
+  pid=$!
+  sleep 0.7
+  ncat -z 127.0.0.1 9 >/dev/null 2>&1 || true
+  wait "$pid"
+  test -s "$capture"
+  rm -f "$capture" /tmp/vibrali-ci-dumpcap.log
+}
+
+# shellcheck disable=SC2317
+check_32bit_build() {
+  local dir
+  dir="$(mktemp -d)"
+  printf "int main(void) { return 0; }\n" | gcc -m32 -x c - -o "$dir/vibrali32"
+  file "$dir/vibrali32" | grep -Fq "ELF 32-bit"
+  "$dir/vibrali32"
+  rm -rf "$dir"
+}
+
 previous=0
 if [[ -r "$COUNT_FILE" ]]; then
   read -r previous < "$COUNT_FILE" || previous=0
@@ -88,6 +128,8 @@ check "tool-network-whois" check_command whois
 check "tool-network-openvpn" check_command openvpn
 check "tool-network-wireguard" check_command wg
 check "tool-network-proxychains" check_command proxychains4
+check "network-socat-ncat-loopback" check_socat_ncat_loopback
+check "network-nonroot-dumpcap" check_nonroot_dumpcap
 
 check "tool-web-sqlmap" sqlmap --version
 check "tool-web-nikto" check_command nikto
@@ -110,6 +152,7 @@ check "tool-pwn-make" make --version
 check "tool-pwn-pwntools" python3 -c 'import pwn'
 check "tool-pwn-readelf" readelf --version
 check "tool-pwn-objdump" objdump --version
+check "tool-pwn-32bit-build" check_32bit_build
 
 check "tool-reverse-gdb" gdb --version
 check "tool-reverse-lldb" lldb --version
