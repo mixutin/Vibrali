@@ -422,8 +422,8 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [ ] Verify NetworkManager service
 - [ ] Verify LightDM/XFCE service
 - [ ] Verify representative security tools launch
-- [ ] Add image filesystem sanity checks
-- [ ] Add release checksum verification test
+- [x] Add image filesystem sanity checks
+- [x] Add release checksum verification test
 - [ ] Add installer smoke test against release artifacts
 - [ ] Add scheduled rolling-build test
 
