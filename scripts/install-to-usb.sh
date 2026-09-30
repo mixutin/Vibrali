@@ -448,6 +448,9 @@ done
 NEOFETCH_SOURCE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" neofetch)"
 install -Dm0755 "$NEOFETCH_SOURCE" "$TARGET/usr/local/lib/vibrali/neofetch"
 
+GEF_SOURCE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" gef)"
+install -Dm0644 "$GEF_SOURCE" "$TARGET/usr/local/lib/vibrali/gef.py"
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
