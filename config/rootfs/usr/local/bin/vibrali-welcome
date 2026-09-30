@@ -90,7 +90,11 @@ Plug in. Boot. Work. Unplug. Everything is still there.
 EOF
 
 if command -v zenity >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
-  if zenity --text-info       --title="Welcome to Vibrali"       --filename="$tmp"       --width=760       --height=560; then
+  if zenity --text-info \
+      --title="Welcome to Vibrali" \
+      --filename="$tmp" \
+      --width=760 \
+      --height=560; then
     mkdir -p "$STATE_DIR"
     : > "$MARKER"
   fi
