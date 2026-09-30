@@ -204,12 +204,12 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 ### Containers and lab tooling
 
-- [ ] Add optional Docker/Podman profile
-- [ ] Verify container state persists
-- [ ] Add common CTF/dev runtimes
-- [ ] Add optional Go toolchain
-- [ ] Add optional Rust toolchain
-- [ ] Add optional Node.js tooling
+- [x] Add optional Docker/Podman profile
+- [x] Verify container state persists
+- [x] Add common CTF/dev runtimes
+- [x] Add optional Go toolchain
+- [x] Add optional Rust toolchain
+- [x] Add optional Node.js tooling
 - [x] Add virtualenv/pipx workflow documentation
 
 ### Tool supply-chain rules
