@@ -50,6 +50,7 @@ required=(
   config/rootfs/usr/local/bin/vibrali-welcome
   config/rootfs/usr/local/bin/vibrali-toolbox
   config/rootfs/usr/local/bin/vibrali-firewall
+  config/rootfs/usr/local/bin/vibrali-display-scale
   config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu
   config/rootfs/usr/lib/firefox-esr/distribution/policies.json
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
@@ -83,6 +84,7 @@ bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
 bash -n config/rootfs/usr/local/bin/vibrali-toolbox
 bash -n config/rootfs/usr/local/bin/vibrali-firewall
+bash -n config/rootfs/usr/local/bin/vibrali-display-scale
 bash -n config/rootfs/etc/skel/.bashrc
 bash -n config/rootfs/etc/skel/.zshrc
 
@@ -184,6 +186,8 @@ diff -u \
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
+grep -Fxq 'x11-xserver-utils' packages/desktop.txt
+grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale
 bash ./scripts/test-installer-cli.sh
 bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
