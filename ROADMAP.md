@@ -133,8 +133,8 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Confirm Nmap works out of the box
 - [x] Confirm Masscan works out of the box
 - [x] Confirm tcpdump works out of the box
-- [ ] Confirm Wireshark/TShark capture permissions
-- [ ] Confirm Socat/Netcat workflows
+- [x] Confirm Wireshark/TShark capture permissions
+- [x] Confirm Socat/Netcat workflows
 - [x] Add common DNS/WHOIS/recon helpers
 - [x] Add useful VPN/tunnelling helpers
 - [ ] Add optional modern recon tools from verified upstream releases
@@ -169,7 +169,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify Python pwntools
 - [x] Verify binutils/readelf/objdump
 - [x] Add common debugging helpers
-- [ ] Add 32-bit development/runtime support where practical
+- [x] Add 32-bit development/runtime support where practical
 
 ### Reverse engineering
 
