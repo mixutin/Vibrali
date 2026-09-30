@@ -371,7 +371,7 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Improve error messages for failed writes
 - [x] Verify interrupted-download recovery
 - [x] Verify split-image reconstruction
-- [ ] Verify re-running installer safely
+- [x] Verify re-running installer safely
 
 ### Source installer
 
