@@ -18,6 +18,7 @@ firmware-misc-nonfree
 firmware-realtek
 git
 grub-efi-amd64-bin
+grub-efi-amd64-signed
 grub-pc-bin
 grub2-common
 htop
@@ -38,6 +39,7 @@ python3-venv
 ripgrep
 rsync
 screen
+shim-signed
 sudo
 systemd-sysv
 tmux
