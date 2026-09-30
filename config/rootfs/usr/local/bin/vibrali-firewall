@@ -38,7 +38,7 @@ case "${1:-}" in
   off)
     need_root
     systemctl stop nftables || true
-    nft flush ruleset
+    nft delete table inet vibrali 2>/dev/null || true
     echo "Vibrali firewall disabled until explicitly re-enabled."
     ;;
   reload)
