@@ -126,8 +126,27 @@ download_release() {
   DOWNLOADED_IMAGE="$image"
 }
 
+target_has_vibrali_install() {
+  local target="$1"
+  lsblk -nr -o LABEL "$target" | grep -Fxq VIBRALI_ROOT
+}
+
+confirm_target_erase() {
+  local target="$1"
+  local confirm
+
+  printf "\n%bSelected target:%b\n" "$yellow" "$c0"
+  lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$target"
+  if target_has_vibrali_install "$target"; then
+    warn "An existing Vibrali installation was detected. Re-running is supported, but this will replace it completely."
+  fi
+  printf "\n%bALL DATA ON %s WILL BE ERASED.%b\n" "$red" "$target" "$c0"
+  read -r -p "Type VIBRALI to continue: " confirm < "$TTY"
+  [[ "$confirm" == "VIBRALI" ]] || die "Cancelled."
+}
+
 main() {
-  local IMAGE TARGET root_source root_parent confirm ROOT_PART POST HOSTNAME PASS1 PASS2
+  local IMAGE TARGET root_source root_parent ROOT_PART POST HOSTNAME PASS1 PASS2
 
   [[ -r "$TTY" ]] || die "Run this installer from an interactive terminal."
   trap cleanup EXIT
@@ -178,14 +197,7 @@ main() {
     die "Refusing to overwrite the disk containing the running operating system."
   fi
 
-  printf "\n%bSelected target:%b\n" "$yellow" "$c0"
-  lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$TARGET"
-  if lsblk -nr -o LABEL "$TARGET" | grep -Fxq VIBRALI_ROOT; then
-    warn "An existing Vibrali installation was detected. Re-running is supported, but this will replace it completely."
-  fi
-  printf "\n%bALL DATA ON %s WILL BE ERASED.%b\n" "$red" "$TARGET" "$c0"
-  read -r -p "Type VIBRALI to continue: " confirm < "$TTY"
-  [[ "$confirm" == "VIBRALI" ]] || die "Cancelled."
+  confirm_target_erase "$TARGET"
 
   say "[4/5] Writing Vibrali to $TARGET"
 
