@@ -43,6 +43,16 @@ for path in "${required[@]}"; do
   test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
 done
 
+for path in \
+  config/rootfs/usr/local/sbin/vibrali-ci-probe \
+  config/rootfs/etc/systemd/system/vibrali-ci-probe.service
+do
+  test ! -e "$path" || {
+    echo "CI-only probe must not ship in product rootfs: $path" >&2
+    exit 1
+  }
+done
+
 while IFS= read -r file; do
   bash -n "$file"
 done < <(find scripts -type f -name '*.sh' -print)
