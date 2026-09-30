@@ -86,6 +86,7 @@ bash -n config/rootfs/usr/local/bin/vibrali-toolbox
 bash -n config/rootfs/usr/local/bin/vibrali-firewall
 bash -n config/rootfs/usr/local/bin/vibrali-display-scale
 bash -n config/rootfs/etc/skel/.bashrc
+grep -Fxq 'source /usr/local/lib/vibrali/gef.py' config/rootfs/etc/skel/.gdbinit
 bash -n config/rootfs/etc/skel/.zshrc
 
 while IFS= read -r file; do

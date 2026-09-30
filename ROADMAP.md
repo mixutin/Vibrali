@@ -165,7 +165,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 - [x] Verify GCC/Clang/make
 - [x] Verify GDB
-- [ ] Add/verify GEF or pwndbg using pinned upstream source
+- [x] Add/verify GEF or pwndbg using pinned upstream source
 - [x] Verify Python pwntools
 - [x] Verify binutils/readelf/objdump
 - [x] Add common debugging helpers
