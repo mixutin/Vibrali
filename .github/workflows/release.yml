@@ -39,6 +39,9 @@ jobs:
           VIBRALI_IMAGE_SIZE: 12G
         run: sudo -E ./scripts/build-release-images.sh dist
 
+      - name: Verify release artifacts
+        run: ./scripts/verify-release-artifacts.sh dist
+
       - name: Split assets that exceed GitHub's practical single-file size
         run: |
           cd dist
