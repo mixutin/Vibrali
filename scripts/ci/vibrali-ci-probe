@@ -100,6 +100,9 @@ check "tool-directory-kinit" check_command kinit
 check "tool-directory-ldapsearch" check_command ldapsearch
 
 check "tool-pwn-gcc" gcc --version
+check "tool-pwn-gef" gdb -q -nx -batch \
+  -ex "source /usr/local/lib/vibrali/gef.py" \
+  -ex "pi assert \"gef\" in globals()"
 check "tool-pwn-clang" clang --version
 check "tool-pwn-make" make --version
 check "tool-pwn-pwntools" python3 -c 'import pwn'
