@@ -58,6 +58,27 @@ test_split_download() {
     fail "split release was not reconstructed byte-for-byte"
 }
 
+
+test_resumed_download() {
+  local fixture="$TEST_TMP/resume"
+  local work="$TEST_TMP/resume-work"
+  local payload="$fixture/$IMAGE_NAME"
+
+  mkdir -p "$fixture" "$work"
+  printf 'vibrali-resumable-download-fixture-with-enough-bytes-to-split\n' > "$payload"
+  write_manifest "$fixture"
+
+  head -c 17 "$payload" > "$work/$IMAGE_NAME.partial"
+
+  DOWNLOADED_IMAGE=""
+  download_release "file://$fixture" "$work" "$IMAGE_NAME"
+
+  cmp -s "$payload" "$DOWNLOADED_IMAGE" ||
+    fail "interrupted direct download did not resume to the original payload"
+  [[ ! -e "$work/$IMAGE_NAME.partial" ]] ||
+    fail "partial download marker remained after successful resume"
+}
+
 test_bad_checksum() {
   local fixture="$TEST_TMP/bad-checksum"
   local work="$TEST_TMP/bad-checksum-work"
@@ -103,6 +124,7 @@ fi
 
 test_direct_download
 test_split_download
+test_resumed_download
 test_bad_checksum
 
 if [[ $# -gt 0 ]]; then

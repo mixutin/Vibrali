@@ -368,8 +368,8 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Write image with progress
 - [x] Set user password after flashing
 - [x] Set hostname after flashing
-- [ ] Improve error messages for failed writes
-- [ ] Verify interrupted-download recovery
+- [x] Improve error messages for failed writes
+- [x] Verify interrupted-download recovery
 - [x] Verify split-image reconstruction
 - [ ] Verify re-running installer safely
 
