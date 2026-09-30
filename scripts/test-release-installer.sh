@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=../site/install.sh
+# shellcheck source=site/install.sh
 source "$ROOT/site/install.sh"
 
 TEST_TMP="$(mktemp -d)"
