@@ -22,10 +22,10 @@ PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
   exit 1
 }
 
-[[ "$ZSTD_LEVEL" =~ ^[0-9]+$ ]] && (( ZSTD_LEVEL >= 1 && ZSTD_LEVEL <= 19 )) || {
+if [[ ! "$ZSTD_LEVEL" =~ ^[0-9]+$ ]] || (( ZSTD_LEVEL < 1 || ZSTD_LEVEL > 19 )); then
   echo "VIBRALI_ZSTD_LEVEL must be an integer from 1 through 19." >&2
   exit 2
-}
+fi
 
 mkdir -p "$OUT"
 rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS" "$BUILD_INFO" "$PACKAGE_VERSIONS"
