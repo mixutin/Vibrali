@@ -70,15 +70,69 @@ check "nftables-baseline-loaded" nft list table inet vibrali
 check "apparmor-active" systemctl is-active --quiet apparmor
 
 check "tool-base-python" python3 --version
+check "tool-base-curl" curl --version
+check "tool-base-wget" wget --version
+check "tool-base-jq" jq --version
 check "tool-desktop-firefox" check_command firefox-esr
+
 check "tool-network-nmap" nmap --version
+check "tool-network-masscan" masscan --version
+check "tool-network-tcpdump" tcpdump --version
+check "tool-network-tshark" tshark --version
+check "tool-network-socat" check_command socat
+check "tool-network-ncat" check_command ncat
+check "tool-network-dig" check_command dig
+check "tool-network-whois" check_command whois
+check "tool-network-openvpn" check_command openvpn
+check "tool-network-wireguard" check_command wg
+check "tool-network-proxychains" check_command proxychains4
+
 check "tool-web-sqlmap" sqlmap --version
+check "tool-web-nikto" check_command nikto
+check "tool-web-ffuf" check_command ffuf
+check "tool-web-gobuster" check_command gobuster
+check "tool-web-wfuzz" check_command wfuzz
+
 check "tool-auth-hashcat" hashcat --version
+check "tool-auth-john" check_command john
+check "tool-auth-hydra" check_command hydra
+check "tool-directory-kinit" check_command kinit
+check "tool-directory-ldapsearch" check_command ldapsearch
+
 check "tool-pwn-gcc" gcc --version
+check "tool-pwn-clang" clang --version
+check "tool-pwn-make" make --version
+check "tool-pwn-pwntools" python3 -c 'import pwn'
+check "tool-pwn-readelf" readelf --version
+check "tool-pwn-objdump" objdump --version
+
 check "tool-reverse-gdb" gdb --version
+check "tool-reverse-lldb" lldb --version
+check "tool-reverse-strace" strace -V
+check "tool-reverse-ltrace" check_command ltrace
+check "tool-reverse-qemu-user" check_command qemu-x86_64
+check "tool-reverse-apktool" check_command apktool
+check "tool-reverse-java" java -version
+check "tool-reverse-valgrind" valgrind --version
+check "tool-reverse-patchelf" patchelf --version
+check "tool-reverse-nasm" nasm -v
+
 check "tool-crypto-openssl" openssl version
+
+check "tool-forensics-binwalk" check_command binwalk
+check "tool-forensics-sleuthkit" check_command tsk_recover
+check "tool-forensics-autopsy" check_command autopsy
 check "tool-forensics-yara" yara --version
+check "tool-forensics-exiftool" exiftool -ver
+check "tool-forensics-foremost" check_command foremost
+check "tool-forensics-testdisk" check_command testdisk
+check "tool-forensics-photorec" check_command photorec
+
 check "tool-wireless-aircrack" check_command aircrack-ng
+check "tool-wireless-hcxtools" check_command hcxpcapngtool
+check "tool-wireless-reaver" check_command reaver
+check "tool-wireless-bully" check_command bully
+
 check "tool-directory-impacket" python3 -c 'import impacket'
 check "tool-defensive-lynis" check_command lynis
 
