@@ -12,7 +12,7 @@ curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash
 
 The USB release image is prebuilt, checksum-verified and locked until the installer asks
 you to choose a new password. This is substantially faster than bootstrapping every
-package locally.
+package locally. Release images contain the full optional security-tool profile set.
 
 ## Source install
 
@@ -49,18 +49,52 @@ as /dev/sdb1.
 
 **The target disk is erased.**
 
+## Choose package profiles
+
+The source installer always installs the `base` and `desktop` manifests. Security-tool
+manifests are optional profiles.
+
+List the available profile names without root access or touching a disk:
+
+~~~bash
+./scripts/install-to-usb.sh --list-profiles
+~~~
+
+By default, source installs use `--profiles all`, matching the full release image. Use
+`--profiles none` for only the mandatory core, or pass a comma-separated subset such as:
+
+~~~bash
+--profiles web,network,forensics
+~~~
+
+Profiles only control packages installed during the source bootstrap. They do not remove
+packages from a prebuilt release image.
+
 ## Install
+
+Full profile set:
 
 ~~~bash
 sudo ./scripts/install-to-usb.sh \
   --device /dev/sdX \
   --username vibrali \
   --hostname vibrali \
+  --profiles all \
   --yes-really-erase
 ~~~
 
-The script displays the target model/size/serial and requires the full device path to be
-typed again before partitioning. It then prompts for the initial user's password.
+Smaller source install example:
+
+~~~bash
+sudo ./scripts/install-to-usb.sh \
+  --device /dev/sdX \
+  --profiles web,network \
+  --yes-really-erase
+~~~
+
+The script displays the target model/size/serial, shows the selected optional profiles,
+and requires the full device path to be typed again before partitioning. It then prompts
+for the initial user's password.
 
 ## What the installer creates
 

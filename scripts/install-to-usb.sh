@@ -10,6 +10,22 @@ MIRROR="https://deb.debian.org/debian"
 TARGET="/mnt/vibrali-target"
 CONFIRMED=0
 NONINTERACTIVE=0
+PROFILE_SPEC="all"
+LIST_PROFILES=0
+
+list_optional_profiles() {
+  local manifest name
+
+  for manifest in "$ROOT_DIR"/packages/*.txt; do
+    [[ -e "$manifest" ]] || continue
+    name="${manifest##*/}"
+    name="${name%.txt}"
+    case "$name" in
+      base|desktop) continue ;;
+    esac
+    printf '%s\n' "$name"
+  done | LC_ALL=C sort
+}
 
 usage() {
   cat <<'EOF'
@@ -22,6 +38,9 @@ Options:
   --hostname NAME     Hostname (default: vibrali)
   --suite NAME        Upstream package suite (default: trixie)
   --mirror URL        Upstream package mirror
+  --profiles LIST     Optional package profiles: all, none, or comma-separated names
+                      (default: all; base and desktop are always installed)
+  --list-profiles     List available optional profile names and exit
   --yes-really-erase  Required destructive-operation acknowledgement
   --non-interactive   CI image build mode; accepted only for loop devices
   -h, --help          Show this help
@@ -35,11 +54,69 @@ while [[ $# -gt 0 ]]; do
     --hostname) HOSTNAME="${2:-}"; shift 2 ;;
     --suite) SUITE="${2:-}"; shift 2 ;;
     --mirror) MIRROR="${2:-}"; shift 2 ;;
+    --profiles)
+      PROFILE_SPEC="${2:-}"
+      [[ -n "$PROFILE_SPEC" ]] || { echo "--profiles requires a value." >&2; exit 2; }
+      shift 2
+      ;;
+    --list-profiles) LIST_PROFILES=1; shift ;;
     --yes-really-erase) CONFIRMED=1; shift ;;
     --non-interactive) NONINTERACTIVE=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 2 ;;
   esac
+done
+
+if [[ $LIST_PROFILES -eq 1 ]]; then
+  list_optional_profiles
+  exit 0
+fi
+
+SELECTED_MANIFESTS=(
+  "$ROOT_DIR/packages/base.txt"
+  "$ROOT_DIR/packages/desktop.txt"
+)
+SELECTED_PROFILES=()
+
+case "$PROFILE_SPEC" in
+  all)
+    mapfile -t SELECTED_PROFILES < <(list_optional_profiles)
+    ;;
+  none)
+    ;;
+  *)
+    IFS=',' read -r -a requested_profiles <<< "$PROFILE_SPEC"
+    for profile in "${requested_profiles[@]}"; do
+      [[ "$profile" =~ ^[a-z0-9][a-z0-9-]*$ ]] || {
+        echo "Invalid profile name: $profile" >&2
+        exit 2
+      }
+      case "$profile" in
+        base|desktop)
+          echo "Profile '$profile' is part of the mandatory core and should not be listed in --profiles." >&2
+          exit 2
+          ;;
+      esac
+      [[ -f "$ROOT_DIR/packages/$profile.txt" ]] || {
+        echo "Unknown optional profile: $profile" >&2
+        echo "Use --list-profiles to see valid names." >&2
+        exit 2
+      }
+
+      duplicate=0
+      for existing in "${SELECTED_PROFILES[@]}"; do
+        if [[ "$existing" == "$profile" ]]; then
+          duplicate=1
+          break
+        fi
+      done
+      [[ $duplicate -eq 1 ]] || SELECTED_PROFILES+=("$profile")
+    done
+    ;;
+esac
+
+for profile in "${SELECTED_PROFILES[@]}"; do
+  SELECTED_MANIFESTS+=("$ROOT_DIR/packages/$profile.txt")
 done
 
 [[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
@@ -73,6 +150,15 @@ done
 echo
 echo "Vibrali will ERASE the following disk:"
 lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$DEVICE"
+echo
+if ((${#SELECTED_PROFILES[@]} > 0)); then
+  (
+    IFS=,
+    echo "Optional profiles: ${SELECTED_PROFILES[*]}"
+  )
+else
+  echo "Optional profiles: none"
+fi
 echo
 
 if [[ $NONINTERACTIVE -eq 1 ]]; then
@@ -131,7 +217,9 @@ fi
 if [[ "$DEVICE_TYPE" == "loop" ]] && command -v partx >/dev/null 2>&1; then
   partx -u "$DEVICE" || true
 fi
-command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+if command -v udevadm >/dev/null 2>&1; then
+  udevadm settle || true
+fi
 
 for _ in $(seq 1 20); do
   [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
@@ -184,7 +272,7 @@ cp --dereference /etc/resolv.conf "$TARGET/etc/resolv.conf"
 }
 
 mapfile -t PACKAGES < <(
-  cat "$ROOT_DIR"/packages/*.txt |
+  cat "${SELECTED_MANIFESTS[@]}" |
     sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' |
     sort -u
 )

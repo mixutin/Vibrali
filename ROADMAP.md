@@ -46,7 +46,7 @@
 - [x] wireless profile
 - [x] authentication-audit profile
 - [x] directory-services profile
-- [ ] optional profile selector
+- [x] optional profile selector
 - [ ] pinned upstream tool framework
 - [ ] large optional wordlist profile
 

@@ -51,4 +51,19 @@ for path in paths:
 print("package manifests: ok")
 PY
 
+diff -u \
+  <(
+    for path in packages/*.txt; do
+      name="${path##*/}"
+      name="${name%.txt}"
+      case "$name" in
+        base|desktop) continue ;;
+      esac
+      printf '%s\n' "$name"
+    done | LC_ALL=C sort
+  ) \
+  <(./scripts/install-to-usb.sh --list-profiles)
+
+grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
+
 echo "Vibrali repository validation passed."
