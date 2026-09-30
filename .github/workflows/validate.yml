@@ -21,3 +21,5 @@ jobs:
         run: ./scripts/validate.sh
       - name: ShellCheck
         run: shellcheck scripts/*.sh site/install.sh
+      - name: Installer device-safety tests
+        run: sudo bash ./scripts/test-installer-device-safety.sh
