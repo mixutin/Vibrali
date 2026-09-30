@@ -78,6 +78,64 @@ For removable-storage endurance, Vibrali also applies user-overridable Firefox d
 
 These are `default` enterprise-policy preferences rather than locked preferences, so a user can change them in Firefox when a workflow benefits from disk caching or a shorter crash-recovery interval. Increasing the session-store interval can mean that the newest tab-state changes are not captured if Firefox or the computer crashes abruptly.
 
+## Web testing browsers, proxies and interception CAs
+
+Vibrali ships Firefox ESR and Chromium from Debian. It deliberately does not force a
+proxy or trust an interception certificate globally: those settings are target/lab
+specific and a trusted interception CA can decrypt traffic for any site accepted by that
+browser profile.
+
+For a local proxy such as Burp or another authorized testing proxy listening on
+`127.0.0.1:8080`:
+
+- Firefox: Settings → Network Settings → Manual proxy configuration, then set HTTP/HTTPS
+  proxy to `127.0.0.1` port `8080`.
+- Chromium: launch a dedicated testing session with
+  `chromium --user-data-dir="$HOME/.config/chromium-vibrali-test" --proxy-server=http://127.0.0.1:8080`.
+
+Keep a separate browser profile for interception work so ordinary browsing does not
+silently inherit a testing proxy.
+
+To trust an interception CA, export the CA certificate from the proxy and import it only
+into the dedicated browser profile. In Firefox use Settings → Privacy & Security →
+Certificates → View Certificates → Authorities → Import. In Chromium use its certificate
+manager from Settings/Security for the dedicated profile. Remove the CA when the lab or
+engagement is finished. Vibrali never installs or trusts a proxy CA automatically.
+
+For command-line clients, prefer an explicit per-command proxy rather than a global shell
+export, for example:
+
+~~~bash
+curl --proxy http://127.0.0.1:8080 https://example.test/
+~~~
+
+Do not use `--insecure` as a permanent workaround for TLS errors; import the intended lab
+CA into the specific tool/profile instead.
+
+## Python environments and pipx
+
+`python3-venv` and `pipx` are part of the base workstation. Keep project libraries
+isolated from Debian's system Python:
+
+~~~bash
+python3 -m venv ~/Projects/demo/.venv
+source ~/Projects/demo/.venv/bin/activate
+python -m pip install --upgrade pip
+~~~
+
+For standalone Python CLI tools that are not Debian packages, use pipx as your normal
+user so each tool gets its own environment:
+
+~~~bash
+pipx ensurepath
+pipx install PACKAGE_NAME
+pipx list
+~~~
+
+pipx state lives in the user's persistent home directory, so installed CLI tools follow
+the USB. Prefer Debian packages or Vibrali's pinned external-tool framework for tools that
+must be part of a reproducible release image.
+
 ## Display scaling
 
 On the first XFCE login, Vibrali checks the primary display geometry with `xrandr` and uses
