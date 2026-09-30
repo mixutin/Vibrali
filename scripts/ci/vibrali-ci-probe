@@ -8,6 +8,7 @@ STATE_DIR=/var/lib/vibrali/ci
 COUNT_FILE="$STATE_DIR/boot-count"
 PERSIST_FILE="$STATE_DIR/persistence-marker"
 PACKAGE_NAME=vibrali-ci-persistence-marker
+CONTAINER_VOLUME=vibrali-ci-persist
 FAILURES=0
 
 mkdir -p "$STATE_DIR"
@@ -184,6 +185,14 @@ check "tool-wireless-bully" check_command bully
 
 check "tool-directory-impacket" python3 -c 'import impacket'
 check "tool-defensive-lynis" check_command lynis
+check "tool-containers-podman" podman --version
+check "tool-containers-buildah" buildah --version
+check "tool-containers-skopeo" skopeo --version
+check "tool-dev-go" go version
+check "tool-dev-rust" rustc --version
+check "tool-dev-cargo" cargo --version
+check "tool-dev-node" node --version
+check "tool-dev-npm" npm --version
 
 if [[ $count -eq 1 ]]; then
   printf 'vibrali-qemu-persistence\n' > "$PERSIST_FILE"
@@ -207,6 +216,12 @@ EOF
     fail "package-install"
   fi
   rm -rf "$package_root" /tmp/vibrali-ci-marker.deb
+
+  if runuser -u vibrali -- podman volume create "$CONTAINER_VOLUME" >/dev/null 2>&1; then
+    pass "container-volume-created"
+  else
+    fail "container-volume-created"
+  fi
 else
   if grep -qx 'vibrali-qemu-persistence' "$PERSIST_FILE" 2>/dev/null; then
     pass "writable-state-persisted"
@@ -222,6 +237,12 @@ else
   fi
 
   check "package-file-persisted" test -f /usr/local/share/vibrali-ci-package-marker
+
+  if runuser -u vibrali -- podman volume exists "$CONTAINER_VOLUME"; then
+    pass "container-volume-persisted"
+  else
+    fail "container-volume-persisted"
+  fi
 fi
 
 sync

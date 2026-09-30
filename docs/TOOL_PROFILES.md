@@ -18,6 +18,8 @@ The package manifests under `packages/` are authoritative. This document explain
 | `wireless` | Wi-Fi assessment workflows | `aircrack-ng` present | Aircrack-ng, hcxtools, Reaver, Bully, iw, rfkill, macchanger |
 | `directory-services` | LDAP/Kerberos/SMB/AD client tooling | Python `impacket` import | Impacket, LDAP utilities, Kerberos client, Remmina |
 | `defensive` | Local host inspection | `lynis` present | Lynis, chkrootkit |
+| `containers` | Rootless container/lab workflows | `podman --version` | Podman, Buildah, Skopeo, podman-compose, fuse-overlayfs |
+| `dev-runtimes` | Optional CTF/dev language runtimes | `go version`, `rustc --version`, `node --version` | Go, Rust/Cargo, Node.js/npm |
 
 ## Listing and selecting profiles
 
@@ -41,7 +43,7 @@ Install a subset:
 ~~~bash
 sudo ./scripts/install-to-usb.sh \
   --device /dev/sdX \
-  --profiles web,network,forensics \
+  --profiles web,network,forensics,containers,dev-runtimes \
   --yes-really-erase
 ~~~
 
@@ -67,3 +69,8 @@ A command-presence/runtime smoke check is not a claim that every feature of a to
 Tools that are not available from the selected Debian release should not be added through arbitrary installer scripts. They belong in Vibrali's pinned external-tool framework with a fixed version, official source, checksum and license context.
 
 See [TOOLING.md](TOOLING.md) and `external-tools/README.md`.
+
+
+## Rootless container persistence
+
+The `containers` profile uses Podman so a normal Vibrali user can keep container images, volumes and lab state under the persistent home directory without enabling a privileged Docker daemon by default. The QEMU smoke test creates a rootless Podman volume on the first boot and requires it to still exist on the second boot.

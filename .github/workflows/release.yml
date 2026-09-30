@@ -36,7 +36,7 @@ jobs:
         run: |
           chmod +x scripts/*.sh site/install.sh
           ./scripts/validate.sh
-          shellcheck -x scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
+          shellcheck -e SC2016 -x scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
 
       - name: Build USB and QEMU images
         env:

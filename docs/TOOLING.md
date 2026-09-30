@@ -16,6 +16,8 @@ Current profiles:
 - wireless — Aircrack-ng, hcxtools, Reaver, Bully and wireless utilities
 - directory-services — Impacket, LDAP/Kerberos clients and remote-access tools
 - defensive — Lynis and local integrity/rootkit inspection helpers
+- containers — rootless Podman, Buildah, Skopeo and compose-compatible lab tooling
+- dev-runtimes — optional Go, Rust/Cargo and Node.js/npm toolchains
 
 The native installer always installs the `base` and `desktop` manifests and supports optional security profiles with `--profiles all|none|name1,name2`. Use `--list-profiles` to see the available optional profiles.
 
