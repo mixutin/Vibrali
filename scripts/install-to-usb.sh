@@ -453,7 +453,7 @@ chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAG
 
 echo "Applying Vibrali identity and desktop defaults..."
 rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"
-chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/vibrali-toolbox" "$TARGET/usr/local/bin/vibrali-firewall" "$TARGET/usr/local/bin/vibrali-display-scale" "$TARGET/usr/local/bin/neofetch"
+chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/vibrali-toolbox" "$TARGET/usr/local/bin/vibrali-firewall" "$TARGET/usr/local/bin/vibrali-display-scale" "$TARGET/usr/local/sbin/vibrali-grow-root" "$TARGET/usr/local/bin/neofetch"
 chmod 0440 "$TARGET/etc/sudoers.d/90-vibrali"
 
 mkdir -p "$TARGET/etc/vibrali"
@@ -514,6 +514,7 @@ chroot "$TARGET" systemctl enable fstrim.timer
 chroot "$TARGET" systemctl enable zramswap.service
 chroot "$TARGET" systemctl enable nftables.service
 chroot "$TARGET" systemctl enable apparmor.service
+chroot "$TARGET" systemctl enable vibrali-grow-root.service
 
 # Optional tooling may install background services. Keep network-facing/discovery daemons
 # opt-in on a portable workstation that may be connected to untrusted networks.
