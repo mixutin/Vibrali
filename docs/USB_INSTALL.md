@@ -182,7 +182,8 @@ computer. The passphrase is required during early boot before the encrypted root
 mounted.
 
 The prebuilt public release image is currently unencrypted; use the source installer when
-LUKS2 root encryption is required.
+LUKS2 root encryption is required. See [ENCRYPTION.md](ENCRYPTION.md) for the full layout,
+portability model and recovery-key guidance.
 
 
 ## After installation
