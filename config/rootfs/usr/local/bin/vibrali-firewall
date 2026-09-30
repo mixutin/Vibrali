@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  sudo vibrali-firewall status
+  sudo vibrali-firewall on
+  sudo vibrali-firewall off
+  sudo vibrali-firewall reload
+  sudo vibrali-firewall allow <tcp|udp> <port>
+
+The default Vibrali policy allows outbound traffic and drops unsolicited inbound traffic.
+"allow" adds a temporary rule for the current boot/ruleset; it is not persisted.
+EOF
+}
+
+need_root() {
+  [[ $EUID -eq 0 ]] || {
+    echo "Run this command with sudo." >&2
+    exit 1
+  }
+}
+
+case "${1:-}" in
+  status)
+    systemctl --no-pager --full status nftables || true
+    echo
+    nft list table inet vibrali 2>/dev/null || echo "Vibrali firewall table is not loaded."
+    ;;
+  on)
+    need_root
+    nft -f /etc/nftables.conf
+    systemctl enable nftables >/dev/null
+    systemctl start nftables
+    echo "Vibrali firewall enabled."
+    ;;
+  off)
+    need_root
+    systemctl stop nftables || true
+    nft flush ruleset
+    echo "Vibrali firewall disabled until explicitly re-enabled."
+    ;;
+  reload)
+    need_root
+    nft -f /etc/nftables.conf
+    echo "Vibrali firewall baseline reloaded."
+    ;;
+  allow)
+    need_root
+    proto="${2:-}"
+    port="${3:-}"
+    [[ "$proto" == "tcp" || "$proto" == "udp" ]] || {
+      echo "Protocol must be tcp or udp." >&2
+      exit 2
+    }
+    [[ "$port" =~ ^[0-9]+$ ]] && (( port >= 1 && port <= 65535 )) || {
+      echo "Port must be an integer from 1 to 65535." >&2
+      exit 2
+    }
+    nft list table inet vibrali >/dev/null 2>&1 || nft -f /etc/nftables.conf
+    nft insert rule inet vibrali input "$proto" dport "$port" accept comment '"temporary Vibrali listener"'
+    echo "Temporarily allowed inbound $proto/$port. Reload or reboot to remove temporary rules."
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
