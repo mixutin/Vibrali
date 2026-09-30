@@ -10,6 +10,15 @@ required=(
   docs/ARCHITECTURE.md
   docs/USB_INSTALL.md
   docs/WORKSTATION.md
+  docs/DEVELOPMENT.md
+  docs/FAQ.md
+  docs/HARDWARE.md
+  docs/RECOVERY.md
+  docs/RELEASE_CHECKLIST.md
+  docs/RELEASE_NOTES_TEMPLATE.md
+  docs/RELEASE_POLICY.md
+  docs/TROUBLESHOOTING.md
+  CONTRIBUTING.md
   external-tools/README.md
   external-tools/manifest.txt
   packages/base.txt
