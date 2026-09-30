@@ -24,7 +24,7 @@ rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS"
 mkdir -p "$CI_MOUNT"
 rm -f "$CI_QCOW"
 
-for cmd in truncate losetup qemu-img zstd sha256sum; do
+for cmd in truncate losetup qemu-img zstd sha256sum mount umount mountpoint install; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing command: $cmd" >&2
     exit 1
@@ -37,9 +37,13 @@ LOOP="$(losetup --find --show "$RAW")"
 cleanup() {
   set +e
   sync
+  mountpoint -q "$CI_MOUNT" && umount "$CI_MOUNT"
   losetup -d "${LOOP:-}" 2>/dev/null || true
 }
 trap cleanup EXIT
+
+[[ -s "$PROBE_SOURCE" ]] || { echo "Missing CI guest probe: $PROBE_SOURCE" >&2; exit 1; }
+[[ -s "$PROBE_UNIT_SOURCE" ]] || { echo "Missing CI guest probe unit: $PROBE_UNIT_SOURCE" >&2; exit 1; }
 
 echo "Building Vibrali portable disk on $LOOP..."
 VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh" \
