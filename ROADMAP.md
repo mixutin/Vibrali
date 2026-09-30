@@ -485,7 +485,7 @@ Goal: everything a user or contributor needs is understandable without reading t
 - [x] Add contributor guide
 - [x] Add development/test guide
 - [x] Add release checklist
-- [ ] Add tool-profile reference
+- [x] Add tool-profile reference
 - [ ] Add screenshots to README/site
 - [x] Add FAQ
 - [ ] Review all docs against current behavior before 1.0
