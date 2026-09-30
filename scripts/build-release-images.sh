@@ -11,6 +11,8 @@ QCOW="$OUT/vibrali-qemu-amd64.qcow2"
 CI_DIR="$OUT/.ci"
 CI_QCOW="$CI_DIR/vibrali-qemu-ci.qcow2"
 CI_MOUNT="$CI_DIR/root"
+BUILD_INFO="$OUT/BUILD_INFO.txt"
+PACKAGE_VERSIONS="$OUT/PACKAGE_VERSIONS.txt"
 PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
 PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 
@@ -20,7 +22,7 @@ PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 }
 
 mkdir -p "$OUT"
-rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS"
+rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS" "$BUILD_INFO" "$PACKAGE_VERSIONS"
 mkdir -p "$CI_MOUNT"
 rm -f "$CI_QCOW"
 
@@ -59,6 +61,39 @@ ROOT_PART="${LOOP}p3"
 sync
 echo "Injecting CI-only boot probe..."
 mount "$ROOT_PART" "$CI_MOUNT"
+
+echo "Recording release build provenance..."
+SOURCE_COMMIT="${VIBRALI_SOURCE_COMMIT:-}"
+if [[ -z "$SOURCE_COMMIT" ]] && command -v git >/dev/null 2>&1; then
+  SOURCE_COMMIT="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
+fi
+[[ -n "$SOURCE_COMMIT" ]] || SOURCE_COMMIT=unknown
+DEBIAN_SUITE="$(awk -F= '$1 == "VERSION_CODENAME" {gsub(/"/, "", $2); print $2}' "$CI_MOUNT/etc/os-release")"
+PROFILES="$(tr '\n' ',' < "$CI_MOUNT/etc/vibrali/profiles" | sed 's/,$//')"
+
+{
+  printf 'Package\tVersion\n'
+  chroot "$CI_MOUNT" dpkg-query -W -f='${binary:Package}\t${Version}\n' | LC_ALL=C sort
+} > "$PACKAGE_VERSIONS"
+
+{
+  printf 'source_commit=%s\n' "$SOURCE_COMMIT"
+  printf 'debian_suite=%s\n' "$DEBIAN_SUITE"
+  printf 'architecture=amd64\n'
+  printf 'image_size=%s\n' "$SIZE"
+  printf 'profiles=%s\n' "$PROFILES"
+  printf 'github_ref=%s\n' "${GITHUB_REF:-local}"
+  printf 'github_run_id=%s\n' "${GITHUB_RUN_ID:-local}"
+  printf '\n[build-input-sha256]\n'
+  (
+    cd "$ROOT"
+    sha256sum packages/*.txt external-tools/manifest.txt \
+      scripts/install-to-usb.sh scripts/build-release-images.sh
+  )
+  printf '\n[apt-sources]\n'
+  cat "$CI_MOUNT/etc/apt/sources.list"
+} > "$BUILD_INFO"
+
 install -Dm0755 "$PROBE_SOURCE" "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe"
 install -Dm0644 "$PROBE_UNIT_SOURCE" "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service"
 mkdir -p "$CI_MOUNT/etc/systemd/system/graphical.target.wants"
@@ -102,7 +137,7 @@ umount "$LOCK_MOUNT"
 echo "Compressing locked USB image..."
 zstd -T0 -19 -f "$RAW" -o "$USB"
 
-sha256sum "$USB" "$VM" | sed "s#$OUT/##" > "$OUT/SHA256SUMS"
+sha256sum "$USB" "$VM" "$BUILD_INFO" "$PACKAGE_VERSIONS" | sed "s#$OUT/##" > "$OUT/SHA256SUMS"
 rm -f "$RAW"
 
 echo "Release images:"
