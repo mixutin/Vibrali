@@ -311,7 +311,7 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 - [ ] Review browser/cache write amplification
 - [x] Document minimum/recommended device endurance
 - [x] Add backup/export guidance for user data
-- [ ] Add restore/recovery procedure
+- [x] Add restore/recovery procedure
 
 ### Phase 4 exit gate
 
@@ -392,8 +392,8 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [ ] Include filesystem recovery tools
 - [ ] Add "install Vibrali" launcher
 - [ ] Add graphical USB installer
-- [ ] Add recovery workflow for broken GRUB
-- [ ] Add recovery workflow for broken initramfs
+- [x] Add recovery workflow for broken GRUB
+- [x] Add recovery workflow for broken initramfs
 - [ ] Add recovery workflow for LUKS installs
 
 ### Phase 6 exit gate
@@ -479,8 +479,8 @@ Goal: everything a user or contributor needs is understandable without reading t
 - [x] Release documentation
 - [x] Branding documentation
 - [ ] Add hardware compatibility guide
-- [ ] Add troubleshooting guide
-- [ ] Add recovery guide
+- [x] Add troubleshooting guide
+- [x] Add recovery guide
 - [ ] Add encrypted-install guide
 - [ ] Add contributor guide
 - [ ] Add development/test guide
