@@ -31,7 +31,7 @@ On Debian or Ubuntu:
 
 ~~~bash
 sudo apt update
-sudo apt install debootstrap gdisk dosfstools e2fsprogs grub2-common
+sudo apt install debootstrap gdisk dosfstools e2fsprogs grub2-common cryptsetup
 ~~~
 
 The installer also expects standard util-linux tools such as lsblk, blkid, mount and
@@ -126,10 +126,21 @@ the host log for troubleshooting.
 ## What the installer creates
 
 ~~~text
+Default layout:
+
 GPT
 ├── 1 MiB BIOS Boot partition
 ├── 512 MiB FAT32 EFI System Partition
 └── ext4 root filesystem using the remaining space
+
+With `--encrypt-root`:
+
+GPT
+├── 1 MiB BIOS Boot partition
+├── 512 MiB FAT32 EFI System Partition
+├── 1 GiB ext4 /boot partition
+└── LUKS2 container using the remaining space
+    └── ext4 root filesystem
 ~~~
 
 The Vibrali base is bootstrapped into the root filesystem from Debian 13 package repositories. Vibrali package manifests and branding are then applied, a normal user is created, and GRUB is configured for portable UEFI boot.
@@ -153,8 +164,26 @@ not present on the current PC.
 Avoid depending on firmware NVRAM boot entries. Vibrali intentionally uses the standard
 removable EFI path.
 
-For sensitive work, wait for the planned LUKS2 installer mode or manually encrypt
-sensitive project data.
+For sensitive work, the source installer supports optional LUKS2 root encryption:
+
+~~~bash
+sudo ./scripts/install-to-usb.sh \
+  --device /dev/sdX \
+  --profiles all \
+  --encrypt-root \
+  --yes-really-erase
+~~~
+
+Encrypted mode uses a separate unencrypted 1 GiB `/boot` partition and a LUKS2 root
+partition. The installer asks for a separate disk-unlock passphrase, installs
+`cryptsetup-initramfs`, and writes the LUKS UUID to `/etc/crypttab`. Unlocking is
+passphrase-based and does not enroll or depend on a TPM, so the USB is not tied to one
+computer. The passphrase is required during early boot before the encrypted root is
+mounted.
+
+The prebuilt public release image is currently unencrypted; use the source installer when
+LUKS2 root encryption is required. See [ENCRYPTION.md](ENCRYPTION.md) for the full layout,
+portability model and recovery-key guidance.
 
 
 ## After installation

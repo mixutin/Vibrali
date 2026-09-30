@@ -324,10 +324,10 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 
 Goal: losing the USB should not automatically expose the user's projects and credentials.
 
-- [ ] Add optional LUKS2 encrypted root installation
+- [x] Add optional LUKS2 encrypted root installation
 - [ ] Ensure encrypted drive remains portable between computers
-- [ ] Do not require a specific TPM to unlock
-- [ ] Add recovery-key workflow
+- [x] Do not require a specific TPM to unlock
+- [x] Add recovery-key workflow
 - [ ] Verify encrypted boot through removable UEFI path
 - [ ] Test kernel/initramfs updates on encrypted installs
 - [x] Add secure password guidance
@@ -380,7 +380,7 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Add dry-run mode
 - [x] Add explicit minimum-size check
 - [x] Add removable-device detection/warning
-- [ ] Add optional encrypted-root mode
+- [x] Add optional encrypted-root mode
 - [x] Add install log
 - [x] Add post-install verification summary
 
@@ -394,7 +394,7 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [ ] Add graphical USB installer
 - [x] Add recovery workflow for broken GRUB
 - [x] Add recovery workflow for broken initramfs
-- [ ] Add recovery workflow for LUKS installs
+- [x] Add recovery workflow for LUKS installs
 
 ### Phase 6 exit gate
 
@@ -481,7 +481,7 @@ Goal: everything a user or contributor needs is understandable without reading t
 - [x] Add hardware compatibility guide
 - [x] Add troubleshooting guide
 - [x] Add recovery guide
-- [ ] Add encrypted-install guide
+- [x] Add encrypted-install guide
 - [x] Add contributor guide
 - [x] Add development/test guide
 - [x] Add release checklist
@@ -509,7 +509,7 @@ All items below must be checked before declaring Vibrali 1.0 complete.
 - [ ] Installer destructive safeguards are verified
 - [x] Release checksum/signature verification is documented
 - [ ] Recovery documentation is tested
-- [ ] Encryption status is clearly documented
+- [x] Encryption status is clearly documented
 - [ ] No default credential remains on the physical USB release path
 - [ ] First stable release notes list supported hardware assumptions
 - [ ] First stable release image has been installed from the public download path

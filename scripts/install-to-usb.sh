@@ -13,6 +13,9 @@ NONINTERACTIVE=0
 PROFILE_SPEC="all"
 LIST_PROFILES=0
 DRY_RUN=0
+ENCRYPT_ROOT=0
+CRYPT_NAME="vibrali-root"
+LUKS_PASSWORD=""
 MIN_DEVICE_GIB=12
 RECOMMENDED_DEVICE_GIB=64
 MIN_DEVICE_BYTES=$((MIN_DEVICE_GIB * 1024 * 1024 * 1024))
@@ -47,6 +50,7 @@ Options:
                       (default: all; base and desktop are always installed)
   --list-profiles     List available optional profile names and exit
   --dry-run           Validate target/options and print the install plan without changes
+  --encrypt-root      Encrypt root with LUKS2; keeps /boot and EFI unencrypted
   --yes-really-erase  Required destructive-operation acknowledgement
   --non-interactive   CI image build mode; accepted only for loop devices
   -h, --help          Show this help
@@ -67,6 +71,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --list-profiles) LIST_PROFILES=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
+    --encrypt-root) ENCRYPT_ROOT=1; shift ;;
     --yes-really-erase) CONFIRMED=1; shift ;;
     --non-interactive) NONINTERACTIVE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -188,6 +193,11 @@ else
 fi
 echo "Minimum target size:     ${MIN_DEVICE_GIB} GiB"
 echo "Recommended target size: ${RECOMMENDED_DEVICE_GIB} GiB"
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  echo "Root encryption:          LUKS2 (portable passphrase unlock; no TPM dependency)"
+else
+  echo "Root encryption:          disabled"
+fi
 if (( DEVICE_SIZE_BYTES < RECOMMENDED_DEVICE_BYTES )); then
   echo "Note: this target is below the recommended ${RECOMMENDED_DEVICE_GIB} GiB for a full pentesting workstation." >&2
 fi
@@ -212,6 +222,13 @@ for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot rsyn
   }
 done
 
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  command -v cryptsetup >/dev/null 2>&1 || {
+    echo "Missing build-host command for --encrypt-root: cryptsetup" >&2
+    exit 1
+  }
+fi
+
 INSTALL_LOG="$(mktemp /tmp/vibrali-install.XXXXXX.log)"
 exec > >(tee -a "$INSTALL_LOG") 2>&1
 echo "Install log: $INSTALL_LOG"
@@ -221,6 +238,10 @@ if [[ $NONINTERACTIVE -eq 1 ]]; then
   PASSWORD="${VIBRALI_PASSWORD:-}"
   [[ -n "$PASSWORD" ]] || { echo "VIBRALI_PASSWORD is required in CI mode." >&2; exit 1; }
   PASSWORD2="$PASSWORD"
+  if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+    LUKS_PASSWORD="${VIBRALI_LUKS_PASSWORD:-}"
+    [[ -n "$LUKS_PASSWORD" ]] || { echo "VIBRALI_LUKS_PASSWORD is required with --encrypt-root in CI mode." >&2; exit 1; }
+  fi
 else
   read -r -p "Type the full device path ($DEVICE) to continue: " typed
   [[ "$typed" == "$DEVICE" ]] || { echo "Cancelled."; exit 1; }
@@ -232,6 +253,18 @@ else
     echo "Passwords did not match." >&2
     exit 1
   }
+
+  if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+    read -r -s -p "LUKS2 root passphrase: " LUKS_PASSWORD
+    echo
+    read -r -s -p "Repeat LUKS2 passphrase: " LUKS_PASSWORD2
+    echo
+    [[ -n "$LUKS_PASSWORD" && "$LUKS_PASSWORD" == "$LUKS_PASSWORD2" ]] || {
+      echo "LUKS2 passphrases did not match." >&2
+      exit 1
+    }
+    LUKS_PASSWORD2=""
+  fi
 fi
 
 verify_install() {
@@ -252,6 +285,16 @@ verify_install() {
   else
     echo "  [FAIL] root filesystem UUID" >&2
     failures=$((failures + 1))
+  fi
+
+  if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+    if grep -Fq "$CRYPT_NAME UUID=$LUKS_UUID none luks" "$TARGET/etc/crypttab" &&
+       grep -Fq "UUID=$BOOT_UUID /boot ext4" "$TARGET/etc/fstab"; then
+      echo "  [PASS] LUKS2 root mapping and separate /boot"
+    else
+      echo "  [FAIL] LUKS2 root mapping or /boot UUID" >&2
+      failures=$((failures + 1))
+    fi
   fi
 
   if grep -Fq "UUID=$EFI_UUID /boot/efi vfat" "$TARGET/etc/fstab"; then
@@ -352,7 +395,14 @@ part() {
 }
 
 EFI_PART="$(part 2)"
-ROOT_PART="$(part 3)"
+BOOT_PART=""
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  BOOT_PART="$(part 3)"
+  ROOT_PART="$(part 4)"
+else
+  ROOT_PART="$(part 3)"
+fi
+ROOT_DEVICE="$ROOT_PART"
 MOUNTS=()
 
 cleanup() {
@@ -360,6 +410,9 @@ cleanup() {
   for ((i=${#MOUNTS[@]}-1; i>=0; i--)); do
     mountpoint -q "${MOUNTS[$i]}" && umount "${MOUNTS[$i]}"
   done
+  if [[ $ENCRYPT_ROOT -eq 1 ]] && cryptsetup status "$CRYPT_NAME" >/dev/null 2>&1; then
+    cryptsetup close "$CRYPT_NAME" || true
+  fi
 }
 trap cleanup EXIT
 
@@ -373,7 +426,12 @@ echo "Creating GPT layout..."
 sgdisk --zap-all "$DEVICE"
 sgdisk --new=1:1MiB:+1MiB --typecode=1:ef02 --change-name=1:BIOS_BOOT "$DEVICE"
 sgdisk --new=2:0:+512MiB --typecode=2:ef00 --change-name=2:VIBRALI_EFI "$DEVICE"
-sgdisk --new=3:0:0 --typecode=3:8300 --change-name=3:VIBRALI_ROOT "$DEVICE"
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  sgdisk --new=3:0:+1GiB --typecode=3:8300 --change-name=3:VIBRALI_BOOT "$DEVICE"
+  sgdisk --new=4:0:0 --typecode=4:8309 --change-name=4:VIBRALI_CRYPT "$DEVICE"
+else
+  sgdisk --new=3:0:0 --typecode=3:8300 --change-name=3:VIBRALI_ROOT "$DEVICE"
+fi
 
 if command -v partprobe >/dev/null 2>&1; then
   partprobe "$DEVICE" || true
@@ -386,25 +444,48 @@ if command -v udevadm >/dev/null 2>&1; then
 fi
 
 for _ in $(seq 1 20); do
-  [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
+  if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+    [[ -b "$EFI_PART" && -b "$BOOT_PART" && -b "$ROOT_PART" ]] && break
+  else
+    [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
+  fi
   if command -v udevadm >/dev/null 2>&1; then
     udevadm settle || true
   fi
   sleep 0.5
 done
 
-[[ -b "$EFI_PART" && -b "$ROOT_PART" ]] || {
-  echo "Partitions did not appear as expected." >&2
-  exit 1
-}
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  [[ -b "$EFI_PART" && -b "$BOOT_PART" && -b "$ROOT_PART" ]] || {
+    echo "Encrypted-install partitions did not appear as expected." >&2
+    exit 1
+  }
+else
+  [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] || {
+    echo "Partitions did not appear as expected." >&2
+    exit 1
+  }
+fi
 
 echo "Formatting filesystems..."
 mkfs.vfat -F 32 -n VIBRALI_EFI "$EFI_PART"
-mkfs.ext4 -F -L VIBRALI_ROOT "$ROOT_PART"
+
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  mkfs.ext4 -F -L VIBRALI_BOOT "$BOOT_PART"
+  printf '%s' "$LUKS_PASSWORD" | cryptsetup luksFormat --type luks2 --batch-mode --key-file - "$ROOT_PART"
+  printf '%s' "$LUKS_PASSWORD" | cryptsetup open --key-file - "$ROOT_PART" "$CRYPT_NAME"
+  ROOT_DEVICE="/dev/mapper/$CRYPT_NAME"
+fi
+mkfs.ext4 -F -L VIBRALI_ROOT "$ROOT_DEVICE"
 
 mkdir -p "$TARGET"
-mount "$ROOT_PART" "$TARGET"
+mount "$ROOT_DEVICE" "$TARGET"
 MOUNTS+=("$TARGET")
+mkdir -p "$TARGET/boot"
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  mount "$BOOT_PART" "$TARGET/boot"
+  MOUNTS+=("$TARGET/boot")
+fi
 mkdir -p "$TARGET/boot/efi"
 mount "$EFI_PART" "$TARGET/boot/efi"
 MOUNTS+=("$TARGET/boot/efi")
@@ -440,6 +521,9 @@ mapfile -t PACKAGES < <(
     sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' |
     sort -u
 )
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  PACKAGES+=(cryptsetup-initramfs)
+fi
 
 echo "Installing Vibrali packages..."
 chroot "$TARGET" apt-get update
@@ -485,13 +569,26 @@ fi
 chroot "$TARGET" passwd -l root
 chroot "$TARGET" chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 
-ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
+ROOT_UUID="$(blkid -s UUID -o value "$ROOT_DEVICE")"
 EFI_UUID="$(blkid -s UUID -o value "$EFI_PART")"
 
-cat > "$TARGET/etc/fstab" <<EOF
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  BOOT_UUID="$(blkid -s UUID -o value "$BOOT_PART")"
+  LUKS_UUID="$(cryptsetup luksUUID "$ROOT_PART")"
+  cat > "$TARGET/etc/crypttab" <<EOF
+$CRYPT_NAME UUID=$LUKS_UUID none luks
+EOF
+  cat > "$TARGET/etc/fstab" <<EOF
+UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
+UUID=$BOOT_UUID /boot ext4 defaults,noatime 0 2
+UUID=$EFI_UUID /boot/efi vfat umask=0077 0 1
+EOF
+else
+  cat > "$TARGET/etc/fstab" <<EOF
 UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
 UUID=$EFI_UUID /boot/efi vfat umask=0077 0 1
 EOF
+fi
 
 echo "Configuring portable Vibrali boot..."
 mkdir -p "$TARGET/etc/default/grub.d"
@@ -546,12 +643,17 @@ install -Dm0600 "$INSTALL_LOG" "$TARGET/var/log/vibrali-install.log"
 
 PASSWORD=""
 PASSWORD2=""
+LUKS_PASSWORD=""
 
 echo
 echo "Vibrali installation complete."
 echo "Target: $DEVICE"
-echo "Root:   $ROOT_PART"
-echo "EFI:    $EFI_PART"
+echo "Root partition: $ROOT_PART"
+if [[ $ENCRYPT_ROOT -eq 1 ]]; then
+  echo "Root mapper:    $ROOT_DEVICE"
+  echo "Boot:           $BOOT_PART"
+fi
+echo "EFI:            $EFI_PART"
 echo "Host install log: $INSTALL_LOG"
 echo "USB install log:  /var/log/vibrali-install.log"
 echo

@@ -13,6 +13,7 @@ help_output="$("$INSTALLER" --help)"
 grep -q -- '--profiles LIST' <<<"$help_output" || fail "missing --profiles help"
 grep -q -- '--list-profiles' <<<"$help_output" || fail "missing --list-profiles help"
 grep -q -- '--dry-run' <<<"$help_output" || fail "missing --dry-run help"
+grep -q -- '--encrypt-root' <<<"$help_output" || fail "missing --encrypt-root help"
 
 expected_profiles="$(
   for path in "$ROOT"/packages/*.txt; do

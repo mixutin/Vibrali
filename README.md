@@ -206,3 +206,6 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design and
 
 Project-specific source and configuration are GPL-3.0-only. Packaged software retains
 its upstream license.
+
+
+Encrypted source installs: see [docs/ENCRYPTION.md](docs/ENCRYPTION.md).
