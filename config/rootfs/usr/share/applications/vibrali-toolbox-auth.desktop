@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Authentication Audit Toolbox
+Comment=Open a shell with installed Authentication Audit tools listed
+Exec=/usr/local/bin/vibrali-toolbox auth
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliAuth;
