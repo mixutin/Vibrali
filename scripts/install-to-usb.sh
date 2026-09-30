@@ -275,6 +275,17 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if [[ -x "$TARGET/usr/bin/dumpcap" ]]; then
+    if chroot "$TARGET" id -nG "$USERNAME" | grep -qw wireshark &&
+       chroot "$TARGET" getcap /usr/bin/dumpcap | grep -Fq cap_net_admin &&
+       chroot "$TARGET" getcap /usr/bin/dumpcap | grep -Fq cap_net_raw; then
+      echo "  [PASS] non-root Wireshark capture privileges"
+    else
+      echo "  [FAIL] non-root Wireshark capture privileges" >&2
+      failures=$((failures + 1))
+    fi
+  fi
+
   if chroot "$TARGET" systemctl is-enabled NetworkManager >/dev/null 2>&1; then
     echo "  [PASS] NetworkManager enabled"
   else
