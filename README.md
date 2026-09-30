@@ -177,6 +177,7 @@ Vibrali/
 ├── assets/                 branding
 ├── config/                 shared and live/recovery configuration
 ├── docs/                   architecture and installation docs
+├── external-tools/          pinned verified non-Debian artifacts
 ├── packages/               native-system package manifests
 ├── scripts/                installer, image build and validation helpers
 ├── site/                   GitHub Pages website + curl installer
