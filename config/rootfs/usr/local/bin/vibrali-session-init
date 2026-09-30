@@ -37,4 +37,12 @@ if command -v xfconf-query >/dev/null 2>&1; then
   xfconf-query -c xfce4-desktop -p "$fallback" --create -t string -s "$wallpaper" 2>/dev/null || true
 fi
 
+display_state_dir="$HOME/.config/vibrali"
+display_marker="$display_state_dir/display-scale-initialized"
+if [[ ! -e "$display_marker" ]] && command -v vibrali-display-scale >/dev/null 2>&1; then
+  mkdir -p "$display_state_dir"
+  vibrali-display-scale auto >/dev/null 2>&1 || true
+  : > "$display_marker"
+fi
+
 command -v xfdesktop >/dev/null 2>&1 && xfdesktop --reload >/dev/null 2>&1 || true
