@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Pwn / Exploit Development Toolbox
+Comment=Open a shell with installed Pwn / Exploit Development tools listed
+Exec=/usr/local/bin/vibrali-toolbox pwn
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliPwn;
