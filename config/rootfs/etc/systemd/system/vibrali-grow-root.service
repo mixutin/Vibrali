@@ -1,0 +1,12 @@
+[Unit]
+Description=Grow Vibrali release root filesystem to fill target disk
+After=local-fs.target
+ConditionPathExists=/etc/vibrali/release-image
+ConditionPathExists=!/var/lib/vibrali/root-grown
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vibrali-grow-root
+
+[Install]
+WantedBy=multi-user.target
