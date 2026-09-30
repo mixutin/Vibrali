@@ -17,7 +17,7 @@ Current profiles:
 - directory-services — Impacket, LDAP/Kerberos clients and remote-access tools
 - defensive — Lynis and local integrity/rootkit inspection helpers
 
-The native installer currently installs all profiles. A profile selector is planned.
+The native installer always installs the `base` and `desktop` manifests and supports optional security profiles with `--profiles all|none|name1,name2`. Use `--list-profiles` to see the available optional profiles.
 
 ## External tools
 
