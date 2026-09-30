@@ -19,6 +19,7 @@ qt5-style-kvantum
 screenfetch
 starship
 thunar-archive-plugin
+x11-xserver-utils
 xarchiver
 xfce4
 xfce4-clipman
