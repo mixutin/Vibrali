@@ -3,6 +3,21 @@ set -u
 
 wallpaper=/usr/share/backgrounds/vibrali/default.png
 
+# Keep a predictable portable-workstation layout in the user's persistent home.
+workdirs=(Projects Captures Labs Tools Wordlists)
+for dir in "${workdirs[@]}"; do
+  mkdir -p "$HOME/$dir"
+done
+
+# Surface the portable work folders in Thunar/GTK without replacing user bookmarks.
+bookmark_file="$HOME/.config/gtk-3.0/bookmarks"
+mkdir -p "$(dirname "$bookmark_file")"
+touch "$bookmark_file"
+for dir in "${workdirs[@]}"; do
+  bookmark="file://$HOME/$dir $dir"
+  grep -Fqx "$bookmark" "$bookmark_file" || printf '%s\n' "$bookmark" >> "$bookmark_file"
+done
+
 if command -v xfconf-query >/dev/null 2>&1; then
   xfconf-query -c xsettings -p /Net/ThemeName -s Arc-Dark 2>/dev/null || true
   xfconf-query -c xsettings -p /Net/IconThemeName -s Papirus-Dark 2>/dev/null || true
