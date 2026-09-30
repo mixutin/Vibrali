@@ -13,12 +13,18 @@ CI_QCOW="$CI_DIR/vibrali-qemu-ci.qcow2"
 CI_MOUNT="$CI_DIR/root"
 BUILD_INFO="$OUT/BUILD_INFO.txt"
 PACKAGE_VERSIONS="$OUT/PACKAGE_VERSIONS.txt"
+ZSTD_LEVEL="${VIBRALI_ZSTD_LEVEL:-10}"
 PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
 PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 
 [[ $EUID -eq 0 ]] || {
   echo "Run this builder as root." >&2
   exit 1
+}
+
+[[ "$ZSTD_LEVEL" =~ ^[0-9]+$ ]] && (( ZSTD_LEVEL >= 1 && ZSTD_LEVEL <= 19 )) || {
+  echo "VIBRALI_ZSTD_LEVEL must be an integer from 1 through 19." >&2
+  exit 2
 }
 
 mkdir -p "$OUT"
@@ -81,6 +87,7 @@ PROFILES="$(tr '\n' ',' < "$CI_MOUNT/etc/vibrali/profiles" | sed 's/,$//')"
   printf 'debian_suite=%s\n' "$DEBIAN_SUITE"
   printf 'architecture=amd64\n'
   printf 'image_size=%s\n' "$SIZE"
+  printf 'zstd_level=%s\n' "$ZSTD_LEVEL"
   printf 'profiles=%s\n' "$PROFILES"
   printf 'github_ref=%s\n' "${GITHUB_REF:-local}"
   printf 'github_run_id=%s\n' "${GITHUB_RUN_ID:-local}"
@@ -128,7 +135,7 @@ umount "$CI_MOUNT"
 
 echo "Creating clean QEMU release image..."
 qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$QCOW"
-zstd -T0 -19 -f "$QCOW" -o "$VM"
+zstd -T0 "-$ZSTD_LEVEL" -f "$QCOW" -o "$VM"
 rm -f "$QCOW"
 
 LOCK_MOUNT="$CI_MOUNT"
@@ -148,7 +155,7 @@ sync
 umount "$LOCK_MOUNT"
 
 echo "Compressing locked USB image..."
-zstd -T0 -19 -f "$RAW" -o "$USB"
+zstd -T0 "-$ZSTD_LEVEL" -f "$RAW" -o "$USB"
 
 sha256sum "$USB" "$VM" "$BUILD_INFO" "$PACKAGE_VERSIONS" | sed "s#$OUT/##" > "$OUT/SHA256SUMS"
 rm -f "$RAW"
