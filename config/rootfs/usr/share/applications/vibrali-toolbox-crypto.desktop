@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Crypto Toolbox
+Comment=Open a shell with installed Crypto tools listed
+Exec=/usr/local/bin/vibrali-toolbox crypto
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliCrypto;

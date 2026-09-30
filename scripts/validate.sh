@@ -43,6 +43,9 @@ required=(
   config/rootfs/etc/systemd/journald.conf.d/vibrali-portable.conf
   config/rootfs/usr/local/bin/vibrali-session-init
   config/rootfs/usr/local/bin/vibrali-welcome
+  config/rootfs/usr/local/bin/vibrali-toolbox
+  config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu
+  config/rootfs/usr/lib/firefox-esr/distribution/policies.json
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
   config/rootfs/etc/xdg/autostart/vibrali-clipman.desktop
   config/rootfs/usr/share/applications/vibrali-welcome.desktop
@@ -72,6 +75,7 @@ bash -n site/install.sh
 bash -n scripts/ci/vibrali-ci-probe
 bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
+bash -n config/rootfs/usr/local/bin/vibrali-toolbox
 bash -n config/rootfs/etc/skel/.bashrc
 bash -n config/rootfs/etc/skel/.zshrc
 
@@ -92,6 +96,34 @@ for path in paths:
     if packages != sorted(set(packages)):
         raise SystemExit(f"{path}: package list must be sorted and unique")
 print("package manifests: ok")
+PY
+
+python3 - <<'PY'
+import json
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+json.loads(Path("config/rootfs/usr/lib/firefox-esr/distribution/policies.json").read_text())
+ET.parse("config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu")
+
+categories = {
+    "network": "VibraliNetwork",
+    "web": "VibraliWeb",
+    "auth": "VibraliAuth",
+    "pwn": "VibraliPwn",
+    "reverse": "VibraliReverse",
+    "crypto": "VibraliCrypto",
+    "forensics": "VibraliForensics",
+    "wireless": "VibraliWireless",
+    "directory": "VibraliDirectory",
+    "defensive": "VibraliDefensive",
+}
+for name, category in categories.items():
+    launcher = Path(f"config/rootfs/usr/share/applications/vibrali-toolbox-{name}.desktop")
+    text = launcher.read_text()
+    if f"Categories={category};" not in text:
+        raise SystemExit(f"{launcher}: missing expected category {category}")
+print("desktop security menu/browser policy: ok")
 PY
 
 diff -u \

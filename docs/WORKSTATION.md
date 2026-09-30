@@ -44,6 +44,32 @@ ssh-keygen -t ed25519
 Private keys should remain mode 0600. For high-value credentials, use a hardware-backed
 key or encrypted Vibrali installation once the LUKS2 mode is available.
 
+## Security tool menu
+
+XFCE's application menu includes a **Vibrali Security** section with submenus for the installed security-work profiles. Each launcher opens a normal terminal, lists representative commands detected on that USB, and then hands control to the user's normal shell.
+
+The same helper is available directly:
+
+~~~bash
+vibrali-toolbox network
+vibrali-toolbox web
+vibrali-toolbox reverse
+~~~
+
+The toolbox does not run scans or tests automatically. It only surfaces installed commands.
+
+## Firefox ESR defaults
+
+Vibrali keeps Firefox ESR close to Debian defaults while applying a small system policy:
+
+- the Vibrali site is the default homepage;
+- Firefox telemetry is disabled;
+- Firefox Studies are disabled;
+- Pocket integration is disabled;
+- default-browser nagging is disabled.
+
+Proxy settings, interception certificates, saved credentials and target-specific configuration are intentionally left to the user. Vibrali does not install a trusted interception CA or enable a proxy automatically.
+
 ## Storage behavior
 
 Vibrali intentionally avoids a disk-backed swap partition in the default layout. It uses

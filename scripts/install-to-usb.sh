@@ -422,7 +422,7 @@ chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAG
 
 echo "Applying Vibrali identity and desktop defaults..."
 rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"
-chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/neofetch"
+chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/vibrali-toolbox" "$TARGET/usr/local/bin/neofetch"
 
 mkdir -p "$TARGET/etc/vibrali"
 printf '%s\n' base desktop > "$TARGET/etc/vibrali/profiles"

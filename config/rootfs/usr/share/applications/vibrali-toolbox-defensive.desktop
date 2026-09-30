@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Defensive Toolbox
+Comment=Open a shell with installed Defensive tools listed
+Exec=/usr/local/bin/vibrali-toolbox defensive
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliDefensive;

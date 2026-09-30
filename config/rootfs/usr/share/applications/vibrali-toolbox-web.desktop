@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Web Toolbox
+Comment=Open a shell with installed Web tools listed
+Exec=/usr/local/bin/vibrali-toolbox web
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliWeb;
