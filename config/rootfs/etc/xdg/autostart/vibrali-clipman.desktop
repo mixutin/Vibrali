@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vibrali Clipboard
+Comment=Start clipboard history for the Vibrali desktop
+Exec=xfce4-clipman
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

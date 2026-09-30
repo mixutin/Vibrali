@@ -14,12 +14,14 @@ required=(
   packages/network.txt
   scripts/install-to-usb.sh
   scripts/build-release-images.sh
+  scripts/validate-tool-profiles.sh
   site/index.html
   site/style.css
   site/install.sh
   config/rootfs/etc/os-release
   config/rootfs/usr/local/bin/vibrali-welcome
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
+  config/rootfs/etc/xdg/autostart/vibrali-clipman.desktop
   config/rootfs/usr/share/applications/vibrali-welcome.desktop
   assets/brand/vibrali-logo.png
   assets/brand/vibrali-wallpaper-default.png
@@ -35,6 +37,8 @@ done < <(find scripts -type f -name '*.sh' -print)
 
 bash -n site/install.sh
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
+bash -n config/rootfs/etc/skel/.bashrc
+bash -n config/rootfs/etc/skel/.zshrc
 
 while IFS= read -r file; do
   sh -n "$file"
@@ -71,5 +75,6 @@ diff -u \
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
 bash ./scripts/test-installer-cli.sh
+bash ./scripts/validate-tool-profiles.sh
 
 echo "Vibrali repository validation passed."

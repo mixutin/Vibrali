@@ -87,11 +87,11 @@ Goal: after boot, the system should already feel like a finished security workst
 - [x] First-boot welcome screen
 - [x] First-boot checklist for networking, updates and profile verification
 - [ ] Desktop application menu categories for security tools
-- [ ] Sensible terminal aliases/functions for common workflows
+- [x] Sensible terminal aliases/functions for common workflows
 - [ ] File-manager defaults for removable workstation use
 - [ ] Browser defaults suitable for testing/research workflows
-- [ ] Clipboard and screenshot tooling
-- [ ] Archive/extraction tooling
+- [x] Clipboard and screenshot tooling
+- [x] Archive/extraction tooling
 - [ ] Persistent SSH/Git developer setup documentation
 - [ ] HiDPI defaults
 - [ ] Multi-monitor validation

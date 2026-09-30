@@ -29,3 +29,11 @@ modern Go/Rust reconnaissance utilities and optional CTF-specific environments.
 
 Vibrali should not curl arbitrary community install scripts into root. External tooling
 must have a reviewable source, version and verification path.
+
+
+## Profile contract validation
+
+`scripts/validate-tool-profiles.sh` protects the advertised starter-tool contract.
+It verifies that representative packages for each profile remain in their intended
+manifest. This is a source-level contract only; release and physical-hardware tests are
+still required before claiming a tool works correctly at runtime.
