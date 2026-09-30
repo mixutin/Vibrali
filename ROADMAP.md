@@ -130,75 +130,75 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 ### Network / enumeration
 
-- [ ] Confirm Nmap works out of the box
-- [ ] Confirm Masscan works out of the box
-- [ ] Confirm tcpdump works out of the box
+- [x] Confirm Nmap works out of the box
+- [x] Confirm Masscan works out of the box
+- [x] Confirm tcpdump works out of the box
 - [ ] Confirm Wireshark/TShark capture permissions
 - [ ] Confirm Socat/Netcat workflows
-- [ ] Add common DNS/WHOIS/recon helpers
-- [ ] Add useful VPN/tunnelling helpers
+- [x] Add common DNS/WHOIS/recon helpers
+- [x] Add useful VPN/tunnelling helpers
 - [ ] Add optional modern recon tools from verified upstream releases
 
 ### Web testing
 
-- [ ] Verify Firefox ESR profile
-- [ ] Verify curl/wget/jq
-- [ ] Verify SQLMap
-- [ ] Verify Nikto
-- [ ] Verify ffuf
-- [ ] Verify Gobuster
-- [ ] Verify Wfuzz
+- [x] Verify Firefox ESR profile
+- [x] Verify curl/wget/jq
+- [x] Verify SQLMap
+- [x] Verify Nikto
+- [x] Verify ffuf
+- [x] Verify Gobuster
+- [x] Verify Wfuzz
 - [ ] Add Burp Suite Community using pinned verified upstream release
 - [ ] Add optional Chromium-based testing browser
 - [ ] Add browser proxy/certificate setup documentation
 
 ### Password / authentication testing
 
-- [ ] Verify Hashcat
-- [ ] Verify John the Ripper
-- [ ] Verify Hydra
+- [x] Verify Hashcat
+- [x] Verify John the Ripper
+- [x] Verify Hydra
 - [ ] Add optional large wordlist profile
 - [ ] Document GPU acceleration limitations/compatibility
-- [ ] Verify common Kerberos/LDAP tooling
+- [x] Verify common Kerberos/LDAP tooling
 
 ### Exploit development / pwn
 
-- [ ] Verify GCC/Clang/make
-- [ ] Verify GDB
+- [x] Verify GCC/Clang/make
+- [x] Verify GDB
 - [ ] Add/verify GEF or pwndbg using pinned upstream source
-- [ ] Verify Python pwntools
-- [ ] Verify binutils/readelf/objdump
-- [ ] Add common debugging helpers
+- [x] Verify Python pwntools
+- [x] Verify binutils/readelf/objdump
+- [x] Add common debugging helpers
 - [ ] Add 32-bit development/runtime support where practical
 
 ### Reverse engineering
 
 - [ ] Verify GDB
-- [ ] Verify LLDB
-- [ ] Verify strace/ltrace
-- [ ] Verify QEMU user-mode
-- [ ] Verify APKTool
+- [x] Verify LLDB
+- [x] Verify strace/ltrace
+- [x] Verify QEMU user-mode
+- [x] Verify APKTool
 - [ ] Add Ghidra using pinned verified upstream release
 - [ ] Add Rizin/Cutter or equivalent
-- [ ] Add Java runtime required by reverse-engineering tools
+- [x] Add Java runtime required by reverse-engineering tools
 
 ### Forensics
 
-- [ ] Verify Binwalk
-- [ ] Verify Sleuth Kit
-- [ ] Verify Autopsy
-- [ ] Verify YARA
-- [ ] Verify ExifTool
-- [ ] Verify foremost
-- [ ] Verify TestDisk/PhotoRec
+- [x] Verify Binwalk
+- [x] Verify Sleuth Kit
+- [x] Verify Autopsy
+- [x] Verify YARA
+- [x] Verify ExifTool
+- [x] Verify foremost
+- [x] Verify TestDisk/PhotoRec
 - [ ] Add memory-forensics tooling with pinned versions where possible
 
 ### Wireless
 
-- [ ] Verify Aircrack-ng
-- [ ] Verify hcxtools
-- [ ] Verify Reaver
-- [ ] Verify Bully
+- [x] Verify Aircrack-ng
+- [x] Verify hcxtools
+- [x] Verify Reaver
+- [x] Verify Bully
 - [ ] Verify monitor-mode workflow with supported adapters
 - [ ] Create tested Wi-Fi adapter compatibility list
 
