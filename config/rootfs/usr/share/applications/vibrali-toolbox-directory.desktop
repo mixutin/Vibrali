@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Directory Services Toolbox
+Comment=Open a shell with installed Directory Services tools listed
+Exec=/usr/local/bin/vibrali-toolbox directory
+Icon=utilities-terminal
+Terminal=true
+Categories=VibraliDirectory;
