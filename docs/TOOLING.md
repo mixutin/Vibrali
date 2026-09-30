@@ -49,7 +49,7 @@ verifies both new downloads and cached copies before returning a path to the cal
 it never executes the downloaded file. See `external-tools/README.md` for the policy and
 review checklist.
 
-Neofetch 7.1.0 is the first existing Vibrali dependency migrated to this framework.
+Verified pinned entries currently include Neofetch 7.1.0 and GEF 2026.01. GEF is installed from the exact tagged `gef.py` bytes under `/usr/local/lib/vibrali/gef.py`; Vibrali's default `.gdbinit` sources that local verified copy rather than running GEF's network installer.
 
 ## Profile reference
 
