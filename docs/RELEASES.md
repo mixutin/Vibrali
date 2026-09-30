@@ -6,20 +6,36 @@ The workflow:
 
 1. validates shell and repository configuration,
 2. builds a normal Vibrali installation in a loopback disk,
-3. converts it into a compressed QEMU QCOW2,
+3. creates a disposable CI-only QCOW2 plus clean public QEMU/USB images,
 4. locks the USB image's `vibrali` account,
-5. compresses the portable USB disk image,
-6. writes SHA-256 checksums,
-7. verifies both checksums and compressed streams,
-8. inspects the USB GPT plus FAT32/ext4 signatures and the QCOW2 header,
-9. splits oversized assets when necessary,
-10. and creates a GitHub Release.
+5. writes SHA-256 checksums,
+6. verifies checksums, compressed streams and image structure,
+7. smoke-tests the release installer download/checksum contract,
+8. boots the disposable QEMU image twice with OVMF to test UEFI boot and persistence,
+9. removes the CI-only image,
+10. splits oversized public assets when necessary,
+11. and creates a GitHub Release.
 
-Artifact verification runs **before** anything is published. A checksum mismatch, corrupt
-zstd stream, missing expected partition, wrong root filesystem signature or invalid QCOW2
-header fails the workflow.
+Artifact and smoke verification run **before** anything is published. A checksum mismatch,
+corrupt zstd stream, missing expected partition, wrong filesystem signature, invalid QCOW2
+header, installer download/reconstruction failure, QEMU boot failure or persistence failure
+stops the workflow.
 
-The same verification can be run manually after building images:
+The fast release-installer tests also exercise direct downloads, multi-part reconstruction
+and checksum rejection with local fixtures:
+
+~~~bash
+./scripts/test-release-installer.sh
+~~~
+
+After building release images, pass the output directory to additionally validate the real
+USB artifact/manifest contract:
+
+~~~bash
+./scripts/test-release-installer.sh dist
+~~~
+
+Image structure verification can be run manually with:
 
 ~~~bash
 ./scripts/verify-release-artifacts.sh dist

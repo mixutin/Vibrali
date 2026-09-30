@@ -43,6 +43,9 @@ jobs:
       - name: Verify release artifacts
         run: ./scripts/verify-release-artifacts.sh dist
 
+      - name: Smoke-test release installer
+        run: ./scripts/test-release-installer.sh dist
+
       - name: Boot-test QEMU release image
         run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
 
