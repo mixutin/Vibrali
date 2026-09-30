@@ -338,7 +338,7 @@ Goal: losing the USB should not automatically expose the user's projects and cre
 - [x] Add firewall baseline
 - [x] Add AppArmor baseline where practical
 - [x] Add release threat-model document
-- [ ] Add reproducible checksum/signature verification instructions
+- [x] Add reproducible checksum/signature verification instructions
 
 ### Secure Boot
 
@@ -448,7 +448,7 @@ Goal: turn source code into trustworthy, installable versioned Vibrali releases.
 - [ ] Fix/verify green validation on `main`
 - [ ] Publish first real versioned preview release
 - [ ] Download and install that release on physical hardware
-- [ ] Add signed checksum file
+- [x] Add signed checksum file
 - [x] Add release changelog template
 - [x] Add known-issues section to releases
 - [x] Define preview/beta/stable channels
@@ -507,7 +507,7 @@ All items below must be checked before declaring Vibrali 1.0 complete.
 - [ ] Kernel upgrades persist and remain bootable
 - [ ] User files/configs persist across machines
 - [ ] Installer destructive safeguards are verified
-- [ ] Release checksum/signature verification is documented
+- [x] Release checksum/signature verification is documented
 - [ ] Recovery documentation is tested
 - [ ] Encryption status is clearly documented
 - [ ] No default credential remains on the physical USB release path
