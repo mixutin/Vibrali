@@ -12,6 +12,11 @@ CONFIRMED=0
 NONINTERACTIVE=0
 PROFILE_SPEC="all"
 LIST_PROFILES=0
+DRY_RUN=0
+MIN_DEVICE_GIB=12
+RECOMMENDED_DEVICE_GIB=64
+MIN_DEVICE_BYTES=$((MIN_DEVICE_GIB * 1024 * 1024 * 1024))
+RECOMMENDED_DEVICE_BYTES=$((RECOMMENDED_DEVICE_GIB * 1024 * 1024 * 1024))
 
 list_optional_profiles() {
   local manifest name
@@ -41,6 +46,7 @@ Options:
   --profiles LIST     Optional package profiles: all, none, or comma-separated names
                       (default: all; base and desktop are always installed)
   --list-profiles     List available optional profile names and exit
+  --dry-run           Validate target/options and print the install plan without changes
   --yes-really-erase  Required destructive-operation acknowledgement
   --non-interactive   CI image build mode; accepted only for loop devices
   -h, --help          Show this help
@@ -60,6 +66,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --list-profiles) LIST_PROFILES=1; shift ;;
+    --dry-run) DRY_RUN=1; shift ;;
     --yes-really-erase) CONFIRMED=1; shift ;;
     --non-interactive) NONINTERACTIVE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -119,12 +126,23 @@ for profile in "${SELECTED_PROFILES[@]}"; do
   SELECTED_MANIFESTS+=("$ROOT_DIR/packages/$profile.txt")
 done
 
-[[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
+command -v lsblk >/dev/null 2>&1 || {
+  echo "Missing required command: lsblk" >&2
+  exit 1
+}
+
 [[ -n "$DEVICE" ]] || { usage; exit 2; }
 [[ -b "$DEVICE" ]] || { echo "Not a block device: $DEVICE" >&2; exit 1; }
-DEVICE_TYPE="$(lsblk -dn -o TYPE "$DEVICE")"
+
+DEVICE_TYPE="$(lsblk -dn -o TYPE "$DEVICE" | tr -d '[:space:]')"
 if [[ "$DEVICE_TYPE" != "disk" ]]; then
-  if [[ $NONINTERACTIVE -ne 1 || "$DEVICE_TYPE" != "loop" || "$DEVICE" != /dev/loop* ]]; then
+  ALLOW_LOOP=0
+  if [[ "$DEVICE_TYPE" == "loop" && "$DEVICE" == /dev/loop* ]]; then
+    if [[ $NONINTERACTIVE -eq 1 || $DRY_RUN -eq 1 ]]; then
+      ALLOW_LOOP=1
+    fi
+  fi
+  if [[ $ALLOW_LOOP -ne 1 ]]; then
     echo "--device must name a whole physical disk." >&2
     exit 1
   fi
@@ -135,21 +153,30 @@ if lsblk -nrpo MOUNTPOINTS "$DEVICE" | grep -Eq '(^|[[:space:]])/($|[[:space:]])
   exit 1
 fi
 
-[[ $CONFIRMED -eq 1 ]] || {
-  echo "Refusing destructive install without --yes-really-erase." >&2
+DEVICE_SIZE_BYTES="$(lsblk -bdn -o SIZE "$DEVICE" | tr -d '[:space:]')"
+[[ "$DEVICE_SIZE_BYTES" =~ ^[0-9]+$ ]] || {
+  echo "Could not determine target size for $DEVICE." >&2
   exit 1
 }
+if (( DEVICE_SIZE_BYTES < MIN_DEVICE_BYTES )); then
+  echo "Target is too small: Vibrali requires at least ${MIN_DEVICE_GIB} GiB." >&2
+  exit 1
+fi
 
-for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot lsblk rsync curl sha256sum; do
-  command -v "$cmd" >/dev/null 2>&1 || {
-    echo "Missing build-host command: $cmd" >&2
-    exit 1
-  }
-done
+DEVICE_RM="$(lsblk -dn -o RM "$DEVICE" | tr -d '[:space:]')"
+DEVICE_TRAN="$(lsblk -dn -o TRAN "$DEVICE" | tr -d '[:space:]')"
+if [[ "$DEVICE_TYPE" != "loop" && "$DEVICE_RM" != "1" && "$DEVICE_TRAN" != "usb" ]]; then
+  echo "Warning: $DEVICE does not report itself as removable or USB storage." >&2
+  echo "Verify the model, serial and device path carefully before continuing." >&2
+fi
 
 echo
-echo "Vibrali will ERASE the following disk:"
-lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$DEVICE"
+if [[ $DRY_RUN -eq 1 ]]; then
+  echo "Vibrali installer preflight (DRY RUN — no changes will be made):"
+else
+  echo "Vibrali will ERASE the following disk:"
+fi
+lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN,RM "$DEVICE"
 echo
 if ((${#SELECTED_PROFILES[@]} > 0)); then
   (
@@ -159,7 +186,31 @@ if ((${#SELECTED_PROFILES[@]} > 0)); then
 else
   echo "Optional profiles: none"
 fi
+echo "Minimum target size:     ${MIN_DEVICE_GIB} GiB"
+echo "Recommended target size: ${RECOMMENDED_DEVICE_GIB} GiB"
+if (( DEVICE_SIZE_BYTES < RECOMMENDED_DEVICE_BYTES )); then
+  echo "Note: this target is below the recommended ${RECOMMENDED_DEVICE_GIB} GiB for a full pentesting workstation." >&2
+fi
 echo
+
+if [[ $DRY_RUN -eq 1 ]]; then
+  echo "Dry run complete. No partition table, filesystem or data was changed."
+  exit 0
+fi
+
+[[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
+
+[[ $CONFIRMED -eq 1 ]] || {
+  echo "Refusing destructive install without --yes-really-erase." >&2
+  exit 1
+}
+
+for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot rsync curl sha256sum; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "Missing build-host command: $cmd" >&2
+    exit 1
+  }
+done
 
 if [[ $NONINTERACTIVE -eq 1 ]]; then
   [[ "$DEVICE" == /dev/loop* ]] || { echo "CI mode is limited to loop devices." >&2; exit 1; }
