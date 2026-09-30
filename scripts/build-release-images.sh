@@ -35,7 +35,13 @@ cleanup() {
 trap cleanup EXIT
 
 echo "Building Vibrali portable disk on $LOOP..."
-VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh"   --device "$LOOP"   --username vibrali   --hostname vibrali   --profiles all   --yes-really-erase   --non-interactive
+VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh" \
+  --device "$LOOP" \
+  --username vibrali \
+  --hostname vibrali \
+  --profiles all \
+  --yes-really-erase \
+  --non-interactive
 
 sync
 echo "Creating QEMU image..."
