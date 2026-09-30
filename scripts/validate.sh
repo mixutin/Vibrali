@@ -19,6 +19,7 @@ required=(
   docs/RELEASE_NOTES_TEMPLATE.md
   docs/RELEASE_POLICY.md
   docs/SECURITY_BASELINE.md
+  docs/SECURE_BOOT.md
   docs/THREAT_MODEL.md
   docs/TROUBLESHOOTING.md
   CONTRIBUTING.md
