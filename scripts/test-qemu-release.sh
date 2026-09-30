@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-IMAGE="${1:-$ROOT/dist/vibrali-qemu-amd64.qcow2.zst}"
+IMAGE="${1:-$ROOT/dist/.ci/vibrali-qemu-ci.qcow2}"
 BOOT_TIMEOUT="${VIBRALI_QEMU_BOOT_TIMEOUT:-360}"
 TMPDIR="$(mktemp -d)"
 QCOW="$TMPDIR/vibrali-qemu-amd64.qcow2"
@@ -42,8 +42,19 @@ done
 
 [[ -n "$OVMF_CODE" ]] || fail "OVMF firmware was not found"
 
-echo "Decompressing QEMU release image..."
-zstd -d -f "$IMAGE" -o "$QCOW"
+case "$IMAGE" in
+  *.zst)
+    echo "Decompressing QEMU smoke image..."
+    zstd -d -f "$IMAGE" -o "$QCOW"
+    ;;
+  *.qcow2)
+    QCOW="$IMAGE"
+    ;;
+  *)
+    fail "unsupported image format: $IMAGE"
+    ;;
+esac
+
 qemu-img check "$QCOW"
 
 boot_once() {
