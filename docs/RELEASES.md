@@ -108,3 +108,20 @@ sha256sum -c SHA256SUMS --ignore-missing
 ~~~
 
 The Sigstore signature authenticates the checksum manifest; the SHA-256 check then authenticates the image bytes named by that manifest. Keyless signing uses an ephemeral certificate tied to the GitHub Actions OIDC identity rather than a long-lived private signing key stored in the repository.
+
+
+## Release compression
+
+Release images use Zstandard level 10 by default. This is intentionally below the
+maximum compression level: full USB/QEMU images are rebuilt frequently in CI, so release
+latency and runner CPU matter more than squeezing out the last few percent of archive
+size.
+
+For local archival experiments, override the level explicitly:
+
+~~~bash
+sudo VIBRALI_ZSTD_LEVEL=19 ./scripts/build-release-images.sh
+~~~
+
+Accepted levels are 1 through 19. The selected value is recorded in
+`BUILD_INFO.txt` so release provenance includes the compression setting.
