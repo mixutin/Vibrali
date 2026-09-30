@@ -58,9 +58,9 @@ sudo ./scripts/install-to-usb.sh \
 
 Source validation checks that advertised representative packages remain in the correct manifests.
 
-The full QEMU release smoke test goes further. Release images are built with all profiles, then the guest checks representative commands from every profile before the release workflow can publish.
+The full QEMU release smoke test goes further. Release images are built with all profiles, then the guest checks a broad runtime matrix across the shipped CLI toolset: core network scanners/capture clients, web tools, password-audit tools, compilers/pwntools/binutils, reverse-engineering/debuggers, forensics utilities, wireless clients, directory-service clients and defensive tooling. A failed command check blocks publication.
 
-A command-presence/runtime smoke check is not a claim that every feature of a tool works on every machine. Wireless monitor mode, GPU acceleration, USB adapters, graphical acceleration and similar hardware-dependent behavior still require physical validation.
+A command-presence/runtime smoke check is not a claim that every feature of a tool works on every machine. Wireshark capture permissions for the normal desktop user, wireless monitor mode, GPU acceleration, USB adapters, graphical acceleration and similar hardware-dependent behavior still require physical validation.
 
 ## External tools
 
