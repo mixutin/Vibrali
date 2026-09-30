@@ -228,6 +228,6 @@ main() {
   printf "Docs: https://mixutin.github.io/Vibrali/\n\n"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+if [[ -z "${BASH_SOURCE[0]:-}" || "${BASH_SOURCE[0]:-}" == "$0" ]]; then
   main "$@"
 fi
