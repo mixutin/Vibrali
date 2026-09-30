@@ -9,6 +9,7 @@ required=(
   SECURITY.md
   docs/ARCHITECTURE.md
   docs/USB_INSTALL.md
+  docs/WORKSTATION.md
   packages/base.txt
   packages/desktop.txt
   packages/network.txt
@@ -19,6 +20,9 @@ required=(
   site/style.css
   site/install.sh
   config/rootfs/etc/os-release
+  config/rootfs/etc/default/zramswap
+  config/rootfs/etc/systemd/journald.conf.d/vibrali-portable.conf
+  config/rootfs/usr/local/bin/vibrali-session-init
   config/rootfs/usr/local/bin/vibrali-welcome
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
   config/rootfs/etc/xdg/autostart/vibrali-clipman.desktop
@@ -36,6 +40,7 @@ while IFS= read -r file; do
 done < <(find scripts -type f -name '*.sh' -print)
 
 bash -n site/install.sh
+bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
 bash -n config/rootfs/etc/skel/.bashrc
 bash -n config/rootfs/etc/skel/.zshrc
