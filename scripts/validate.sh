@@ -186,6 +186,10 @@ diff -u \
 
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
+grep -q -- '--encrypt-root' <(./scripts/install-to-usb.sh --help)
+grep -q 'cryptsetup-initramfs' scripts/install-to-usb.sh
+grep -q 'VIBRALI_CRYPT' scripts/install-to-usb.sh
+grep -q '/etc/crypttab' scripts/install-to-usb.sh
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale
