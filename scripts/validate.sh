@@ -183,6 +183,7 @@ diff -u \
 
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
+grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 bash ./scripts/test-installer-cli.sh
 bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
