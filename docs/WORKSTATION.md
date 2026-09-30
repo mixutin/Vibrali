@@ -78,6 +78,33 @@ For removable-storage endurance, Vibrali also applies user-overridable Firefox d
 
 These are `default` enterprise-policy preferences rather than locked preferences, so a user can change them in Firefox when a workflow benefits from disk caching or a shorter crash-recovery interval. Increasing the session-store interval can mean that the newest tab-state changes are not captured if Firefox or the computer crashes abruptly.
 
+## Laptop power profiles
+
+Vibrali installs Debian's `power-profiles-daemon` as a conservative portable-laptop
+baseline. It uses the kernel/platform capabilities exposed by the current computer instead
+of shipping model-specific tuning that could follow the USB to incompatible hardware.
+
+Check the active profile and the profiles supported by the current machine with:
+
+~~~bash
+powerprofilesctl get
+powerprofilesctl list
+~~~
+
+The default is left at the daemon/platform's balanced behavior. Switch temporarily when
+needed:
+
+~~~bash
+powerprofilesctl set power-saver
+powerprofilesctl set balanced
+powerprofilesctl set performance
+~~~
+
+Not every PC exposes every profile. Vibrali intentionally does not force USB autosuspend,
+PCI runtime-power overrides, or laptop-vendor-specific rules by default because those can
+interfere with external Wi-Fi adapters, USB Ethernet, capture hardware and other pentesting
+peripherals. Suspend/resume remains a separate real-hardware validation item.
+
 ## Storage behavior
 
 Vibrali intentionally avoids a disk-backed swap partition in the default layout. It uses
