@@ -1,6 +1,6 @@
 # Release pipeline
 
-Pushing a version tag such as `v0.1.0` runs the Build and Release workflow.
+Pushing a version tag such as `v0.1.0` runs the Build and Release workflow. Maintainers can also create a one-shot preview branch named `release-preview/vMAJOR.MINOR.PATCH-dev.N`, `-beta.N`, or `-rc.N`; a push to that branch runs the same build/verification pipeline and publishes that prerelease tag at the exact branch commit.
 
 The workflow:
 
@@ -44,6 +44,8 @@ Image structure verification can be run manually with:
 
 Large assets are automatically split into sub-2 GB chunks for hosting. The web installer
 understands split USB images and reconstructs them before checksum verification.
+
+The guided installer prefers GitHub's latest stable release. Before the first stable release exists, it falls back to the newest published preview release. Permanent 404 responses are not retried as transient network failures, so a repository with no published image fails quickly with an explicit message instead of repeatedly requesting a missing checksum file.
 
 The QEMU development image retains the documented initial password. The USB release image
 does not: the guided installer sets a new password after flashing.
