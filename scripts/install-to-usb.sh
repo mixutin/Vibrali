@@ -125,7 +125,9 @@ sgdisk --new=1:1MiB:+1MiB --typecode=1:ef02 --change-name=1:BIOS_BOOT "$DEVICE"
 sgdisk --new=2:0:+512MiB --typecode=2:ef00 --change-name=2:VIBRALI_EFI "$DEVICE"
 sgdisk --new=3:0:0 --typecode=3:8300 --change-name=3:VIBRALI_ROOT "$DEVICE"
 
-command -v partprobe >/dev/null 2>&1 && partprobe "$DEVICE" || true
+if command -v partprobe >/dev/null 2>&1; then
+  partprobe "$DEVICE" || true
+fi
 if [[ "$DEVICE_TYPE" == "loop" ]] && command -v partx >/dev/null 2>&1; then
   partx -u "$DEVICE" || true
 fi
@@ -133,7 +135,9 @@ command -v udevadm >/dev/null 2>&1 && udevadm settle || true
 
 for _ in $(seq 1 20); do
   [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
-  command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm settle || true
+  fi
   sleep 0.5
 done
 
