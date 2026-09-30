@@ -217,7 +217,9 @@ fi
 if [[ "$DEVICE_TYPE" == "loop" ]] && command -v partx >/dev/null 2>&1; then
   partx -u "$DEVICE" || true
 fi
-command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+if command -v udevadm >/dev/null 2>&1; then
+  udevadm settle || true
+fi
 
 for _ in $(seq 1 20); do
   [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
