@@ -432,6 +432,12 @@ mapfile -t PACKAGES < <(
 
 echo "Installing Vibrali packages..."
 chroot "$TARGET" apt-get update
+
+if printf '%s\n' "${PACKAGES[@]}" | grep -Fxq wireshark-common; then
+  printf '%s\n' 'wireshark-common wireshark-common/install-setuid boolean true' |
+    chroot "$TARGET" debconf-set-selections
+fi
+
 chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAGES[@]}"
 
 echo "Applying Vibrali identity and desktop defaults..."
@@ -462,6 +468,9 @@ echo "Creating user $USERNAME..."
 chroot "$TARGET" useradd -m -s /bin/zsh "$USERNAME"
 printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chroot "$TARGET" chpasswd
 chroot "$TARGET" usermod -aG sudo,plugdev "$USERNAME"
+if chroot "$TARGET" getent group wireshark >/dev/null 2>&1; then
+  chroot "$TARGET" usermod -aG wireshark "$USERNAME"
+fi
 chroot "$TARGET" passwd -l root
 chroot "$TARGET" chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 
