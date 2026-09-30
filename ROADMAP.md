@@ -455,7 +455,7 @@ Goal: turn source code into trustworthy, installable versioned Vibrali releases.
 - [x] Define support policy
 - [x] Define versioning policy
 - [x] Define image-retention policy
-- [ ] Verify release reproducibility/document build inputs
+- [x] Verify release reproducibility/document build inputs
 - [ ] Publish Vibrali 1.0
 
 ### Phase 8 exit gate
