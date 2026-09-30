@@ -209,3 +209,6 @@ its upstream license.
 
 
 Encrypted source installs: see [docs/ENCRYPTION.md](docs/ENCRYPTION.md).
+
+
+Secure Boot design: see [docs/SECURE_BOOT.md](docs/SECURE_BOOT.md).
