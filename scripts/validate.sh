@@ -17,6 +17,8 @@ required=(
   docs/RELEASE_CHECKLIST.md
   docs/RELEASE_NOTES_TEMPLATE.md
   docs/RELEASE_POLICY.md
+  docs/SECURITY_BASELINE.md
+  docs/THREAT_MODEL.md
   docs/TROUBLESHOOTING.md
   CONTRIBUTING.md
   external-tools/README.md
@@ -40,10 +42,13 @@ required=(
   site/install.sh
   config/rootfs/etc/os-release
   config/rootfs/etc/default/zramswap
+  config/rootfs/etc/nftables.conf
+  config/rootfs/etc/sudoers.d/90-vibrali
   config/rootfs/etc/systemd/journald.conf.d/vibrali-portable.conf
   config/rootfs/usr/local/bin/vibrali-session-init
   config/rootfs/usr/local/bin/vibrali-welcome
   config/rootfs/usr/local/bin/vibrali-toolbox
+  config/rootfs/usr/local/bin/vibrali-firewall
   config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu
   config/rootfs/usr/lib/firefox-esr/distribution/policies.json
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
@@ -76,6 +81,7 @@ bash -n scripts/ci/vibrali-ci-probe
 bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
 bash -n config/rootfs/usr/local/bin/vibrali-toolbox
+bash -n config/rootfs/usr/local/bin/vibrali-firewall
 bash -n config/rootfs/etc/skel/.bashrc
 bash -n config/rootfs/etc/skel/.zshrc
 
@@ -124,6 +130,29 @@ for name, category in categories.items():
     if f"Categories={category};" not in text:
         raise SystemExit(f"{launcher}: missing expected category {category}")
 print("desktop security menu/browser policy: ok")
+PY
+
+python3 - <<'PY'
+from pathlib import Path
+
+nft = Path("config/rootfs/etc/nftables.conf").read_text()
+required = [
+    "table inet vibrali",
+    "policy drop",
+    "policy accept",
+    'iifname "lo" accept',
+    "ct state established,related accept",
+]
+for token in required:
+    if token not in nft:
+        raise SystemExit(f"nftables baseline missing: {token}")
+
+sudoers = Path("config/rootfs/etc/sudoers.d/90-vibrali").read_text()
+for token in ["Defaults use_pty", "Defaults timestamp_timeout=5", "Defaults passwd_timeout=1"]:
+    if token not in sudoers:
+        raise SystemExit(f"sudo baseline missing: {token}")
+
+print("firewall/sudo security baseline: ok")
 PY
 
 diff -u \

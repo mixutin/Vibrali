@@ -59,6 +59,9 @@ check "xfce-installed" test -x /usr/bin/startxfce4
 check "efi-fallback-loader" test -f /boot/efi/EFI/BOOT/BOOTX64.EFI
 check "profile-registry" test -s /etc/vibrali/profiles
 check "root-writable" test -w /
+check "nftables-active" systemctl is-active --quiet nftables
+check "nftables-baseline-loaded" nft list table inet vibrali
+check "apparmor-active" systemctl is-active --quiet apparmor
 
 check "tool-nmap-launch" nmap --version
 check "tool-sqlmap-launch" sqlmap --version

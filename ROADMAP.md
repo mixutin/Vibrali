@@ -330,14 +330,14 @@ Goal: losing the USB should not automatically expose the user's projects and cre
 - [ ] Add recovery-key workflow
 - [ ] Verify encrypted boot through removable UEFI path
 - [ ] Test kernel/initramfs updates on encrypted installs
-- [ ] Add secure password guidance
-- [ ] Review default services and listening ports
-- [ ] Disable unnecessary services
-- [ ] Review sudo defaults
-- [ ] Review SSH server defaults
-- [ ] Add firewall baseline
-- [ ] Add AppArmor baseline where practical
-- [ ] Add release threat-model document
+- [x] Add secure password guidance
+- [x] Review default services and listening ports
+- [x] Disable unnecessary services
+- [x] Review sudo defaults
+- [x] Review SSH server defaults
+- [x] Add firewall baseline
+- [x] Add AppArmor baseline where practical
+- [x] Add release threat-model document
 - [ ] Add reproducible checksum/signature verification instructions
 
 ### Secure Boot
@@ -351,7 +351,7 @@ Goal: losing the USB should not automatically expose the user's projects and cre
 ### Phase 5 exit gate
 
 - [ ] Encrypted portable install works on multiple supported PCs
-- [ ] Security defaults and exceptions are documented
+- [x] Security defaults and exceptions are documented
 
 ---
 
