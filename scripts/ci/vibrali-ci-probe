@@ -62,7 +62,8 @@ check_nonroot_dumpcap() {
   capture=/tmp/vibrali-ci-nonroot.pcapng
   rm -f "$capture"
   id -nG vibrali | tr " " "\n" | grep -Fxq wireshark
-  getcap /usr/bin/dumpcap | grep -Eq "cap_net_(admin,net_raw|raw,net_admin)"
+  getcap /usr/bin/dumpcap | grep -Fq "cap_net_admin"
+  getcap /usr/bin/dumpcap | grep -Fq "cap_net_raw"
   runuser -u vibrali -- timeout 8 dumpcap -q -i lo -c 1 -w "$capture" >/tmp/vibrali-ci-dumpcap.log 2>&1 &
   pid=$!
   sleep 0.7
