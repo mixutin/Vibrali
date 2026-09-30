@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - "release-preview/**"
   workflow_dispatch:
     inputs:
       tag:
@@ -86,17 +88,25 @@ jobs:
         shell: bash
         run: |
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            tag="$GITHUB_REF_NAME"
+          elif [[ "$GITHUB_REF" == refs/heads/release-preview/* ]]; then
+            tag="${GITHUB_REF_NAME#release-preview/}"
+            if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(dev|beta|rc)\.[0-9]+$ ]]; then
+              echo "Invalid preview release branch tag: $tag" >&2
+              exit 1
+            fi
           else
-            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+            tag="${{ inputs.tag }}"
           fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           generate_release_notes: true
-          prerelease: ${{ contains(steps.meta.outputs.tag, 'dev') || contains(steps.meta.outputs.tag, 'rc') }}
+          prerelease: ${{ contains(steps.meta.outputs.tag, 'dev') || contains(steps.meta.outputs.tag, 'beta') || contains(steps.meta.outputs.tag, 'rc') }}
+          target_commitish: ${{ github.sha }}
           files: |
             dist/*
           body: |
