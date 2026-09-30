@@ -219,7 +219,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Require SHA-256 or signature verification
 - [x] Record upstream download URL/source
 - [x] Avoid arbitrary root `curl | sh` installers
-- [ ] Add automated external-tool version audit
+- [x] Add automated external-tool version audit
 - [x] Add tool-license notes where redistribution matters
 
 ### Phase 2 exit gate
