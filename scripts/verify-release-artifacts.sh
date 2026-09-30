@@ -20,7 +20,7 @@ fail() {
   exit 1
 }
 
-for cmd in sha256sum zstd python3 dd stat sort awk sed; do
+for cmd in sha256sum zstd python3 dd stat sort awk sed grep head wc; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
 
