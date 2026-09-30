@@ -88,11 +88,11 @@ Goal: after boot, the system should already feel like a finished security workst
 - [x] First-boot checklist for networking, updates and profile verification
 - [ ] Desktop application menu categories for security tools
 - [x] Sensible terminal aliases/functions for common workflows
-- [ ] File-manager defaults for removable workstation use
+- [x] File-manager defaults for removable workstation use
 - [ ] Browser defaults suitable for testing/research workflows
 - [x] Clipboard and screenshot tooling
 - [x] Archive/extraction tooling
-- [ ] Persistent SSH/Git developer setup documentation
+- [x] Persistent SSH/Git developer setup documentation
 - [ ] HiDPI defaults
 - [ ] Multi-monitor validation
 - [ ] Suspend/resume validation
@@ -303,14 +303,14 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 - [ ] Test APT full-upgrade on physical USB
 - [ ] Test repeated package install/remove cycles
 - [ ] Test filesystem recovery after unclean shutdown
-- [ ] Add automatic TRIM where supported
-- [ ] Tune mount options for SSD/flash workload
-- [ ] Add zram default
-- [ ] Review swap strategy
-- [ ] Review journald retention for removable media
+- [x] Add automatic TRIM where supported
+- [x] Tune mount options for SSD/flash workload
+- [x] Add zram default
+- [x] Review swap strategy
+- [x] Review journald retention for removable media
 - [ ] Review browser/cache write amplification
-- [ ] Document minimum/recommended device endurance
-- [ ] Add backup/export guidance for user data
+- [x] Document minimum/recommended device endurance
+- [x] Add backup/export guidance for user data
 - [ ] Add restore/recovery procedure
 
 ### Phase 4 exit gate

@@ -289,6 +289,27 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if chroot "$TARGET" systemctl is-enabled fstrim.timer >/dev/null 2>&1; then
+    echo "  [PASS] scheduled filesystem TRIM enabled"
+  else
+    echo "  [FAIL] scheduled filesystem TRIM enabled" >&2
+    failures=$((failures + 1))
+  fi
+
+  if chroot "$TARGET" systemctl is-enabled zramswap.service >/dev/null 2>&1; then
+    echo "  [PASS] zram swap enabled"
+  else
+    echo "  [FAIL] zram swap enabled" >&2
+    failures=$((failures + 1))
+  fi
+
+  if [[ -s "$TARGET/etc/systemd/journald.conf.d/vibrali-portable.conf" ]]; then
+    echo "  [PASS] portable journal limits"
+  else
+    echo "  [FAIL] portable journal limits" >&2
+    failures=$((failures + 1))
+  fi
+
   if [[ $failures -ne 0 ]]; then
     echo "Post-install verification failed: $failures critical check(s) failed." >&2
     return 1
@@ -456,6 +477,8 @@ chroot "$TARGET" update-initramfs -u -k all
 chroot "$TARGET" update-grub
 chroot "$TARGET" systemctl enable NetworkManager
 chroot "$TARGET" systemctl enable lightdm
+chroot "$TARGET" systemctl enable fstrim.timer
+chroot "$TARGET" systemctl enable zramswap.service
 
 # Each installed device should create its own runtime identity on first boot.
 : > "$TARGET/etc/machine-id"

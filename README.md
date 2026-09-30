@@ -116,7 +116,9 @@ The source-based debootstrap installer remains available for developers:
 sudo ./scripts/install-to-usb.sh --device /dev/sdX --yes-really-erase
 ~~~
 
-See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using physical media.
+See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using physical media. After
+installation, [docs/WORKSTATION.md](docs/WORKSTATION.md) covers the persistent work
+folders, SSH/Git setup, storage-health checks and backups.
 
 ## Default desktop
 
