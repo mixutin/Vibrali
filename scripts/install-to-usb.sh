@@ -310,6 +310,13 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if chroot "$TARGET" systemctl is-enabled vibrali-ci-probe.service >/dev/null 2>&1; then
+    echo "  [PASS] CI boot probe enabled"
+  else
+    echo "  [FAIL] CI boot probe enabled" >&2
+    failures=$((failures + 1))
+  fi
+
   if [[ $failures -ne 0 ]]; then
     echo "Post-install verification failed: $failures critical check(s) failed." >&2
     return 1
@@ -422,7 +429,7 @@ chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAG
 
 echo "Applying Vibrali identity and desktop defaults..."
 rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"
-chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/neofetch"
+chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/neofetch" "$TARGET/usr/local/sbin/vibrali-ci-probe"
 
 mkdir -p "$TARGET/etc/vibrali"
 printf '%s\n' base desktop > "$TARGET/etc/vibrali/profiles"
@@ -472,6 +479,7 @@ chroot "$TARGET" update-initramfs -u -k all
 chroot "$TARGET" update-grub
 chroot "$TARGET" systemctl enable NetworkManager
 chroot "$TARGET" systemctl enable lightdm
+chroot "$TARGET" systemctl enable vibrali-ci-probe.service
 chroot "$TARGET" systemctl enable fstrim.timer
 chroot "$TARGET" systemctl enable zramswap.service
 
