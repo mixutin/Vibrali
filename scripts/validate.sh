@@ -18,6 +18,9 @@ required=(
   scripts/install-to-usb.sh
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
+  scripts/test-qemu-release.sh
+  config/rootfs/usr/local/sbin/vibrali-ci-probe
+  config/rootfs/etc/systemd/system/vibrali-ci-probe.service
   scripts/fetch-external-tool.sh
   scripts/validate-external-tools.sh
   scripts/validate-tool-profiles.sh
@@ -45,6 +48,7 @@ while IFS= read -r file; do
 done < <(find scripts -type f -name '*.sh' -print)
 
 bash -n site/install.sh
+bash -n config/rootfs/usr/local/sbin/vibrali-ci-probe
 bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
 bash -n config/rootfs/etc/skel/.bashrc
