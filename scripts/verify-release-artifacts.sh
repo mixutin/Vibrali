@@ -6,6 +6,8 @@ DIST="${1:-$ROOT/dist}"
 CHECKSUMS="$DIST/SHA256SUMS"
 USB="$DIST/vibrali-usb-amd64.img.zst"
 VM="$DIST/vibrali-qemu-amd64.qcow2.zst"
+BUILD_INFO="$DIST/BUILD_INFO.txt"
+PACKAGE_VERSIONS="$DIST/PACKAGE_VERSIONS.txt"
 TMPDIR="$(mktemp -d)"
 
 cleanup() {
@@ -18,16 +20,20 @@ fail() {
   exit 1
 }
 
-for cmd in sha256sum zstd python3 dd stat sort awk sed; do
+for cmd in sha256sum zstd python3 dd stat sort awk sed grep head wc; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
 
-for path in "$CHECKSUMS" "$USB" "$VM"; do
+for path in "$CHECKSUMS" "$USB" "$VM" "$BUILD_INFO" "$PACKAGE_VERSIONS"; do
   [[ -s "$path" ]] || fail "missing or empty artifact: $path"
 done
 
 expected_names="$(
-  printf '%s\n'     'vibrali-qemu-amd64.qcow2.zst'     'vibrali-usb-amd64.img.zst' |
+  printf '%s\n' \
+    'BUILD_INFO.txt' \
+    'PACKAGE_VERSIONS.txt' \
+    'vibrali-qemu-amd64.qcow2.zst' \
+    'vibrali-usb-amd64.img.zst' |
     sort
 )"
 actual_names="$(
@@ -45,6 +51,19 @@ actual_names="$(
 
 zstd -t "$USB"
 zstd -t "$VM"
+
+grep -Eq '^source_commit=([0-9a-f]{40}|unknown)$' "$BUILD_INFO" ||
+  fail "BUILD_INFO.txt is missing a valid source commit"
+grep -Eq '^debian_suite=[A-Za-z0-9._-]+$' "$BUILD_INFO" ||
+  fail "BUILD_INFO.txt is missing the Debian suite"
+grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+  fail "BUILD_INFO.txt is missing package manifest hashes"
+grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
+  fail "BUILD_INFO.txt is missing external-tool manifest provenance"
+head -n 1 "$PACKAGE_VERSIONS" | awk -F '\t' '$1 == "Package" && $2 == "Version" {ok=1} END {exit !ok}' ||
+  fail "PACKAGE_VERSIONS.txt is missing its header"
+[[ "$(wc -l < "$PACKAGE_VERSIONS")" -gt 10 ]] ||
+  fail "PACKAGE_VERSIONS.txt is unexpectedly small"
 
 extract_prefix() {
   local input="$1"

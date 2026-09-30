@@ -44,7 +44,21 @@ sudo apt install live-build debootstrap squashfs-tools xorriso isolinux syslinux
 ./scripts/build.sh
 ~~~
 
-## QEMU
+## QEMU and release-image testing
 
-The existing run-qemu helper targets the experimental ISO workflow. A native raw-disk
-QEMU test path is on the roadmap.
+The experimental `run-qemu.sh` helper still targets the Live ISO workflow. The primary
+portable-disk release path now has an automated OVMF/QEMU integration test:
+
+~~~bash
+sudo ./scripts/build-release-images.sh dist
+sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
+~~~
+
+The guest boots twice and reports persistence, desktop/network services and the security-tool runtime matrix over the serial console. Public images have the CI-only probe removed before compression.
+
+
+## Build provenance
+
+`build-release-images.sh` writes `BUILD_INFO.txt` and `PACKAGE_VERSIONS.txt` beside the image artifacts. `BUILD_INFO.txt` records the source commit, Debian suite, architecture, selected profiles, image size, CI reference/run identifiers when available, SHA-256 hashes of package/external-tool manifests and installer/build scripts, and the APT source configuration used in the image. `PACKAGE_VERSIONS.txt` records the exact installed Debian package/version set from the finished root filesystem.
+
+Both files are included in `SHA256SUMS`, so published releases authenticate them through the same Sigstore-signed checksum manifest as the USB and QEMU images. This makes builds auditable and repeatable at the recorded-input level; it is not a claim of byte-for-byte reproducibility across changing Debian mirrors.

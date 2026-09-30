@@ -7,15 +7,16 @@ The workflow:
 1. validates shell and repository configuration,
 2. builds a normal Vibrali installation in a loopback disk,
 3. creates a disposable CI-only QCOW2 plus clean public QEMU/USB images,
-4. locks the USB image's `vibrali` account,
-5. writes SHA-256 checksums,
-6. verifies checksums, compressed streams and image structure,
-7. smoke-tests the release installer download/checksum contract,
-8. boots the disposable QEMU image twice with OVMF to test UEFI boot and persistence,
-9. removes the CI-only image,
-10. splits oversized public assets when necessary,
-11. signs `SHA256SUMS` keylessly with Sigstore/Cosign and verifies the GitHub Actions signer identity,
-12. and creates a GitHub Release.
+4. records source/build provenance and the exact installed package versions,
+5. locks the USB image's `vibrali` account,
+6. writes SHA-256 checksums for images and provenance metadata,
+7. verifies checksums, metadata, compressed streams and image structure,
+8. smoke-tests the release installer download/checksum contract,
+9. boots the disposable QEMU image twice with OVMF to test UEFI boot and persistence,
+10. removes the CI-only image,
+11. splits oversized public assets when necessary,
+12. signs `SHA256SUMS` keylessly with Sigstore/Cosign and verifies the GitHub Actions signer identity,
+13. and creates a GitHub Release.
 
 Artifact and smoke verification run **before** anything is published. A checksum mismatch,
 corrupt zstd stream, missing expected partition, wrong filesystem signature, invalid QCOW2
@@ -77,10 +78,12 @@ Before publishing any public image, complete [RELEASE_CHECKLIST.md](RELEASE_CHEC
 
 ## Verify a published release
 
-Each public release publishes two verification files:
+Each public release publishes verification and provenance files:
 
-- `SHA256SUMS` — SHA-256 hashes for the original compressed USB and QEMU images.
+- `SHA256SUMS` — SHA-256 hashes for the compressed images plus `BUILD_INFO.txt` and `PACKAGE_VERSIONS.txt`.
 - `SHA256SUMS.sigstore.json` — a Sigstore bundle containing the checksum-manifest signature, short-lived signing certificate and transparency-log proof.
+- `BUILD_INFO.txt` — source commit, Debian suite, build/profile inputs and manifest/script hashes.
+- `PACKAGE_VERSIONS.txt` — exact Debian package versions installed in the built root filesystem.
 
 Install a current Cosign release, then download those two files plus the image you want to verify. First verify that the checksum manifest was signed by Vibrali's GitHub Actions release workflow:
 
