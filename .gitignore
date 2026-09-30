@@ -1,0 +1,9 @@
+.work/
+build/
+*.iso
+*.img
+*.qcow2
+*.log
+.DS_Store
+.vscode/
+.idea/

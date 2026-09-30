@@ -1,0 +1,6 @@
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias ports='ss -tulpn'
+alias myip='ip -brief address'
+alias vibrali-info='cat /etc/vibrali-release'

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+printf '%s\n' 'Vibrali Security Linux' > /etc/issue
+printf '%s\n' 'Vibrali Security Linux' > /etc/issue.net

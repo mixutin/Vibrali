@@ -1,0 +1,6 @@
+NAME=Vibrali
+ID=vibrali
+PRETTY_NAME="Vibrali Security Linux"
+HOME_URL="https://github.com/mixutin/Vibrali"
+DOCUMENTATION_URL="https://github.com/mixutin/Vibrali/tree/main/docs"
+BUG_REPORT_URL="https://github.com/mixutin/Vibrali/issues"
