@@ -19,6 +19,7 @@ required=(
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
   scripts/test-qemu-release.sh
+  scripts/test-release-installer.sh
   scripts/ci/vibrali-ci-probe
   scripts/ci/vibrali-ci-probe.service
   scripts/fetch-external-tool.sh
@@ -99,6 +100,7 @@ diff -u \
 grep -q -- '--profiles LIST' <(./scripts/install-to-usb.sh --help)
 grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
 bash ./scripts/test-installer-cli.sh
+bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
 bash ./scripts/validate-tool-profiles.sh
 
