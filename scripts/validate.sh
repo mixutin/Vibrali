@@ -17,6 +17,7 @@ required=(
   packages/network.txt
   scripts/install-to-usb.sh
   scripts/build-release-images.sh
+  scripts/verify-release-artifacts.sh
   scripts/fetch-external-tool.sh
   scripts/validate-external-tools.sh
   scripts/validate-tool-profiles.sh
