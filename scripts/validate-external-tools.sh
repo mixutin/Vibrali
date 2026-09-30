@@ -18,7 +18,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [[ "$line" =~ ^[[:space:]]*$ ]] && continue
   [[ "$line" =~ ^[[:space:]]*# ]] && continue
 
-  IFS='|' read -r name version url sha license kind extra <<< "$line"
+  IFS='|' read -r name version url sha license kind update_source extra <<< "$line"
 
   [[ -z "${extra:-}" ]] || { echo "manifest line $line_no: too many fields" >&2; exit 1; }
   [[ "$name" =~ ^[a-z0-9][a-z0-9._-]*$ ]] || { echo "manifest line $line_no: invalid name" >&2; exit 1; }
@@ -27,6 +27,10 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [[ "$sha" =~ ^[0-9a-f]{64}$ ]] || { echo "manifest line $line_no: invalid SHA-256" >&2; exit 1; }
   [[ -n "$license" && "$license" != *[[:space:]]* ]] || { echo "manifest line $line_no: missing/invalid license" >&2; exit 1; }
   [[ "$kind" == "file" || "$kind" == "archive" ]] || { echo "manifest line $line_no: invalid kind" >&2; exit 1; }
+  [[ "$update_source" == "none" || "$update_source" =~ ^github-(release|tag):[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || {
+    echo "manifest line $line_no: invalid update source" >&2
+    exit 1
+  }
   [[ -z "${seen[$name]:-}" ]] || { echo "manifest line $line_no: duplicate tool $name" >&2; exit 1; }
 
   seen["$name"]=1
