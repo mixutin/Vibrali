@@ -510,7 +510,7 @@ All items below must be checked before declaring Vibrali 1.0 complete.
 - [x] Release checksum/signature verification is documented
 - [ ] Recovery documentation is tested
 - [x] Encryption status is clearly documented
-- [ ] No default credential remains on the physical USB release path
+- [x] No default credential remains on the physical USB release path
 - [ ] First stable release notes list supported hardware assumptions
 - [ ] First stable release image has been installed from the public download path
 - [ ] Public website points to the stable release
