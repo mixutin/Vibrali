@@ -114,6 +114,15 @@ The script displays the target model/size/serial/transport/removable status, sho
 selected optional profiles, checks the target size, and requires the full device path to
 be typed again before partitioning. It then prompts for the initial user's password.
 
+During a real source install, output is copied to a temporary host-side log under
+`/tmp/vibrali-install.*.log`. On success, the log is also stored on the installed USB
+at `/var/log/vibrali-install.log`.
+
+Before reporting success, the installer verifies the removable UEFI bootloader, root and
+EFI UUID entries in `fstab`, the requested user account, and that NetworkManager and
+LightDM are enabled. A failed critical check makes the installer exit nonzero and keeps
+the host log for troubleshooting.
+
 ## What the installer creates
 
 ~~~text

@@ -205,12 +205,16 @@ fi
   exit 1
 }
 
-for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot rsync curl sha256sum; do
+for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot rsync curl sha256sum mktemp tee; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing build-host command: $cmd" >&2
     exit 1
   }
 done
+
+INSTALL_LOG="$(mktemp /tmp/vibrali-install.XXXXXX.log)"
+exec > >(tee -a "$INSTALL_LOG") 2>&1
+echo "Install log: $INSTALL_LOG"
 
 if [[ $NONINTERACTIVE -eq 1 ]]; then
   [[ "$DEVICE" == /dev/loop* ]] || { echo "CI mode is limited to loop devices." >&2; exit 1; }
@@ -229,6 +233,62 @@ else
     exit 1
   }
 fi
+
+verify_install() {
+  local failures=0
+
+  echo
+  echo "Post-install verification:"
+
+  if [[ -f "$TARGET/boot/efi/EFI/BOOT/BOOTX64.EFI" ]]; then
+    echo "  [PASS] removable UEFI bootloader"
+  else
+    echo "  [FAIL] removable UEFI bootloader" >&2
+    failures=$((failures + 1))
+  fi
+
+  if grep -Fq "UUID=$ROOT_UUID / ext4" "$TARGET/etc/fstab"; then
+    echo "  [PASS] root filesystem UUID"
+  else
+    echo "  [FAIL] root filesystem UUID" >&2
+    failures=$((failures + 1))
+  fi
+
+  if grep -Fq "UUID=$EFI_UUID /boot/efi vfat" "$TARGET/etc/fstab"; then
+    echo "  [PASS] EFI filesystem UUID"
+  else
+    echo "  [FAIL] EFI filesystem UUID" >&2
+    failures=$((failures + 1))
+  fi
+
+  if chroot "$TARGET" id "$USERNAME" >/dev/null 2>&1; then
+    echo "  [PASS] user account: $USERNAME"
+  else
+    echo "  [FAIL] user account: $USERNAME" >&2
+    failures=$((failures + 1))
+  fi
+
+  if chroot "$TARGET" systemctl is-enabled NetworkManager >/dev/null 2>&1; then
+    echo "  [PASS] NetworkManager enabled"
+  else
+    echo "  [FAIL] NetworkManager enabled" >&2
+    failures=$((failures + 1))
+  fi
+
+  if chroot "$TARGET" systemctl is-enabled lightdm >/dev/null 2>&1; then
+    echo "  [PASS] LightDM enabled"
+  else
+    echo "  [FAIL] LightDM enabled" >&2
+    failures=$((failures + 1))
+  fi
+
+  if [[ $failures -ne 0 ]]; then
+    echo "Post-install verification failed: $failures critical check(s) failed." >&2
+    return 1
+  fi
+
+  echo "Post-install verification passed."
+}
 
 part() {
   if [[ "$DEVICE" =~ [0-9]$ ]]; then
@@ -395,8 +455,15 @@ Portable. Persistent. Yours.
 Use security tooling only on systems you own or are authorized to test.
 EOF
 
+if ! verify_install; then
+  install -Dm0600 "$INSTALL_LOG" "$TARGET/var/log/vibrali-install.log" || true
+  echo "Installer log preserved at: $INSTALL_LOG" >&2
+  exit 1
+fi
+
 chroot "$TARGET" apt-get clean
 sync
+install -Dm0600 "$INSTALL_LOG" "$TARGET/var/log/vibrali-install.log"
 
 PASSWORD=""
 PASSWORD2=""
@@ -406,6 +473,8 @@ echo "Vibrali installation complete."
 echo "Target: $DEVICE"
 echo "Root:   $ROOT_PART"
 echo "EFI:    $EFI_PART"
+echo "Host install log: $INSTALL_LOG"
+echo "USB install log:  /var/log/vibrali-install.log"
 echo
 echo "You can now shut down the host, move the USB to another x86_64 PC,"
 echo "select the USB from its firmware boot menu, and boot the same writable system."
