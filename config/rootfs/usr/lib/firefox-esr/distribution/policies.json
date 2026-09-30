@@ -1,0 +1,10 @@
+{
+  "policies": {
+    "Homepage": {
+      "URL": "https://mixutin.github.io/Vibrali/",
+      "StartPage": "homepage"
+    },
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true
+  }
+}

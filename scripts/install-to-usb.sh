@@ -9,6 +9,7 @@ SUITE="trixie"
 MIRROR="https://deb.debian.org/debian"
 TARGET="/mnt/vibrali-target"
 CONFIRMED=0
+NONINTERACTIVE=0
 
 usage() {
   cat <<'EOF'
@@ -19,9 +20,10 @@ Options:
   --device PATH       Whole USB disk to erase and install to
   --username NAME     Initial user (default: vibrali)
   --hostname NAME     Hostname (default: vibrali)
-  --suite NAME        Debian suite (default: trixie)
-  --mirror URL        Debian mirror
+  --suite NAME        Upstream package suite (default: trixie)
+  --mirror URL        Upstream package mirror
   --yes-really-erase  Required destructive-operation acknowledgement
+  --non-interactive   CI image build mode; accepted only for loop devices
   -h, --help          Show this help
 EOF
 }
@@ -34,6 +36,7 @@ while [[ $# -gt 0 ]]; do
     --suite) SUITE="${2:-}"; shift 2 ;;
     --mirror) MIRROR="${2:-}"; shift 2 ;;
     --yes-really-erase) CONFIRMED=1; shift ;;
+    --non-interactive) NONINTERACTIVE=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 2 ;;
   esac
@@ -42,10 +45,13 @@ done
 [[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
 [[ -n "$DEVICE" ]] || { usage; exit 2; }
 [[ -b "$DEVICE" ]] || { echo "Not a block device: $DEVICE" >&2; exit 1; }
-[[ "$(lsblk -dn -o TYPE "$DEVICE")" == "disk" ]] || {
-  echo "--device must name a whole disk, not a partition." >&2
-  exit 1
-}
+DEVICE_TYPE="$(lsblk -dn -o TYPE "$DEVICE")"
+if [[ "$DEVICE_TYPE" != "disk" ]]; then
+  if [[ $NONINTERACTIVE -ne 1 || "$DEVICE_TYPE" != "loop" || "$DEVICE" != /dev/loop* ]]; then
+    echo "--device must name a whole physical disk." >&2
+    exit 1
+  fi
+fi
 
 if lsblk -nrpo MOUNTPOINTS "$DEVICE" | grep -Eq '(^|[[:space:]])/($|[[:space:]])'; then
   echo "Refusing to erase the disk containing the running root filesystem." >&2
@@ -57,7 +63,7 @@ fi
   exit 1
 }
 
-for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot lsblk; do
+for cmd in debootstrap sgdisk mkfs.vfat mkfs.ext4 blkid mount umount chroot lsblk rsync curl sha256sum; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing build-host command: $cmd" >&2
     exit 1
@@ -68,17 +74,24 @@ echo
 echo "Vibrali will ERASE the following disk:"
 lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN "$DEVICE"
 echo
-read -r -p "Type the full device path ($DEVICE) to continue: " typed
-[[ "$typed" == "$DEVICE" ]] || { echo "Cancelled."; exit 1; }
 
-read -r -s -p "Password for user $USERNAME: " PASSWORD
-echo
-read -r -s -p "Repeat password: " PASSWORD2
-echo
-[[ -n "$PASSWORD" && "$PASSWORD" == "$PASSWORD2" ]] || {
-  echo "Passwords did not match." >&2
-  exit 1
-}
+if [[ $NONINTERACTIVE -eq 1 ]]; then
+  [[ "$DEVICE" == /dev/loop* ]] || { echo "CI mode is limited to loop devices." >&2; exit 1; }
+  PASSWORD="${VIBRALI_PASSWORD:-}"
+  [[ -n "$PASSWORD" ]] || { echo "VIBRALI_PASSWORD is required in CI mode." >&2; exit 1; }
+  PASSWORD2="$PASSWORD"
+else
+  read -r -p "Type the full device path ($DEVICE) to continue: " typed
+  [[ "$typed" == "$DEVICE" ]] || { echo "Cancelled."; exit 1; }
+  read -r -s -p "Password for user $USERNAME: " PASSWORD
+  echo
+  read -r -s -p "Repeat password: " PASSWORD2
+  echo
+  [[ -n "$PASSWORD" && "$PASSWORD" == "$PASSWORD2" ]] || {
+    echo "Passwords did not match." >&2
+    exit 1
+  }
+fi
 
 part() {
   if [[ "$DEVICE" =~ [0-9]$ ]]; then
@@ -113,8 +126,16 @@ sgdisk --new=2:0:+512MiB --typecode=2:ef00 --change-name=2:VIBRALI_EFI "$DEVICE"
 sgdisk --new=3:0:0 --typecode=3:8300 --change-name=3:VIBRALI_ROOT "$DEVICE"
 
 command -v partprobe >/dev/null 2>&1 && partprobe "$DEVICE" || true
+if [[ "$DEVICE_TYPE" == "loop" ]] && command -v partx >/dev/null 2>&1; then
+  partx -u "$DEVICE" || true
+fi
 command -v udevadm >/dev/null 2>&1 && udevadm settle || true
-sleep 1
+
+for _ in $(seq 1 20); do
+  [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] && break
+  command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+  sleep 0.5
+done
 
 [[ -b "$EFI_PART" && -b "$ROOT_PART" ]] || {
   echo "Partitions did not appear as expected." >&2
@@ -132,7 +153,7 @@ mkdir -p "$TARGET/boot/efi"
 mount "$EFI_PART" "$TARGET/boot/efi"
 MOUNTS+=("$TARGET/boot/efi")
 
-echo "Installing Debian $SUITE base system..."
+echo "Installing Vibrali $SUITE base system..."
 debootstrap --arch=amd64 "$SUITE" "$TARGET" "$MIRROR"
 
 cat > "$TARGET/etc/apt/sources.list" <<EOF
@@ -168,6 +189,18 @@ echo "Installing Vibrali packages..."
 chroot "$TARGET" apt-get update
 chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAGES[@]}"
 
+echo "Applying Vibrali identity and desktop defaults..."
+rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"
+chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/neofetch"
+
+NEOFETCH_URL="https://raw.githubusercontent.com/dylanaraps/neofetch/7.1.0/neofetch"
+NEOFETCH_SHA256="3dc33493e54029fb1528251552093a9f9a2894fcf94f9c3a6f809136a42348c7"
+NEOFETCH_TMP="$(mktemp)"
+curl -fsSL "$NEOFETCH_URL" -o "$NEOFETCH_TMP"
+printf "%s  %s\n" "$NEOFETCH_SHA256" "$NEOFETCH_TMP" | sha256sum -c -
+install -Dm0755 "$NEOFETCH_TMP" "$TARGET/usr/local/lib/vibrali/neofetch"
+rm -f "$NEOFETCH_TMP"
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
@@ -176,15 +209,11 @@ cat > "$TARGET/etc/hosts" <<EOF
 EOF
 
 echo "Creating user $USERNAME..."
-chroot "$TARGET" useradd -m -s /bin/bash "$USERNAME"
+chroot "$TARGET" useradd -m -s /bin/zsh "$USERNAME"
 printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chroot "$TARGET" chpasswd
 chroot "$TARGET" usermod -aG sudo,plugdev "$USERNAME"
 chroot "$TARGET" passwd -l root
-
-install -Dm0644 "$ROOT_DIR/config/includes.chroot/etc/vibrali-release" "$TARGET/etc/vibrali-release"
-install -Dm0644 "$ROOT_DIR/config/includes.chroot/etc/skel/.bash_aliases" "$TARGET/etc/skel/.bash_aliases"
-install -Dm0644 "$ROOT_DIR/config/includes.chroot/etc/skel/.bash_aliases" "$TARGET/home/$USERNAME/.bash_aliases"
-chroot "$TARGET" chown "$USERNAME:$USERNAME" "/home/$USERNAME/.bash_aliases"
+chroot "$TARGET" chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 EFI_UUID="$(blkid -s UUID -o value "$EFI_PART")"
@@ -194,15 +223,8 @@ UUID=$ROOT_UUID / ext4 defaults,noatime 0 1
 UUID=$EFI_UUID /boot/efi vfat umask=0077 0 1
 EOF
 
+echo "Configuring portable Vibrali boot..."
 mkdir -p "$TARGET/etc/default/grub.d"
-cat > "$TARGET/etc/default/grub.d/99-vibrali.cfg" <<'EOF'
-GRUB_TIMEOUT=3
-GRUB_TIMEOUT_STYLE=menu
-GRUB_DISABLE_OS_PROBER=true
-GRUB_CMDLINE_LINUX_DEFAULT="quiet"
-EOF
-
-echo "Configuring portable boot..."
 chroot "$TARGET" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Vibrali --removable --no-nvram --recheck
 
 if chroot "$TARGET" grub-install --target=i386-pc --recheck "$DEVICE"; then
@@ -211,6 +233,9 @@ else
   echo "Warning: legacy BIOS GRUB install failed; UEFI boot remains configured." >&2
 fi
 
+chroot "$TARGET" update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/vibrali/vibrali.plymouth 200
+chroot "$TARGET" update-alternatives --set default.plymouth /usr/share/plymouth/themes/vibrali/vibrali.plymouth
+chroot "$TARGET" gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
 chroot "$TARGET" update-initramfs -u -k all
 chroot "$TARGET" update-grub
 chroot "$TARGET" systemctl enable NetworkManager

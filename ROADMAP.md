@@ -4,7 +4,7 @@
 
 - [x] Define full-install USB architecture
 - [x] GPT layout with BIOS + EFI + writable Linux root
-- [x] Debian bootstrap installer
+- [x] Vibrali bootstrap installer
 - [x] Portable removable-media GRUB setup
 - [x] UUID-based fstab
 - [x] User/password provisioning
@@ -18,10 +18,10 @@
 - [ ] Verify UEFI portability across vendors
 - [ ] Verify legacy BIOS boot
 - [ ] Add first-boot welcome flow
-- [ ] Add Vibrali desktop branding
-- [ ] Tune XFCE defaults
+- [x] Add Vibrali desktop branding
+- [x] Tune XFCE defaults
 - [ ] Add QEMU raw-disk integration test
-- [ ] Publish checksums and installation notes
+- [x] Publish checksum/install infrastructure
 
 ## Phase 2 — Portable workstation hardening
 
@@ -58,14 +58,16 @@
 - [ ] GPU compatibility notes
 - [ ] HiDPI and multi-monitor defaults
 - [ ] laptop power-management tuning
-- [ ] custom wallpaper, theme and terminal profile
+- [x] custom wallpaper, theme and terminal profile
 
 ## Phase 5 — Distribution
 
 - [ ] Bootable installer/rescue ISO
-- [ ] Prebuilt portable raw image
+- [x] Prebuilt portable raw-image builder
 - [ ] Graphical USB installer
-- [ ] Versioned releases
-- [ ] Automated release pipeline
+- [ ] Publish first versioned image release
+- [x] Automated release pipeline
+- [x] GitHub Pages download website
+- [x] Release-backed curl installer
 - [ ] Stable and rolling channels
 - [ ] ARM64 research

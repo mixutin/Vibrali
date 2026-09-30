@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Vibrali
+Description=Vibrali boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/vibrali
+ScriptFile=/usr/share/plymouth/themes/vibrali/vibrali.script

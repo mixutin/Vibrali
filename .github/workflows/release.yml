@@ -1,0 +1,83 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (example: v0.1.0-dev)"
+        required: true
+        default: "v0.1.0-dev"
+
+permissions:
+  contents: write
+
+jobs:
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install image build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap gdisk dosfstools e2fsprogs grub2-common \
+            grub-efi-amd64-bin grub-pc-bin qemu-utils zstd rsync curl
+
+      - name: Validate source
+        run: |
+          chmod +x scripts/*.sh site/install.sh
+          ./scripts/validate.sh
+          shellcheck scripts/*.sh site/install.sh
+
+      - name: Build USB and QEMU images
+        env:
+          VIBRALI_IMAGE_SIZE: 12G
+        run: sudo -E ./scripts/build-release-images.sh dist
+
+      - name: Split assets that exceed GitHub's practical single-file size
+        run: |
+          cd dist
+          for f in *.zst; do
+            [ -f "$f" ] || continue
+            size=$(stat -c %s "$f")
+            if [ "$size" -gt 1900000000 ]; then
+              split -b 1800M -d -a 2 "$f" "$f.part-"
+              rm "$f"
+            fi
+          done
+          ls -lh
+
+      - name: Resolve release tag
+        id: meta
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ contains(steps.meta.outputs.tag, 'dev') || contains(steps.meta.outputs.tag, 'rc') }}
+          files: |
+            dist/*
+          body: |
+            ## Vibrali ${{ steps.meta.outputs.tag }}
+
+            Portable full-system security Linux.
+
+            **USB:** use the guided installer at https://mixutin.github.io/Vibrali/
+            The USB release account is locked until the installer sets your password.
+
+            **QEMU:** decompress `vibrali-qemu-amd64.qcow2.zst`.
+            Development image login: `vibrali` / `vibrali`.
+            Change the password immediately after first boot.

@@ -13,6 +13,13 @@ required=(
   packages/desktop.txt
   packages/network.txt
   scripts/install-to-usb.sh
+  scripts/build-release-images.sh
+  site/index.html
+  site/style.css
+  site/install.sh
+  config/rootfs/etc/os-release
+  assets/brand/vibrali-logo.png
+  assets/brand/vibrali-wallpaper-default.png
 )
 
 for path in "${required[@]}"; do
@@ -22,6 +29,8 @@ done
 while IFS= read -r file; do
   bash -n "$file"
 done < <(find scripts -type f -name '*.sh' -print)
+
+bash -n site/install.sh
 
 while IFS= read -r file; do
   sh -n "$file"

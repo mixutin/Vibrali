@@ -14,6 +14,7 @@ mkdir -p "$WORK" "$OUT"
 rsync -a --delete --exclude .git --exclude .work --exclude build "$ROOT/" "$WORK/"
 
 cd "$WORK"
+rsync -a config/rootfs/ config/includes.chroot/
 lb clean --purge || true
 lb config   --architectures amd64   --distribution trixie   --archive-areas "main contrib non-free-firmware"   --binary-images iso-hybrid   --bootappend-live "boot=live components persistence quiet splash"   --debian-installer none   --iso-application "Vibrali"   --iso-publisher "Vibrali Project"   --iso-volume "VIBRALI"
 

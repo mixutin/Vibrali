@@ -1,0 +1,13 @@
+PRETTY_NAME="Vibrali Linux"
+NAME="Vibrali"
+VERSION_ID="0"
+VERSION="Rolling Preview"
+VERSION_CODENAME=trixie
+ID=vibrali
+ID_LIKE=debian
+HOME_URL="https://mixutin.github.io/Vibrali/"
+DOCUMENTATION_URL="https://mixutin.github.io/Vibrali/#docs"
+SUPPORT_URL="https://github.com/mixutin/Vibrali/issues"
+BUG_REPORT_URL="https://github.com/mixutin/Vibrali/issues"
+LOGO=vibrali-logo
+VIBRALI_BASE="Debian 13"

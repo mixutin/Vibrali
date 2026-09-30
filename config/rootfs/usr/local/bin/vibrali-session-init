@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -u
+
+wallpaper=/usr/share/backgrounds/vibrali/default.png
+
+if command -v xfconf-query >/dev/null 2>&1; then
+  xfconf-query -c xsettings -p /Net/ThemeName -s Arc-Dark 2>/dev/null || true
+  xfconf-query -c xsettings -p /Net/IconThemeName -s Papirus-Dark 2>/dev/null || true
+  xfconf-query -c xsettings -p /Gtk/FontName -s "Noto Sans 10" 2>/dev/null || true
+  xfconf-query -c xfwm4 -p /general/theme -s Arc-Dark 2>/dev/null || true
+  xfconf-query -c xfwm4 -p /general/title_font -s "JetBrains Mono Bold 10" 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/size -s 34 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/icon-size -s 18 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/length -s 100 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked -s true 2>/dev/null || true
+
+  while IFS= read -r prop; do
+    xfconf-query -c xfce4-desktop -p "$prop" -s "$wallpaper" 2>/dev/null || true
+  done < <(xfconf-query -c xfce4-desktop -l 2>/dev/null | grep '/last-image$' || true)
+
+  fallback=/backdrop/screen0/monitor0/workspace0/last-image
+  xfconf-query -c xfce4-desktop -p "$fallback" --create -t string -s "$wallpaper" 2>/dev/null || true
+fi
+
+command -v xfdesktop >/dev/null 2>&1 && xfdesktop --reload >/dev/null 2>&1 || true

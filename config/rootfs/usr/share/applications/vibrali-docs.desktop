@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vibrali Documentation
+Comment=Open Vibrali documentation and downloads
+Exec=xdg-open https://mixutin.github.io/Vibrali/
+Icon=vibrali-logo
+Terminal=false
+Categories=System;Documentation;

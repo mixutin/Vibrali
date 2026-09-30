@@ -20,4 +20,4 @@ jobs:
       - name: Validate repository
         run: ./scripts/validate.sh
       - name: ShellCheck
-        run: shellcheck scripts/*.sh
+        run: shellcheck scripts/*.sh site/install.sh

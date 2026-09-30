@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vibrali Session
+Comment=Apply Vibrali desktop defaults
+Exec=/usr/local/bin/vibrali-session-init
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

@@ -1,7 +1,22 @@
 # Installing Vibrali to USB
 
-Vibrali's development installer creates a full Debian system directly on a removable
-disk. The selected disk is completely erased.
+Vibrali creates a full writable system directly on removable storage. The selected disk is completely erased.
+
+## Fast release install
+
+For normal installs, use the release-backed guided installer:
+
+~~~bash
+curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash
+~~~
+
+The USB release image is prebuilt, checksum-verified and locked until the installer asks
+you to choose a new password. This is substantially faster than bootstrapping every
+package locally.
+
+## Source install
+
+The steps below describe the slower developer/source installation path.
 
 ## Recommended hardware
 
@@ -56,8 +71,7 @@ GPT
 └── ext4 root filesystem using the remaining space
 ~~~
 
-Debian 13 is bootstrapped into the root filesystem. Vibrali package manifests are
-installed, a normal user is created, and GRUB is configured for portable UEFI boot.
+The Vibrali base is bootstrapped into the root filesystem from Debian 13 package repositories. Vibrali package manifests and branding are then applied, a normal user is created, and GRUB is configured for portable UEFI boot.
 
 Legacy BIOS GRUB is attempted as well.
 
@@ -68,8 +82,7 @@ open its firmware boot menu and select the USB device.
 
 During early development, disable Secure Boot.
 
-Once booted, Vibrali behaves like a normal Debian installation: use apt normally, create
-files, install development environments and upgrade the kernel.
+Once booted, Vibrali behaves like a normal full Linux installation: use APT normally, create files, install development environments and upgrade the kernel.
 
 ## Important portability notes
 

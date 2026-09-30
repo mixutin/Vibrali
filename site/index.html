@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#05070d">
+  <meta name="description" content="Vibrali is a portable full-system Linux workstation for pentesting, CTFs, reversing and security research.">
+  <title>Vibrali — Portable Security Linux</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="nav">
+    <a class="brand" href="#">
+      <img src="assets/vibrali-logo.png" alt="">
+      <span>VIBRALI</span>
+    </a>
+    <nav>
+      <a href="#downloads">Downloads</a>
+      <a href="#tooling">Tooling</a>
+      <a href="#desktop">Desktop</a>
+      <a href="#docs">Docs</a>
+    </nav>
+    <a class="nav-github" href="https://github.com/mixutin/Vibrali">GitHub ↗</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> Rolling security workstation</div>
+        <h1>Your security lab.<br><em>In your pocket.</em></h1>
+        <p class="lede">
+          A complete writable Linux system that boots from USB and travels between PCs.
+          Your tools, configs, packages, projects and desktop stay with you.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#install">Install Vibrali</a>
+          <a class="button secondary" id="release-link" href="https://github.com/mixutin/Vibrali/releases/latest">Latest release</a>
+        </div>
+        <div class="release-meta">
+          <span class="pulse"></span>
+          <strong id="release-version">Development preview</strong>
+          <span id="release-date">x86_64 · full persistent system</span>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="orb"></div>
+        <img src="assets/vibrali-logo.png" alt="Vibrali emblem">
+        <div class="hero-wordmark">V I B R A L I</div>
+      </div>
+    </section>
+
+    <section class="feature-strip">
+      <article><b>01</b><span>Full writable root</span></article>
+      <article><b>02</b><span>Portable UEFI boot</span></article>
+      <article><b>03</b><span>150+ curated packages</span></article>
+      <article><b>04</b><span>Riced out of the box</span></article>
+    </section>
+
+    <section class="section install-section" id="install">
+      <div class="section-kicker">ONE COMMAND</div>
+      <h2>From blank USB to Vibrali.</h2>
+      <p class="section-lede">The guided installer downloads the newest release, verifies it, lets you choose the target drive and shows write progress.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span></span><span></span><span></span>
+          <small>vibrali-installer</small>
+        </div>
+        <div class="terminal-body">
+          <span class="prompt">$</span>
+          <code id="install-command">curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash</code>
+          <button class="copy" data-copy="install-command">Copy</button>
+        </div>
+      </div>
+      <div class="notice">
+        <strong>Heads up.</strong>
+        Installing to USB erases the selected device. Vibrali shows the model, size and serial
+        and requires an explicit confirmation before writing.
+      </div>
+    </section>
+
+    <section class="section" id="downloads">
+      <div class="section-kicker">DOWNLOADS</div>
+      <h2>Choose how you want to run it.</h2>
+      <div class="cards downloads">
+        <article class="card featured">
+          <div class="card-icon">USB</div>
+          <h3>Portable USB</h3>
+          <p>The main Vibrali experience. A complete external system with a real writable ext4 root filesystem.</p>
+          <a class="card-link" href="#install">Guided install <span>→</span></a>
+        </article>
+        <article class="card">
+          <div class="card-icon">VM</div>
+          <h3>QEMU / KVM</h3>
+          <p>Prebuilt QCOW2 disk for testing, labs and snapshots before you put Vibrali on hardware.</p>
+          <a class="card-link" id="vm-download" href="https://github.com/mixutin/Vibrali/releases/latest">Download VM image <span>→</span></a>
+        </article>
+        <article class="card">
+          <div class="card-icon">SRC</div>
+          <h3>Build it yourself</h3>
+          <p>Every package profile, branding file and build script lives in the public repository.</p>
+          <a class="card-link" href="https://github.com/mixutin/Vibrali">Browse source <span>→</span></a>
+        </article>
+      </div>
+    </section>
+    <section class="desktop section" id="desktop">
+      <div class="desktop-copy">
+        <div class="section-kicker">VIBRALI DESKTOP</div>
+        <h2>Dark, fast, and already yours.</h2>
+        <p>
+          XFCE ships preconfigured with Vibrali artwork, Arc Dark, Papirus Dark,
+          JetBrains Mono, Starship and a cyan-violet terminal palette.
+        </p>
+        <ul class="check-list">
+          <li>Vibrali login, boot splash and GRUB identity</li>
+          <li>Fastfetch on first interactive shell</li>
+          <li>Fastfetch, Neofetch, Screenfetch and Inxi</li>
+          <li>Minimal default wallpaper plus alternate Aurora artwork</li>
+        </ul>
+      </div>
+      <div class="desktop-shot">
+        <img src="assets/vibrali-wallpaper-default.png" alt="Vibrali default desktop wallpaper">
+        <div class="shot-label"><span></span> Default wallpaper</div>
+      </div>
+    </section>
+
+    <section class="section" id="tooling">
+      <div class="section-kicker">TOOLING</div>
+      <h2>Built for the whole security workflow.</h2>
+      <div class="tool-grid">
+        <article><span>NET</span><h3>Network</h3><p>Nmap, Masscan, Wireshark, tcpdump, Bettercap, Socat and more.</p></article>
+        <article><span>WEB</span><h3>Web</h3><p>SQLMap, ffuf, Gobuster, Nikto, Wfuzz, WhatWeb and recon tooling.</p></article>
+        <article><span>PWN</span><h3>Pwn</h3><p>GDB, pwntools, GCC, Clang, NASM, Patchelf and QEMU user mode.</p></article>
+        <article><span>REV</span><h3>Reverse</h3><p>LLDB, APKTool, Valgrind, binutils, strace, ltrace and ELF tooling.</p></article>
+        <article><span>CRY</span><h3>Crypto</h3><p>PARI/GP, SymPy, gmpy2, PyCryptodome, OpenSSL and Z3.</p></article>
+        <article><span>FOR</span><h3>Forensics</h3><p>Binwalk, Sleuth Kit, Autopsy, YARA, TestDisk and media utilities.</p></article>
+      </div>
+    </section>
+    <section class="section architecture" id="docs">
+      <div>
+        <div class="section-kicker">ARCHITECTURE</div>
+        <h2>Not a live overlay.<br>A real installation.</h2>
+        <p>
+          Vibrali installs directly onto removable storage. Packages, kernels, /etc,
+          /var, /opt and your home directory persist exactly as they do on a normal disk.
+        </p>
+        <a class="text-link" href="https://github.com/mixutin/Vibrali/blob/main/docs/ARCHITECTURE.md">Read architecture docs →</a>
+      </div>
+      <pre class="disk-map"><code>VIBRALI USB
+│
+├─ BIOS boot      1 MiB
+├─ EFI system   512 MiB
+│  └─ EFI/BOOT/BOOTX64.EFI
+└─ VIBRALI_ROOT   ext4
+   ├─ /etc
+   ├─ /var
+   ├─ /opt
+   └─ /home</code></pre>
+    </section>
+
+    <section class="section safety">
+      <div class="section-kicker">AUTHORIZED USE</div>
+      <h2>Powerful tools. Clear boundaries.</h2>
+      <p>
+        Vibrali is built for CTFs, labs, administration, education and security testing
+        where you have explicit permission. You are responsible for how you use it.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand footer-brand">
+      <img src="assets/vibrali-logo.png" alt="">
+      <span>VIBRALI</span>
+    </div>
+    <p>Portable security Linux · built in the open.</p>
+    <div>
+      <a href="https://github.com/mixutin/Vibrali">GitHub</a>
+      <a href="https://github.com/mixutin/Vibrali/issues">Issues</a>
+      <a href="https://github.com/mixutin/Vibrali/blob/main/LICENSE">License</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

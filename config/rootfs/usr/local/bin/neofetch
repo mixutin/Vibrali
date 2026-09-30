@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec /usr/local/lib/vibrali/neofetch --ascii /usr/share/vibrali/logo.txt "$@"

@@ -7,8 +7,9 @@
 **Plug in. Boot. Work. Unplug. Everything is still there.**
 
 [![Validate](https://github.com/mixutin/Vibrali/actions/workflows/validate.yml/badge.svg)](https://github.com/mixutin/Vibrali/actions/workflows/validate.yml)
-[![Debian](https://img.shields.io/badge/base-Debian%2013-D70A53?logo=debian&logoColor=white)](https://www.debian.org/)
-[![Status](https://img.shields.io/badge/status-early%20development-orange)](ROADMAP.md)
+[![Website](https://img.shields.io/badge/site-Vibrali-00d9ff)](https://mixutin.github.io/Vibrali/)
+[![Release](https://img.shields.io/github/v/release/mixutin/Vibrali?include_prereleases&label=release)](https://github.com/mixutin/Vibrali/releases)
+[![Status](https://img.shields.io/badge/channel-rolling%20preview-825cff)](ROADMAP.md)
 
 </div>
 
@@ -20,7 +21,7 @@
 engineering, digital forensics and security research.
 
 The main Vibrali experience is **not a read-only Live ISO with a persistence overlay**.
-Vibrali installs a normal Debian system directly onto removable storage.
+Vibrali installs a normal, fully writable Linux system directly onto removable storage.
 
 That means the USB behaves much more like an external SSD:
 
@@ -94,29 +95,48 @@ for web, network, pwn, reversing, crypto, forensics and wireless work.
 
 ## Install to a USB
 
-**Warning: the target device is erased.**
+**Warning: the selected target device is erased.**
 
-On a Debian/Ubuntu host, install the builder dependencies:
-
-~~~bash
-sudo apt update
-sudo apt install debootstrap gdisk dosfstools e2fsprogs grub2-common
-~~~
-
-Then:
+The fastest path is the guided release installer:
 
 ~~~bash
-git clone https://github.com/mixutin/Vibrali.git
-cd Vibrali
-sudo ./scripts/install-to-usb.sh \
-  --device /dev/sdX \
-  --username vibrali \
-  --yes-really-erase
+curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash
 ~~~
 
-The installer requires you to type the full device path again before it erases anything.
+It downloads the latest prebuilt image, verifies SHA-256, displays the target disk model,
+size and serial, requires an explicit destructive confirmation, writes with progress,
+and then asks you to set the Vibrali password and hostname.
 
-See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using it on physical media.
+Prefer downloading and reviewing the script first if you do not normally pipe scripts
+from the network into a shell.
+
+The source-based debootstrap installer remains available for developers:
+
+~~~bash
+sudo ./scripts/install-to-usb.sh --device /dev/sdX --yes-really-erase
+~~~
+
+See [docs/USB_INSTALL.md](docs/USB_INSTALL.md) before using physical media.
+
+## Default desktop
+
+Vibrali boots into a preconfigured XFCE environment with its own wallpaper, logo,
+LightDM greeter, Plymouth splash and GRUB identity. Arc Dark, Papirus Dark, JetBrains
+Mono and a cyan/violet terminal palette provide the default visual language.
+
+Interactive shells use Zsh + Starship and show a branded Fastfetch summary. Fastfetch,
+legacy Neofetch 7.1.0, Screenfetch and Inxi are available out of the box.
+
+## QEMU / KVM
+
+Tagged releases also publish a compressed QCOW2 image. See [docs/VM.md](docs/VM.md).
+
+## Website
+
+Project site: **https://mixutin.github.io/Vibrali/**
+
+GitHub Pages is deployed automatically from `site/`. Release buttons resolve the newest
+GitHub release dynamically.
 
 ## Portability
 
@@ -147,8 +167,9 @@ Vibrali/
 ├── config/                 shared and live/recovery configuration
 ├── docs/                   architecture and installation docs
 ├── packages/               native-system package manifests
-├── scripts/                installer, build and validation helpers
-├── .github/workflows/      CI
+├── scripts/                installer, image build and validation helpers
+├── site/                   GitHub Pages website + curl installer
+├── .github/workflows/      CI, Pages and release automation
 ├── ROADMAP.md
 └── README.md
 ~~~

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+printf '\n\033[1;36mVibrali Linux\033[0m — portable security workstation\n\n'
+fastfetch --config "${HOME}/.config/fastfetch/config.jsonc" 2>/dev/null || fastfetch
+printf '\nDocs: https://mixutin.github.io/Vibrali/\n'

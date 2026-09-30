@@ -1,0 +1,11 @@
+{
+  "name": "Vibrali",
+  "short_name": "Vibrali",
+  "start_url": "/Vibrali/",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "icons": [
+    {"src": "assets/favicon.png", "sizes": "128x128", "type": "image/png"}
+  ]
+}
