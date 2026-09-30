@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SERIAL="$(cat /sys/class/dmi/id/product_serial 2>/dev/null || true)"
+[[ "$SERIAL" == "VIBRALI-CI" ]] || exit 0
+
+STATE_DIR=/var/lib/vibrali/ci
+COUNT_FILE="$STATE_DIR/boot-count"
+PERSIST_FILE="$STATE_DIR/persistence-marker"
+PACKAGE_NAME=vibrali-ci-persistence-marker
+FAILURES=0
+
+mkdir -p "$STATE_DIR"
+
+emit() {
+  printf '%s\n' "$*"
+  printf '%s\n' "$*" > /dev/ttyS0 2>/dev/null || true
+}
+
+pass() {
+  emit "VIBRALI_CI_PASS $1"
+}
+
+fail() {
+  emit "VIBRALI_CI_FAIL $1"
+  FAILURES=$((FAILURES + 1))
+}
+
+check() {
+  local name="$1"
+  shift
+  if "$@" >/dev/null 2>&1; then
+    pass "$name"
+  else
+    fail "$name"
+  fi
+}
+
+previous=0
+if [[ -r "$COUNT_FILE" ]]; then
+  read -r previous < "$COUNT_FILE" || previous=0
+fi
+[[ "$previous" =~ ^[0-9]+$ ]] || previous=0
+count=$((previous + 1))
+printf '%s\n' "$count" > "$COUNT_FILE"
+
+check "user-vibrali" id vibrali
+
+password_state="$(passwd -S vibrali 2>/dev/null | awk '{print $2}' || true)"
+if [[ "$password_state" == "P" ]]; then
+  pass "user-password-set"
+else
+  fail "user-password-set"
+fi
+
+check "networkmanager-active" systemctl is-active --quiet NetworkManager
+check "lightdm-active" systemctl is-active --quiet lightdm
+check "xfce-installed" test -x /usr/bin/startxfce4
+check "efi-fallback-loader" test -f /boot/efi/EFI/BOOT/BOOTX64.EFI
+check "profile-registry" test -s /etc/vibrali/profiles
+check "root-writable" test -w /
+
+check "tool-nmap-launch" nmap --version
+check "tool-sqlmap-launch" sqlmap --version
+check "tool-gdb-launch" gdb --version
+
+if [[ $count -eq 1 ]]; then
+  printf 'vibrali-qemu-persistence\n' > "$PERSIST_FILE"
+
+  package_root="$(mktemp -d)"
+  mkdir -p "$package_root/DEBIAN" "$package_root/usr/local/share"
+  cat > "$package_root/DEBIAN/control" <<EOF
+Package: $PACKAGE_NAME
+Version: 1.0
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: Vibrali CI <noreply@invalid>
+Description: Disposable package used only by the Vibrali QEMU persistence smoke test
+EOF
+  printf 'installed-by-vibrali-ci\n' > "$package_root/usr/local/share/vibrali-ci-package-marker"
+  dpkg-deb --build "$package_root" /tmp/vibrali-ci-marker.deb >/dev/null
+  if dpkg -i /tmp/vibrali-ci-marker.deb >/dev/null 2>&1; then
+    pass "package-install"
+  else
+    fail "package-install"
+  fi
+  rm -rf "$package_root" /tmp/vibrali-ci-marker.deb
+else
+  if grep -qx 'vibrali-qemu-persistence' "$PERSIST_FILE" 2>/dev/null; then
+    pass "writable-state-persisted"
+  else
+    fail "writable-state-persisted"
+  fi
+
+  if dpkg-query -W -f='${Status}\n' "$PACKAGE_NAME" 2>/dev/null |
+      grep -qx 'install ok installed'; then
+    pass "package-install-persisted"
+  else
+    fail "package-install-persisted"
+  fi
+
+  check "package-file-persisted" test -f /usr/local/share/vibrali-ci-package-marker
+fi
+
+sync
+
+if [[ $FAILURES -eq 0 ]]; then
+  emit "VIBRALI_CI_BOOT_OK count=$count failures=0"
+else
+  emit "VIBRALI_CI_BOOT_FAIL count=$count failures=$FAILURES"
+fi
+
+sync
+systemctl --no-block poweroff
+exit 0
