@@ -592,7 +592,7 @@ fi
 
 echo "Configuring portable Vibrali boot..."
 mkdir -p "$TARGET/etc/default/grub.d"
-chroot "$TARGET" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Vibrali --removable --no-nvram --recheck
+chroot "$TARGET" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Vibrali --uefi-secure-boot --force-extra-removable --no-nvram --recheck
 
 if chroot "$TARGET" grub-install --target=i386-pc --recheck "$DEVICE"; then
   echo "Legacy BIOS boot installed."
