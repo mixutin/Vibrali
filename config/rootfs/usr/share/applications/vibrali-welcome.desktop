@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vibrali Welcome & Status
+Comment=Show Vibrali workstation status and first-boot checklist
+Exec=/usr/local/bin/vibrali-welcome --show
+Icon=vibrali-logo
+Terminal=false
+Categories=System;Utility;

@@ -127,6 +127,11 @@ Mono and a cyan/violet terminal palette provide the default visual language.
 Interactive shells use Zsh + Starship and show a branded Fastfetch summary. Fastfetch,
 legacy Neofetch 7.1.0, Screenfetch and Inxi are available out of the box.
 
+On the first XFCE login, Vibrali shows a welcome/status checklist with network state,
+free storage, kernel/hostname information and the exact security-tool profiles installed
+on that USB. The screen can be reopened later from the application menu or with
+`vibrali-welcome --show`.
+
 ## QEMU / KVM
 
 Tagged releases also publish a compressed QCOW2 image. See [docs/VM.md](docs/VM.md).

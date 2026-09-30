@@ -84,8 +84,8 @@ Goal: after boot, the system should already feel like a finished security workst
 - [x] Zsh shell
 - [x] Starship prompt
 - [x] Fastfetch/Neofetch/Screenfetch/Inxi
-- [ ] First-boot welcome screen
-- [ ] First-boot checklist for networking, updates and profile verification
+- [x] First-boot welcome screen
+- [x] First-boot checklist for networking, updates and profile verification
 - [ ] Desktop application menu categories for security tools
 - [ ] Sensible terminal aliases/functions for common workflows
 - [ ] File-manager defaults for removable workstation use

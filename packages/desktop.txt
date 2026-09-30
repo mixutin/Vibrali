@@ -24,4 +24,5 @@ xfce4-pulseaudio-plugin
 xfce4-terminal
 xfce4-whiskermenu-plugin
 xterm
+zenity
 zsh

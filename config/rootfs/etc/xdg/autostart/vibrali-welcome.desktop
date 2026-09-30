@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vibrali Welcome
+Comment=Show the Vibrali first-boot checklist
+Exec=/usr/local/bin/vibrali-welcome
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

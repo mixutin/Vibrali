@@ -268,6 +268,13 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if [[ -s "$TARGET/etc/vibrali/profiles" ]]; then
+    echo "  [PASS] installed profile registry"
+  else
+    echo "  [FAIL] installed profile registry" >&2
+    failures=$((failures + 1))
+  fi
+
   if chroot "$TARGET" systemctl is-enabled NetworkManager >/dev/null 2>&1; then
     echo "  [PASS] NetworkManager enabled"
   else
@@ -394,7 +401,13 @@ chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAG
 
 echo "Applying Vibrali identity and desktop defaults..."
 rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"
-chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/neofetch"
+chmod 0755 "$TARGET/usr/local/bin/vibrali-session-init" "$TARGET/usr/local/bin/vibrali-info" "$TARGET/usr/local/bin/vibrali-welcome" "$TARGET/usr/local/bin/neofetch"
+
+mkdir -p "$TARGET/etc/vibrali"
+printf '%s\n' base desktop > "$TARGET/etc/vibrali/profiles"
+for profile in "${SELECTED_PROFILES[@]}"; do
+  printf '%s\n' "$profile" >> "$TARGET/etc/vibrali/profiles"
+done
 
 NEOFETCH_URL="https://raw.githubusercontent.com/dylanaraps/neofetch/7.1.0/neofetch"
 NEOFETCH_SHA256="3dc33493e54029fb1528251552093a9f9a2894fcf94f9c3a6f809136a42348c7"

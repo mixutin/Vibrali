@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FORCE=0
+case "${1:-}" in
+  "")
+    ;;
+  --show|--force)
+    FORCE=1
+    ;;
+  -h|--help)
+    cat <<'EOF'
+Usage: vibrali-welcome [--show]
+
+Shows the Vibrali first-boot checklist and workstation status.
+Without --show, the welcome screen appears only once per user.
+EOF
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    exit 2
+    ;;
+esac
+
+STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/vibrali"
+MARKER="$STATE_DIR/welcome-seen"
+
+if [[ $FORCE -ne 1 && -e "$MARKER" ]]; then
+  exit 0
+fi
+
+network_status="unavailable"
+if command -v nmcli >/dev/null 2>&1; then
+  network_status="$(nmcli -t -f STATE general 2>/dev/null | head -n 1 || true)"
+  [[ -n "$network_status" ]] || network_status="disconnected"
+fi
+
+storage_status="$(df -hP / 2>/dev/null | awk 'NR==2 {print $4 " free of " $2}' || true)"
+[[ -n "$storage_status" ]] || storage_status="unavailable"
+
+profiles="base, desktop"
+if [[ -s /etc/vibrali/profiles ]]; then
+  profiles="$(awk 'NF { if (n++) printf ", "; printf "%s", $0 } END { print "" }' /etc/vibrali/profiles)"
+fi
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
+cat > "$tmp" <<EOF
+Welcome to Vibrali
+
+Your portable Debian-based pentesting workstation is ready.
+
+SYSTEM STATUS
+
+Network:   $network_status
+Storage:   $storage_status
+Kernel:    $(uname -r)
+Hostname:  $(hostname)
+Profiles:  $profiles
+
+FIRST-BOOT CHECKLIST
+
+1. Connect to a trusted wired or Wi-Fi network.
+2. Update the workstation:
+     sudo apt update && sudo apt full-upgrade
+3. Confirm the tools you need are present for your workflow.
+4. Keep project files, captures, wordlists and configuration on this USB.
+5. Use security tooling only on systems and networks you own or are authorized to test.
+
+QUICK COMMANDS
+
+  vibrali-info
+      Show Vibrali system information.
+
+  nmcli device
+      Show network devices and connection state.
+
+  sudo apt update
+      Refresh Debian package metadata.
+
+  vibrali-welcome --show
+      Open this screen again.
+
+Documentation:
+https://mixutin.github.io/Vibrali/
+
+Plug in. Boot. Work. Unplug. Everything is still there.
+EOF
+
+if command -v zenity >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
+  if zenity --text-info \
+      --title="Welcome to Vibrali" \
+      --filename="$tmp" \
+      --width=760 \
+      --height=560; then
+    mkdir -p "$STATE_DIR"
+    : > "$MARKER"
+  fi
+else
+  cat "$tmp"
+fi
