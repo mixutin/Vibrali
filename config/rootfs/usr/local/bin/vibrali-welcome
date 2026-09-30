@@ -39,6 +39,12 @@ fi
 storage_status="$(df -hP / 2>/dev/null | awk 'NR==2 {print $4 " free of " $2}' || true)"
 [[ -n "$storage_status" ]] || storage_status="unavailable"
 
+power_profile="unavailable"
+if command -v powerprofilesctl >/dev/null 2>&1; then
+  power_profile="$(powerprofilesctl get 2>/dev/null || true)"
+  [[ -n "$power_profile" ]] || power_profile="unsupported on this hardware"
+fi
+
 profiles="base, desktop"
 if [[ -s /etc/vibrali/profiles ]]; then
   profiles="$(awk 'NF { if (n++) printf ", "; printf "%s", $0 } END { print "" }' /etc/vibrali/profiles)"
@@ -59,6 +65,7 @@ Storage:   $storage_status
 Kernel:    $(uname -r)
 Hostname:  $(hostname)
 Profiles:  $profiles
+Power:     $power_profile
 
 FIRST-BOOT CHECKLIST
 
