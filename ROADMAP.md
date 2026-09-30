@@ -414,14 +414,14 @@ Goal: catch installer, boot and tooling regressions before releases.
 - [x] Add Bash tests for installer argument parsing
 - [x] Add destructive-device safety tests using fake/loop devices
 - [x] Add raw-disk QEMU boot integration test
-- [ ] Verify EFI boot in QEMU
-- [ ] Verify writable root in QEMU
-- [ ] Verify persistence across QEMU reboot
-- [ ] Verify package installation persists across reboot
-- [ ] Verify user account/password behavior
-- [ ] Verify NetworkManager service
-- [ ] Verify LightDM/XFCE service
-- [ ] Verify representative security tools launch
+- [x] Verify EFI boot in QEMU
+- [x] Verify writable root in QEMU
+- [x] Verify persistence across QEMU reboot
+- [x] Verify package installation persists across reboot
+- [x] Verify user account/password behavior
+- [x] Verify NetworkManager service
+- [x] Verify LightDM/XFCE service
+- [x] Verify representative security tools launch
 - [x] Add image filesystem sanity checks
 - [x] Add release checksum verification test
 - [x] Add installer smoke test against release artifacts
@@ -429,7 +429,7 @@ Goal: catch installer, boot and tooling regressions before releases.
 
 ### Phase 7 exit gate
 
-- [ ] CI can prove a built image boots, persists state and reaches a usable system
+- [x] CI can prove a built image boots, persists state and reaches a usable system
 - [x] Release workflow refuses to publish when required smoke tests fail
 
 ---
