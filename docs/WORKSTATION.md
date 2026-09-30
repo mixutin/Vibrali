@@ -70,6 +70,14 @@ Vibrali keeps Firefox ESR close to Debian defaults while applying a small system
 
 Proxy settings, interception certificates, saved credentials and target-specific configuration are intentionally left to the user. Vibrali does not install a trusted interception CA or enable a proxy automatically.
 
+For removable-storage endurance, Vibrali also applies user-overridable Firefox defaults that reduce repetitive background writes:
+
+- disk HTTP cache is disabled while memory cache remains enabled;
+- session-restore state is written no more frequently than every 60 seconds during normal browsing;
+- browser history, cookies, saved logins, extensions, certificates, downloads and the Firefox profile remain persistent on the USB.
+
+These are `default` enterprise-policy preferences rather than locked preferences, so a user can change them in Firefox when a workflow benefits from disk caching or a shorter crash-recovery interval. Increasing the session-store interval can mean that the newest tab-state changes are not captured if Firefox or the computer crashes abruptly.
+
 ## Storage behavior
 
 Vibrali intentionally avoids a disk-backed swap partition in the default layout. It uses
