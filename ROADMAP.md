@@ -86,10 +86,10 @@ Goal: after boot, the system should already feel like a finished security workst
 - [x] Fastfetch/Neofetch/Screenfetch/Inxi
 - [x] First-boot welcome screen
 - [x] First-boot checklist for networking, updates and profile verification
-- [ ] Desktop application menu categories for security tools
+- [x] Desktop application menu categories for security tools
 - [x] Sensible terminal aliases/functions for common workflows
 - [x] File-manager defaults for removable workstation use
-- [ ] Browser defaults suitable for testing/research workflows
+- [x] Browser defaults suitable for testing/research workflows
 - [x] Clipboard and screenshot tooling
 - [x] Archive/extraction tooling
 - [x] Persistent SSH/Git developer setup documentation
@@ -478,7 +478,7 @@ Goal: everything a user or contributor needs is understandable without reading t
 - [x] VM documentation
 - [x] Release documentation
 - [x] Branding documentation
-- [ ] Add hardware compatibility guide
+- [x] Add hardware compatibility guide
 - [x] Add troubleshooting guide
 - [x] Add recovery guide
 - [ ] Add encrypted-install guide
