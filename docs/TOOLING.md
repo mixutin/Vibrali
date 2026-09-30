@@ -54,3 +54,16 @@ Verified pinned entries currently include Neofetch 7.1.0 and GEF 2026.01. GEF is
 ## Profile reference
 
 See [TOOL_PROFILES.md](TOOL_PROFILES.md) for profile purposes, representative runtime checks and source-installer selection examples.
+
+
+## Packet capture privileges
+
+When the `network` profile is installed, Vibrali enables Debian's supported non-root Wireshark capture mode. The installer pre-seeds `wireshark-common`, gives `dumpcap` only the Linux network-capture capabilities provided by the Debian package, and adds the Vibrali user to the `wireshark` group. The post-install verifier checks both the group membership and capabilities.
+
+Normal Ethernet/Wi-Fi interface capture should therefore use Wireshark/TShark/dumpcap without running the full UI as root. USB packet capture is different and may still require elevated capture privileges; Vibrali does not make Wireshark globally setuid. Release QEMU CI performs a real one-packet loopback capture as the normal `vibrali` user.
+
+The same QEMU probe also transfers a marker over localhost between Socat and Ncat, so their basic client/server workflow is tested rather than merely checking that the binaries exist.
+
+## 32-bit exploit development
+
+The `pwn` profile includes `gcc-multilib` and `libc6-dev-i386` on amd64. Release CI compiles and executes a minimal `-m32` ELF to verify the 32-bit toolchain. This supports common x86 CTF/exploit-development binaries without changing Vibrali's native x86_64 system architecture.

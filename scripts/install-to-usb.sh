@@ -275,6 +275,17 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if [[ -x "$TARGET/usr/bin/dumpcap" ]]; then
+    if chroot "$TARGET" id -nG "$USERNAME" | grep -qw wireshark &&
+       chroot "$TARGET" getcap /usr/bin/dumpcap | grep -Fq cap_net_admin &&
+       chroot "$TARGET" getcap /usr/bin/dumpcap | grep -Fq cap_net_raw; then
+      echo "  [PASS] non-root Wireshark capture privileges"
+    else
+      echo "  [FAIL] non-root Wireshark capture privileges" >&2
+      failures=$((failures + 1))
+    fi
+  fi
+
   if chroot "$TARGET" systemctl is-enabled NetworkManager >/dev/null 2>&1; then
     echo "  [PASS] NetworkManager enabled"
   else
@@ -432,6 +443,12 @@ mapfile -t PACKAGES < <(
 
 echo "Installing Vibrali packages..."
 chroot "$TARGET" apt-get update
+
+if printf '%s\n' "${PACKAGES[@]}" | grep -Fxq wireshark-common; then
+  printf '%s\n' 'wireshark-common wireshark-common/install-setuid boolean true' |
+    chroot "$TARGET" debconf-set-selections
+fi
+
 chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAGES[@]}"
 
 echo "Applying Vibrali identity and desktop defaults..."
@@ -462,6 +479,9 @@ echo "Creating user $USERNAME..."
 chroot "$TARGET" useradd -m -s /bin/zsh "$USERNAME"
 printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chroot "$TARGET" chpasswd
 chroot "$TARGET" usermod -aG sudo,plugdev "$USERNAME"
+if chroot "$TARGET" getent group wireshark >/dev/null 2>&1; then
+  chroot "$TARGET" usermod -aG wireshark "$USERNAME"
+fi
 chroot "$TARGET" passwd -l root
 chroot "$TARGET" chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 

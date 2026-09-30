@@ -1,7 +1,9 @@
 clang
 g++
 gcc
+gcc-multilib
 gdb
+libc6-dev-i386
 make
 python3-pwntools
 ruby
