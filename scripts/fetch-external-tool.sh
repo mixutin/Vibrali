@@ -32,7 +32,7 @@ line="$(awk -F'|' -v tool="$TOOL" '
   exit 2
 }
 
-IFS='|' read -r name version url expected_sha license kind <<< "$line"
+IFS='|' read -r name version url expected_sha _license kind <<< "$line"
 
 [[ "$kind" == "file" || "$kind" == "archive" ]] || {
   echo "Unsupported external tool kind for $name: $kind" >&2
