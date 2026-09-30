@@ -1,6 +1,7 @@
 clang
 g++
 gcc
+gdb
 make
 python3-pwntools
 ruby
