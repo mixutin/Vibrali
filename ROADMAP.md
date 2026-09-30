@@ -381,8 +381,8 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Add explicit minimum-size check
 - [x] Add removable-device detection/warning
 - [ ] Add optional encrypted-root mode
-- [ ] Add install log
-- [ ] Add post-install verification summary
+- [x] Add install log
+- [x] Add post-install verification summary
 
 ### Live / rescue system
 
