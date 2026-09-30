@@ -1,0 +1,5 @@
+# Vibrali portable-workstation zram policy.
+# Keep swap off the removable storage by default while providing memory-pressure relief.
+ALGO=lz4
+PERCENT=25
+PRIORITY=100
