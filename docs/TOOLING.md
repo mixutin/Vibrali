@@ -37,3 +37,16 @@ must have a reviewable source, version and verification path.
 It verifies that representative packages for each profile remain in their intended
 manifest. This is a source-level contract only; release and physical-hardware tests are
 still required before claiming a tool works correctly at runtime.
+
+
+## Verified external tools
+
+Non-Debian artifacts are declared in `external-tools/manifest.txt`. The manifest records
+an exact version, official HTTPS source, SHA-256, license identifier and artifact type.
+
+`scripts/fetch-external-tool.sh` is the only generic download path for these entries. It
+verifies both new downloads and cached copies before returning a path to the caller, and
+it never executes the downloaded file. See `external-tools/README.md` for the policy and
+review checklist.
+
+Neofetch 7.1.0 is the first existing Vibrali dependency migrated to this framework.
