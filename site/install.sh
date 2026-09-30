@@ -41,7 +41,7 @@ banner
 say "Portable full-system USB installer"
 printf "This will download the latest signed-by-checksum Vibrali image and write it to a disk.\n\n"
 
-for cmd in curl lsblk findmnt sha256sum zstd; do
+for cmd in curl lsblk findmnt sha256sum zstd dd mount chroot awk sed blockdev readlink; do
   command -v "$cmd" >/dev/null 2>&1 || die "Missing required command: $cmd"
 done
 
@@ -87,6 +87,7 @@ printf "\n"
 lsblk -dpno NAME,SIZE,MODEL,TRAN,RM,TYPE | awk '$6 == "disk" {print}'
 printf "\n"
 read -r -p "Target whole disk (example /dev/sdb): " TARGET < "$TTY"
+TARGET="$(readlink -f "$TARGET")"
 
 [[ -b "$TARGET" ]] || die "Not a block device: $TARGET"
 [[ "$(lsblk -dn -o TYPE "$TARGET")" == "disk" ]] ||
@@ -113,7 +114,11 @@ done < <(lsblk -nrpo NAME,MOUNTPOINTS "$TARGET")
 
 zstd -dc "$IMAGE" | sudo dd of="$TARGET" bs=8M status=progress conv=fsync
 sync
-sudo partprobe "$TARGET" 2>/dev/null || true
+if command -v partprobe >/dev/null 2>&1; then
+  sudo partprobe "$TARGET" 2>/dev/null || true
+else
+  sudo blockdev --rereadpt "$TARGET" 2>/dev/null || true
+fi
 sudo udevadm settle 2>/dev/null || true
 ok "Portable system written"
 
