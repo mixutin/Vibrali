@@ -96,7 +96,7 @@ Goal: after boot, the system should already feel like a finished security workst
 - [ ] HiDPI defaults
 - [ ] Multi-monitor validation
 - [ ] Suspend/resume validation
-- [ ] Laptop power-management tuning
+- [x] Laptop power-management tuning
 
 ### Phase 1 exit gate
 
@@ -445,7 +445,7 @@ Goal: turn source code into trustworthy, installable versioned Vibrali releases.
 - [x] Split oversized release artifacts
 - [x] GitHub Pages website
 - [x] Dynamic latest-release links
-- [ ] Fix/verify green validation on `main`
+- [x] Fix/verify green validation on `main`
 - [ ] Publish first real versioned preview release
 - [ ] Download and install that release on physical hardware
 - [x] Add signed checksum file
@@ -496,7 +496,7 @@ Goal: everything a user or contributor needs is understandable without reading t
 
 All items below must be checked before declaring Vibrali 1.0 complete.
 
-- [ ] Latest `main` CI is green
+- [x] Latest `main` CI is green
 - [ ] Release build is reproducible enough to document
 - [ ] UEFI boot is verified on at least 3 different x86_64 computers
 - [ ] Legacy BIOS support is either verified or explicitly removed from 1.0 support scope
