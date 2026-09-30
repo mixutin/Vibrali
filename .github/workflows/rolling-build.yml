@@ -33,6 +33,11 @@ jobs:
           ./scripts/validate.sh
           shellcheck -x scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
 
+      - name: Audit pinned external tool versions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./scripts/audit-external-tools.sh
+
       - name: Build USB and QEMU images
         env:
           VIBRALI_IMAGE_SIZE: 12G
