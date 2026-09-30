@@ -1,0 +1,18 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN" "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <Menu>
+    <Name>VibraliSecurity</Name>
+    <Directory>vibrali-security.directory</Directory>
+    <Menu><Name>Network</Name><Directory>vibrali-network.directory</Directory><Include><Category>VibraliNetwork</Category></Include></Menu>
+    <Menu><Name>Web</Name><Directory>vibrali-web.directory</Directory><Include><Category>VibraliWeb</Category></Include></Menu>
+    <Menu><Name>Authentication</Name><Directory>vibrali-auth.directory</Directory><Include><Category>VibraliAuth</Category></Include></Menu>
+    <Menu><Name>Pwn</Name><Directory>vibrali-pwn.directory</Directory><Include><Category>VibraliPwn</Category></Include></Menu>
+    <Menu><Name>Reverse Engineering</Name><Directory>vibrali-reverse.directory</Directory><Include><Category>VibraliReverse</Category></Include></Menu>
+    <Menu><Name>Crypto</Name><Directory>vibrali-crypto.directory</Directory><Include><Category>VibraliCrypto</Category></Include></Menu>
+    <Menu><Name>Forensics</Name><Directory>vibrali-forensics.directory</Directory><Include><Category>VibraliForensics</Category></Include></Menu>
+    <Menu><Name>Wireless</Name><Directory>vibrali-wireless.directory</Directory><Include><Category>VibraliWireless</Category></Include></Menu>
+    <Menu><Name>Directory Services</Name><Directory>vibrali-directory.directory</Directory><Include><Category>VibraliDirectory</Category></Include></Menu>
+    <Menu><Name>Defensive</Name><Directory>vibrali-defensive.directory</Directory><Include><Category>VibraliDefensive</Category></Include></Menu>
+  </Menu>
+</Menu>
