@@ -36,6 +36,10 @@ check() {
   fi
 }
 
+check_command() {
+  command -v "$1" >/dev/null 2>&1
+}
+
 previous=0
 if [[ -r "$COUNT_FILE" ]]; then
   read -r previous < "$COUNT_FILE" || previous=0
@@ -63,9 +67,18 @@ check "nftables-active" systemctl is-active --quiet nftables
 check "nftables-baseline-loaded" nft list table inet vibrali
 check "apparmor-active" systemctl is-active --quiet apparmor
 
-check "tool-nmap-launch" nmap --version
-check "tool-sqlmap-launch" sqlmap --version
-check "tool-gdb-launch" gdb --version
+check "tool-base-python" python3 --version
+check "tool-desktop-firefox" check_command firefox-esr
+check "tool-network-nmap" nmap --version
+check "tool-web-sqlmap" sqlmap --version
+check "tool-auth-hashcat" hashcat --version
+check "tool-pwn-gcc" gcc --version
+check "tool-reverse-gdb" gdb --version
+check "tool-crypto-openssl" openssl version
+check "tool-forensics-yara" yara --version
+check "tool-wireless-aircrack" check_command aircrack-ng
+check "tool-directory-impacket" python3 -c 'import impacket'
+check "tool-defensive-lynis" check_command lynis
 
 if [[ $count -eq 1 ]]; then
   printf 'vibrali-qemu-persistence\n' > "$PERSIST_FILE"
