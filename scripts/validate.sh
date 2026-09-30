@@ -11,6 +11,7 @@ required=(
   docs/USB_INSTALL.md
   docs/WORKSTATION.md
   docs/DEVELOPMENT.md
+  docs/ENCRYPTION.md
   docs/FAQ.md
   docs/HARDWARE.md
   docs/RECOVERY.md
