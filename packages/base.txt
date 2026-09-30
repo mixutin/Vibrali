@@ -4,6 +4,7 @@ apparmor-utils
 bash-completion
 build-essential
 ca-certificates
+cloud-guest-utils
 curl
 dkms
 dosfstools
