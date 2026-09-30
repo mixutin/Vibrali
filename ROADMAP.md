@@ -224,9 +224,9 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 
 ### Phase 2 exit gate
 
-- [ ] Every advertised tool/profile is installed or intentionally documented as optional
+- [x] Every advertised tool/profile is installed or intentionally documented as optional
 - [ ] Representative tools from every profile launch successfully in a release image
-- [ ] External tools have reproducible verified installation paths
+- [x] External tools have reproducible verified installation paths
 
 ---
 

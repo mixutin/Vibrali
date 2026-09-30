@@ -69,3 +69,19 @@ The same QEMU probe also transfers a marker over localhost between Socat and Nca
 ## 32-bit exploit development
 
 The `pwn` profile includes `gcc-multilib` and `libc6-dev-i386` on amd64. Release CI compiles and executes a minimal `-m32` ELF to verify the 32-bit toolchain. This supports common x86 CTF/exploit-development binaries without changing Vibrali's native x86_64 system architecture.
+
+
+## Phase 2 installability evidence
+
+The package manifests are the authoritative Debian-profile inputs used by both source and
+release-image builds. Non-Debian tools are not merely listed: the installer calls
+`scripts/fetch-external-tool.sh` for each shipped external artifact, verifies the pinned
+SHA-256, and installs the verified file into the target filesystem.
+
+Tools still listed in the roadmap as future integrations (for example Burp Suite, Ghidra,
+Rizin/Cutter, larger wordlists, and memory-forensics additions) are intentionally not
+advertised as already-installed Vibrali tools. Their individual roadmap items remain open
+until they have a reproducible installation path.
+
+The remaining Phase 2 exit gate is runtime evidence from a completed release-image smoke
+test; source-level installability alone does not replace that booted-image check.
