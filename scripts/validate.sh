@@ -35,6 +35,7 @@ required=(
   scripts/ci/vibrali-ci-probe
   scripts/ci/vibrali-ci-probe.service
   scripts/fetch-external-tool.sh
+  scripts/audit-external-tools.sh
   scripts/validate-external-tools.sh
   scripts/validate-tool-profiles.sh
   site/index.html
@@ -173,6 +174,7 @@ grep -q -- '--dry-run' <(./scripts/install-to-usb.sh --help)
 bash ./scripts/test-installer-cli.sh
 bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
+grep -q 'github-release:' external-tools/manifest.txt
 bash ./scripts/validate-tool-profiles.sh
 
 echo "Vibrali repository validation passed."
