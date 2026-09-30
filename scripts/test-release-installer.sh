@@ -122,6 +122,23 @@ if [[ $# -gt 0 ]]; then
   command -v zstd >/dev/null 2>&1 || fail "missing command: zstd"
 fi
 
+test_release_tag_parser() {
+  local tag
+
+  tag="$(cat <<'JSON' | latest_release_tag_from_json
+[
+  {
+    "tag_name": "v0.1.0-dev.1",
+    "prerelease": true
+  }
+]
+JSON
+  )"
+
+  [[ "$tag" == "v0.1.0-dev.1" ]] ||
+    fail "latest release tag parser did not return the preview tag"
+}
+
 test_piped_entrypoint() {
   local output
 
@@ -134,6 +151,7 @@ test_piped_entrypoint() {
     fail "piped installer entrypoint did not execute safely under set -u"
 }
 
+test_release_tag_parser
 test_piped_entrypoint
 test_direct_download
 test_split_download
