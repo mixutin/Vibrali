@@ -44,10 +44,10 @@ jobs:
         run: ./scripts/verify-release-artifacts.sh dist
 
       - name: Boot-test QEMU release image
-        run: ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
+        run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
 
       - name: Remove CI-only image
-        run: rm -rf dist/.ci
+        run: sudo rm -rf dist/.ci
 
       - name: Split assets that exceed GitHub's practical single-file size
         run: |
