@@ -64,3 +64,9 @@ release:
 The workflow has read-only repository permissions. It does not create tags, releases or
 upload public artifacts. Concurrent rolling builds share one concurrency group, so a stale
 run is cancelled rather than allowed to accumulate behind a newer run.
+
+## Release policy and operator checklist
+
+Release channels, semantic versioning, support windows and binary-retention rules are defined in [RELEASE_POLICY.md](RELEASE_POLICY.md).
+
+Before publishing any public image, complete [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Draft release notes from [RELEASE_NOTES_TEMPLATE.md](RELEASE_NOTES_TEMPLATE.md) so hardware assumptions and known issues are stated explicitly.
