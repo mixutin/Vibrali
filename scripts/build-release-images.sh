@@ -8,6 +8,11 @@ RAW="$OUT/vibrali-amd64.raw"
 USB="$OUT/vibrali-usb-amd64.img.zst"
 VM="$OUT/vibrali-qemu-amd64.qcow2.zst"
 QCOW="$OUT/vibrali-qemu-amd64.qcow2"
+CI_DIR="$OUT/.ci"
+CI_QCOW="$CI_DIR/vibrali-qemu-ci.qcow2"
+CI_MOUNT="$CI_DIR/root"
+PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
+PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 
 [[ $EUID -eq 0 ]] || {
   echo "Run this builder as root." >&2
@@ -16,6 +21,8 @@ QCOW="$OUT/vibrali-qemu-amd64.qcow2"
 
 mkdir -p "$OUT"
 rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS"
+mkdir -p "$CI_MOUNT"
+rm -f "$CI_QCOW"
 
 for cmd in truncate losetup qemu-img zstd sha256sum; do
   command -v "$cmd" >/dev/null 2>&1 || {
