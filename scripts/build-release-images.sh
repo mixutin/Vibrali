@@ -75,6 +75,14 @@ mount "$ROOT_PART" "$CI_MOUNT"
 rm -f "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
 rm -f "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service"
 rm -f "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe"
+
+if [[ -e "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service" ||
+      -e "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service" ||
+      -e "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe" ]]; then
+  echo "Refusing to build public images with CI boot instrumentation present." >&2
+  exit 1
+fi
+
 sync
 umount "$CI_MOUNT"
 
