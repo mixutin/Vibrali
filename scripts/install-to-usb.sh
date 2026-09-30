@@ -268,6 +268,13 @@ verify_install() {
     failures=$((failures + 1))
   fi
 
+  if [[ -s "$TARGET/etc/vibrali/profiles" ]]; then
+    echo "  [PASS] installed profile registry"
+  else
+    echo "  [FAIL] installed profile registry" >&2
+    failures=$((failures + 1))
+  fi
+
   if chroot "$TARGET" systemctl is-enabled NetworkManager >/dev/null 2>&1; then
     echo "  [PASS] NetworkManager enabled"
   else
