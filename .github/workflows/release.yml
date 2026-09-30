@@ -26,13 +26,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             debootstrap gdisk dosfstools e2fsprogs grub2-common \
-            grub-efi-amd64-bin grub-pc-bin qemu-utils zstd rsync curl
+            grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
+            zstd rsync curl
 
       - name: Validate source
         run: |
           chmod +x scripts/*.sh site/install.sh
           ./scripts/validate.sh
-          shellcheck scripts/*.sh site/install.sh
+          shellcheck scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
 
       - name: Build USB and QEMU images
         env:
@@ -41,6 +42,12 @@ jobs:
 
       - name: Verify release artifacts
         run: ./scripts/verify-release-artifacts.sh dist
+
+      - name: Boot-test QEMU release image
+        run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
+
+      - name: Remove CI-only image
+        run: sudo rm -rf dist/.ci
 
       - name: Split assets that exceed GitHub's practical single-file size
         run: |

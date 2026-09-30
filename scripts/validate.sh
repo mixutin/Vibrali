@@ -18,6 +18,9 @@ required=(
   scripts/install-to-usb.sh
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
+  scripts/test-qemu-release.sh
+  scripts/ci/vibrali-ci-probe
+  scripts/ci/vibrali-ci-probe.service
   scripts/fetch-external-tool.sh
   scripts/validate-external-tools.sh
   scripts/validate-tool-profiles.sh
@@ -40,11 +43,22 @@ for path in "${required[@]}"; do
   test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
 done
 
+for path in \
+  config/rootfs/usr/local/sbin/vibrali-ci-probe \
+  config/rootfs/etc/systemd/system/vibrali-ci-probe.service
+do
+  test ! -e "$path" || {
+    echo "CI-only probe must not ship in product rootfs: $path" >&2
+    exit 1
+  }
+done
+
 while IFS= read -r file; do
   bash -n "$file"
 done < <(find scripts -type f -name '*.sh' -print)
 
 bash -n site/install.sh
+bash -n scripts/ci/vibrali-ci-probe
 bash -n config/rootfs/usr/local/bin/vibrali-session-init
 bash -n config/rootfs/usr/local/bin/vibrali-welcome
 bash -n config/rootfs/etc/skel/.bashrc

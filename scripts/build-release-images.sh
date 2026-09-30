@@ -8,6 +8,11 @@ RAW="$OUT/vibrali-amd64.raw"
 USB="$OUT/vibrali-usb-amd64.img.zst"
 VM="$OUT/vibrali-qemu-amd64.qcow2.zst"
 QCOW="$OUT/vibrali-qemu-amd64.qcow2"
+CI_DIR="$OUT/.ci"
+CI_QCOW="$CI_DIR/vibrali-qemu-ci.qcow2"
+CI_MOUNT="$CI_DIR/root"
+PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
+PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 
 [[ $EUID -eq 0 ]] || {
   echo "Run this builder as root." >&2
@@ -16,8 +21,10 @@ QCOW="$OUT/vibrali-qemu-amd64.qcow2"
 
 mkdir -p "$OUT"
 rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS"
+mkdir -p "$CI_MOUNT"
+rm -f "$CI_QCOW"
 
-for cmd in truncate losetup qemu-img zstd sha256sum; do
+for cmd in truncate losetup qemu-img zstd sha256sum mount umount mountpoint install mkdir ln rm chroot; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing command: $cmd" >&2
     exit 1
@@ -30,9 +37,13 @@ LOOP="$(losetup --find --show "$RAW")"
 cleanup() {
   set +e
   sync
+  mountpoint -q "$CI_MOUNT" && umount "$CI_MOUNT"
   losetup -d "${LOOP:-}" 2>/dev/null || true
 }
 trap cleanup EXIT
+
+[[ -s "$PROBE_SOURCE" ]] || { echo "Missing CI guest probe: $PROBE_SOURCE" >&2; exit 1; }
+[[ -s "$PROBE_UNIT_SOURCE" ]] || { echo "Missing CI guest probe unit: $PROBE_UNIT_SOURCE" >&2; exit 1; }
 
 echo "Building Vibrali portable disk on $LOOP..."
 VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh" \
@@ -43,19 +54,49 @@ VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh" \
   --yes-really-erase \
   --non-interactive
 
+ROOT_PART="${LOOP}p3"
+
 sync
-echo "Creating QEMU image..."
+echo "Injecting CI-only boot probe..."
+mount "$ROOT_PART" "$CI_MOUNT"
+install -Dm0755 "$PROBE_SOURCE" "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe"
+install -Dm0644 "$PROBE_UNIT_SOURCE" "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service"
+mkdir -p "$CI_MOUNT/etc/systemd/system/graphical.target.wants"
+ln -sfn /etc/systemd/system/vibrali-ci-probe.service \
+  "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
+sync
+umount "$CI_MOUNT"
+
+echo "Creating CI-instrumented QEMU smoke image..."
+qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$CI_QCOW"
+
+echo "Removing CI-only instrumentation..."
+mount "$ROOT_PART" "$CI_MOUNT"
+rm -f "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
+rm -f "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service"
+rm -f "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe"
+
+if [[ -e "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service" ||
+      -e "$CI_MOUNT/etc/systemd/system/vibrali-ci-probe.service" ||
+      -e "$CI_MOUNT/usr/local/sbin/vibrali-ci-probe" ]]; then
+  echo "Refusing to build public images with CI boot instrumentation present." >&2
+  exit 1
+fi
+
+sync
+umount "$CI_MOUNT"
+
+echo "Creating clean QEMU release image..."
 qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$QCOW"
 zstd -T0 -19 -f "$QCOW" -o "$VM"
 rm -f "$QCOW"
 
-ROOT_PART="${LOOP}p3"
-LOCK_MOUNT=/mnt/vibrali-release-lock
-mkdir -p "$LOCK_MOUNT"
+LOCK_MOUNT="$CI_MOUNT"
 mount "$ROOT_PART" "$LOCK_MOUNT"
 chroot "$LOCK_MOUNT" usermod --lock vibrali
 : > "$LOCK_MOUNT/etc/machine-id"
 rm -f "$LOCK_MOUNT/var/lib/dbus/machine-id"
+sync
 umount "$LOCK_MOUNT"
 
 echo "Compressing locked USB image..."
@@ -66,3 +107,5 @@ rm -f "$RAW"
 
 echo "Release images:"
 ls -lh "$OUT"
+echo "CI smoke image:"
+ls -lh "$CI_QCOW"
