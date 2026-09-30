@@ -39,7 +39,7 @@ require_packages auth-audit \
   hashcat hydra john
 
 require_packages pwn \
-  clang gcc make python3-pwntools
+  clang gcc gdb make python3-pwntools
 
 require_packages reverse \
   apktool default-jre-headless gdb lldb ltrace qemu-user strace
