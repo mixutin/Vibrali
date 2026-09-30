@@ -194,7 +194,7 @@ sudo cryptsetup luksAddKey /dev/disk/by-partlabel/VIBRALI_CRYPT
 ~~~
 
 Keep the recovery passphrase somewhere separate from the USB. `luksAddKey` creates an
-additional usable keyslot while retaining the existing one. citeturn639404search2
+additional usable keyslot while retaining the existing one.
 
 Also make a LUKS header backup and store it on a different trusted device:
 
@@ -207,7 +207,7 @@ sudo cryptsetup luksHeaderBackup \
 A LUKS header backup includes keyslot metadata and is sensitive; protect it like a secret.
 If the on-device header is damaged, the backup can be used with
 `cryptsetup luksHeaderRestore`. Restoring replaces the current header/keyslots, so only
-use a verified backup appropriate to that exact encrypted volume. citeturn639404search0turn639404search6
+use a verified backup appropriate to that exact encrypted volume.
 
 For an encrypted chroot repair, open the LUKS mapping first, mount root, then mount the
 separate boot and EFI partitions before bind-mounting `/dev`, `/proc`, `/sys`, and
