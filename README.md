@@ -197,7 +197,10 @@ Run:
 before opening a pull request.
 
 Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design and
-[ROADMAP.md](ROADMAP.md) for upcoming work.
+[ROADMAP.md](ROADMAP.md) for upcoming work. User-facing help lives in
+[docs/FAQ.md](docs/FAQ.md), [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) and
+[docs/RECOVERY.md](docs/RECOVERY.md). Contributors should start with
+[CONTRIBUTING.md](CONTRIBUTING.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## License
 
