@@ -21,6 +21,13 @@ https_get() {
     "$url"
 }
 
+https_get() {
+  local url="$1"
+  curl --fail --silent --show-error --location \
+    -H "User-Agent: Vibrali-external-tool-audit" \
+    "$url"
+}
+
 github_get() {
   local url="$1"
   local -a args=(
@@ -55,6 +62,10 @@ latest_from_source() {
     github-tag)
       json="$(github_get "https://api.github.com/repos/$repo/tags?per_page=1")"
       python3 -c 'import json,sys; data=json.load(sys.stdin); print(data[0]["name"] if data else "")' <<<"$json"
+      ;;
+    pypi)
+      json="$(https_get "https://pypi.org/pypi/$repo/json")"
+      python3 -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])' <<<"$json"
       ;;
     pypi)
       json="$(https_get "https://pypi.org/pypi/$repo/json")"
