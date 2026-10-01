@@ -4,10 +4,10 @@ set -euo pipefail
 category="${1:-}"
 case "$category" in
   network) label="Network"; tools=(nmap masscan tcpdump tshark ncat socat arp-scan netdiscover bettercap proxychains4 openvpn) ;;
-  web) label="Web"; tools=(ffuf gobuster dirb dirsearch nikto sqlmap wfuzz whatweb recon-ng dnsrecon) ;;
+  web) label="Web"; tools=(burpsuite ffuf gobuster dirb dirsearch nikto sqlmap wfuzz whatweb recon-ng dnsrecon) ;;
   auth) label="Auth"; tools=(hashcat john hydra hashid crunch) ;;
   pwn) label="Pwn"; tools=(gcc g++ clang make python3) ;;
-  reverse) label="Reverse"; tools=(gdb gdb-multiarch lldb strace ltrace valgrind apktool patchelf) ;;
+  reverse) label="Reverse"; tools=(cutter gdb gdb-multiarch lldb strace ltrace valgrind apktool patchelf) ;;
   crypto) label="Crypto"; tools=(openssl gp python3 z3) ;;
   forensics) label="Forensics"; tools=(binwalk foremost autopsy yara exiftool testdisk steghide) ;;
   wireless) label="Wireless"; tools=(aircrack-ng hcxdumptool hcxpcapngtool reaver bully iw rfkill macchanger) ;;
