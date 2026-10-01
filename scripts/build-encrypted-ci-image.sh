@@ -42,14 +42,19 @@ close_crypt_mapping() {
 
   close_log="$(mktemp /tmp/vibrali-crypt-close.XXXXXX)"
   sync
-  command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm settle || true
+  fi
 
   for attempt in {1..10}; do
     if cryptsetup close "$CRYPT_NAME" 2>"$close_log"; then
       rm -f "$close_log"
       return 0
     fi
-    command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+    if command -v udevadm >/dev/null 2>&1; then
+      udevadm settle || true
+    fi
+    echo "Mapper close retry $attempt/10..." >&2
     sleep 1
   done
 
@@ -60,9 +65,13 @@ close_crypt_mapping() {
   echo "Remaining mounts under $MOUNT:" >&2
   findmnt -R "$MOUNT" >&2 || true
   echo "Device-mapper state:" >&2
-  command -v dmsetup >/dev/null 2>&1 && dmsetup info -c "$CRYPT_NAME" >&2 || true
+  if command -v dmsetup >/dev/null 2>&1; then
+    dmsetup info -c "$CRYPT_NAME" >&2 || true
+  fi
   echo "Processes holding /dev/mapper/$CRYPT_NAME:" >&2
-  command -v fuser >/dev/null 2>&1 && fuser -vm "/dev/mapper/$CRYPT_NAME" >&2 || true
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -vm "/dev/mapper/$CRYPT_NAME" >&2 || true
+  fi
   return 1
 }
 
