@@ -54,8 +54,7 @@ zstd -t "$VM"
 
 grep -Eq '^source_commit=([0-9a-f]{40}|unknown)$' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing a valid source commit"
-grep -Eq '^debian_suite=[A-Za-z0-9._-]+
-grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+grep -Eq '^debian_suite=[A-Za-z0-9._-]+grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing package manifest hashes"
 grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing external-tool manifest provenance"
@@ -168,8 +167,7 @@ PY
 echo "release artifacts: ok"
  "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing the Debian suite"
-grep -Eq '^root_size_bytes=[0-9]+
-grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+grep -Eq '^root_size_bytes=[0-9]+grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing package manifest hashes"
 grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing external-tool manifest provenance"
@@ -282,8 +280,7 @@ PY
 echo "release artifacts: ok"
  "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing root filesystem size"
-grep -Eq '^root_used_bytes=[0-9]+
-grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+grep -Eq '^root_used_bytes=[0-9]+grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing package manifest hashes"
 grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing external-tool manifest provenance"
@@ -396,8 +393,7 @@ PY
 echo "release artifacts: ok"
  "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing root filesystem usage"
-grep -Eq '^root_free_bytes=[0-9]+
-grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+grep -Eq '^root_free_bytes=[0-9]+grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing package manifest hashes"
 grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing external-tool manifest provenance"
@@ -510,8 +506,7 @@ PY
 echo "release artifacts: ok"
  "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing root filesystem free space"
-grep -Eq '^min_release_free_gib=[1-9][0-9]*
-grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
+grep -Eq '^min_release_free_gib=[1-9][0-9]*grep -Fq 'packages/base.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing package manifest hashes"
 grep -Fq 'external-tools/manifest.txt' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing external-tool manifest provenance"
