@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMAGE="${1:-$ROOT/dist/.ci/vibrali-qemu-ci.qcow2}"
 BOOT_TIMEOUT="${VIBRALI_QEMU_BOOT_TIMEOUT:-360}"
+SMBIOS_SERIAL="${VIBRALI_QEMU_SERIAL:-VIBRALI-CI}"
 TMPDIR="$(mktemp -d)"
 QCOW="$TMPDIR/vibrali-qemu-amd64.qcow2"
 
@@ -74,7 +75,7 @@ boot_once() {
     -drive "if=pflash,format=raw,unit=1,file=$vars_copy"
     -drive "file=$QCOW,if=virtio,format=qcow2"
     -nic "user,model=virtio-net-pci"
-    -smbios "type=1,serial=VIBRALI-CI"
+    -smbios "type=1,serial=$SMBIOS_SERIAL"
     -boot "order=c"
     -serial "file:$serial_log"
     -monitor none

@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install -y \
             debootstrap gdisk dosfstools e2fsprogs grub2-common \
             grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
-            zstd rsync curl shellcheck
+            zstd rsync curl shellcheck cryptsetup
 
       - name: Validate source
         run: |
@@ -59,6 +59,14 @@ jobs:
 
       - name: Secure-Boot-test QEMU release image
         run: sudo ./scripts/test-qemu-secure-boot.sh dist/.ci/vibrali-qemu-ci.qcow2
+
+      - name: Build encrypted QEMU smoke image
+        run: sudo ./scripts/build-encrypted-ci-image.sh dist/.ci
+
+      - name: Boot-test encrypted QEMU image
+        env:
+          VIBRALI_QEMU_SERIAL: VIBRALI-CI-CRYPT
+        run: sudo -E ./scripts/test-qemu-release.sh dist/.ci/vibrali-encrypted-ci.qcow2
 
       - name: Remove CI-only image
         run: sudo rm -rf dist/.ci
