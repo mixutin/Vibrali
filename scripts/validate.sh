@@ -220,10 +220,13 @@ bash ./scripts/validate-external-tools.sh
 grep -q 'github-release:' external-tools/manifest.txt
 grep -q '^burpsuite-desktop|2026\.9|' external-tools/manifest.txt
 grep -q '^cutter|2\.5\.0|' external-tools/manifest.txt
+grep -q '^ghidra|Ghidra_12\.1\.4_build|' external-tools/manifest.txt
 grep -q 'fetch-external-tool.sh" burpsuite-desktop' scripts/install-to-usb.sh
 grep -q 'fetch-external-tool.sh" cutter' scripts/install-to-usb.sh
+grep -q 'fetch-external-tool.sh" ghidra' scripts/install-to-usb.sh
 grep -Fxq 'default-jre' packages/web.txt
 grep -Fxq 'libfuse2t64' packages/reverse.txt
+grep -Fxq 'default-jdk-headless' packages/reverse.txt
 bash ./scripts/validate-tool-profiles.sh
 
 grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-32G}"' scripts/build-release-images.sh || {
