@@ -302,10 +302,19 @@ verify_install() {
   echo
   echo "Post-install verification:"
 
-  if [[ -f "$TARGET/boot/efi/EFI/BOOT/BOOTX64.EFI" ]]; then
-    echo "  [PASS] removable UEFI bootloader"
+  if [[ -s "$TARGET/boot/efi/EFI/BOOT/BOOTX64.EFI" &&
+        -s "$TARGET/boot/efi/EFI/BOOT/grubx64.efi" ]]; then
+    echo "  [PASS] removable UEFI bootloader chain"
   else
-    echo "  [FAIL] removable UEFI bootloader" >&2
+    echo "  [FAIL] removable UEFI bootloader chain" >&2
+    failures=$((failures + 1))
+  fi
+
+  if chroot "$TARGET" sbverify --list /boot/efi/EFI/BOOT/BOOTX64.EFI >/dev/null 2>&1 &&
+     chroot "$TARGET" sbverify --list /boot/efi/EFI/BOOT/grubx64.efi >/dev/null 2>&1; then
+    echo "  [PASS] signed shim and GRUB EFI artifacts"
+  else
+    echo "  [FAIL] signed shim and GRUB EFI artifacts" >&2
     failures=$((failures + 1))
   fi
 
@@ -621,7 +630,7 @@ fi
 
 echo "Configuring portable Vibrali boot..."
 mkdir -p "$TARGET/etc/default/grub.d"
-chroot "$TARGET" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Vibrali --removable --no-nvram --recheck
+chroot "$TARGET" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Vibrali --removable --no-nvram --uefi-secure-boot --recheck
 
 if chroot "$TARGET" grub-install --target=i386-pc --recheck "$DEVICE"; then
   echo "Legacy BIOS boot installed."
