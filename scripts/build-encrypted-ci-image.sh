@@ -26,16 +26,44 @@ done
 mkdir -p "$OUT" "$MOUNT"
 rm -f "$RAW" "$QCOW"
 
+close_crypt_mapping() {
+  local attempt close_log
+  cryptsetup status "$CRYPT_NAME" >/dev/null 2>&1 || return 0
+
+  close_log="$(mktemp /tmp/vibrali-crypt-close.XXXXXX)"
+  sync
+  command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+
+  for attempt in {1..10}; do
+    if cryptsetup close "$CRYPT_NAME" 2>"$close_log"; then
+      rm -f "$close_log"
+      return 0
+    fi
+    command -v udevadm >/dev/null 2>&1 && udevadm settle || true
+    sleep 1
+  done
+
+  echo "encrypted CI image build failed: mapper $CRYPT_NAME is still in use after cleanup retries" >&2
+  cat "$close_log" >&2 || true
+  rm -f "$close_log"
+
+  echo "Remaining mounts under $MOUNT:" >&2
+  findmnt -R "$MOUNT" >&2 || true
+  echo "Device-mapper state:" >&2
+  command -v dmsetup >/dev/null 2>&1 && dmsetup info -c "$CRYPT_NAME" >&2 || true
+  echo "Processes holding /dev/mapper/$CRYPT_NAME:" >&2
+  command -v fuser >/dev/null 2>&1 && fuser -vm "/dev/mapper/$CRYPT_NAME" >&2 || true
+  return 1
+}
+
 cleanup() {
   set +e
   local i
   for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
     mountpoint -q "${CHROOT_MOUNTS[$i]}" && umount -R "${CHROOT_MOUNTS[$i]}"
   done
-  mountpoint -q "$MOUNT/boot/efi" && umount "$MOUNT/boot/efi"
-  mountpoint -q "$MOUNT/boot" && umount "$MOUNT/boot"
-  mountpoint -q "$MOUNT" && umount "$MOUNT"
-  cryptsetup status "$CRYPT_NAME" >/dev/null 2>&1 && cryptsetup close "$CRYPT_NAME"
+  mountpoint -q "$MOUNT" && umount -R "$MOUNT"
+  close_crypt_mapping || true
   [[ -z "$LOOP" ]] || losetup -d "$LOOP" 2>/dev/null || true
 }
 trap cleanup EXIT
@@ -129,10 +157,8 @@ done
 CHROOT_MOUNTS=()
 
 sync
-umount "$MOUNT/boot/efi"
-umount "$MOUNT/boot"
-umount "$MOUNT"
-cryptsetup close "$CRYPT_NAME"
+umount -R "$MOUNT"
+close_crypt_mapping || fail "could not close encrypted CI mapper after unmount"
 losetup -d "$LOOP"
 LOOP=""
 
