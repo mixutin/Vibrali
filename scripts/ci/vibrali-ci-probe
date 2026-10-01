@@ -225,6 +225,39 @@ Description: Disposable package used only by the Vibrali QEMU persistence smoke 
 EOF
   printf 'installed-by-vibrali-ci\n' > "$package_root/usr/local/share/vibrali-ci-package-marker"
   dpkg-deb --build "$package_root" /tmp/vibrali-ci-marker.deb >/dev/null
+
+  cycle_ok=1
+  for cycle in 1 2 3; do
+    if ! dpkg -i /tmp/vibrali-ci-marker.deb >/dev/null 2>&1; then
+      cycle_ok=0
+      break
+    fi
+    if [[ ! -f /usr/local/share/vibrali-ci-package-marker ]]; then
+      cycle_ok=0
+      break
+    fi
+    if ! dpkg -r "$PACKAGE_NAME" >/dev/null 2>&1; then
+      cycle_ok=0
+      break
+    fi
+    if [[ -e /usr/local/share/vibrali-ci-package-marker ]]; then
+      cycle_ok=0
+      break
+    fi
+    if dpkg-query -W -f='${Status}\n' "$PACKAGE_NAME" 2>/dev/null |
+        grep -qx 'install ok installed'; then
+      cycle_ok=0
+      break
+    fi
+    emit "VIBRALI_CI_INFO package-cycle=$cycle ok"
+  done
+
+  if [[ $cycle_ok -eq 1 ]]; then
+    pass "package-install-remove-cycles"
+  else
+    fail "package-install-remove-cycles"
+  fi
+
   if dpkg -i /tmp/vibrali-ci-marker.deb >/dev/null 2>&1; then
     pass "package-install"
   else
