@@ -386,11 +386,11 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 
 ### Live / rescue system
 
-- [ ] Build bootable Live/rescue ISO
-- [ ] Include disk/partition repair tools
-- [ ] Include network diagnostics
-- [ ] Include filesystem recovery tools
-- [ ] Add "install Vibrali" launcher
+- [x] Build bootable Live/rescue ISO
+- [x] Include disk/partition repair tools
+- [x] Include network diagnostics
+- [x] Include filesystem recovery tools
+- [x] Add "install Vibrali" launcher
 - [ ] Add graphical USB installer
 - [x] Add recovery workflow for broken GRUB
 - [x] Add recovery workflow for broken initramfs
