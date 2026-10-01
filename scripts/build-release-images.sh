@@ -11,6 +11,7 @@ QCOW="$OUT/vibrali-qemu-amd64.qcow2"
 CI_DIR="$OUT/.ci"
 CI_QCOW="$CI_DIR/vibrali-qemu-ci.qcow2"
 CI_MOUNT="$CI_DIR/root"
+CHROOT_MOUNTS=()
 BUILD_INFO="$OUT/BUILD_INFO.txt"
 PACKAGE_VERSIONS="$OUT/PACKAGE_VERSIONS.txt"
 ZSTD_LEVEL="${VIBRALI_ZSTD_LEVEL:-10}"
@@ -42,9 +43,30 @@ done
 truncate -s "$SIZE" "$RAW"
 LOOP="$(losetup --find --show "$RAW")"
 
+unmount_chroot_runtime() {
+  local i target
+  for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
+    target="${CHROOT_MOUNTS[$i]}"
+    mountpoint -q "$target" && umount -R "$target"
+  done
+  CHROOT_MOUNTS=()
+}
+
+mount_chroot_runtime() {
+  local source target
+  for source in /dev /proc /sys /run; do
+    target="$CI_MOUNT$source"
+    mkdir -p "$target"
+    mount --rbind "$source" "$target"
+    mount --make-rslave "$target"
+    CHROOT_MOUNTS+=("$target")
+  done
+}
+
 cleanup() {
   set +e
   sync
+  unmount_chroot_runtime
   mountpoint -q "$CI_MOUNT" && umount "$CI_MOUNT"
   losetup -d "${LOOP:-}" 2>/dev/null || true
 }
@@ -108,8 +130,10 @@ ln -sfn /etc/systemd/system/vibrali-ci-probe.service \
   "$CI_MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
 
 echo "Regenerating initramfs and GRUB configuration before CI boot..."
+mount_chroot_runtime
 chroot "$CI_MOUNT" update-initramfs -u -k all
 chroot "$CI_MOUNT" update-grub
+unmount_chroot_runtime
 
 sync
 umount "$CI_MOUNT"
