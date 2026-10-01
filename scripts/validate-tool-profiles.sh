@@ -33,7 +33,7 @@ require_packages network \
   masscan ncat nmap openvpn socat tcpdump tshark whois wireguard-tools wireshark-common
 
 require_packages web \
-  ffuf gobuster nikto sqlmap wfuzz
+  default-jre ffuf gobuster nikto sqlmap wfuzz
 
 require_packages auth-audit \
   hashcat hydra john
@@ -42,7 +42,7 @@ require_packages pwn \
   clang gcc gcc-multilib gdb libc6-dev-i386 make python3-pwntools
 
 require_packages reverse \
-  apktool default-jre-headless gdb lldb ltrace qemu-user strace
+  apktool default-jre-headless gdb libfuse2t64 lldb ltrace qemu-user strace
 
 require_packages crypto \
   openssl pari-gp python3-sympy python3-z3
@@ -64,5 +64,8 @@ require_packages containers \
 
 require_packages dev-runtimes \
   cargo golang-go nodejs npm rustc
+
+require_packages wordlists \
+  cewl crunch cupp dictionaries-common wamerican-large wbritish-large wfrench
 
 echo "advertised tool profile contracts: ok"
