@@ -19,6 +19,16 @@ fail() {
 
 [[ $EUID -eq 0 ]] || fail "run this builder as root"
 
+# GitHub-hosted runners may have QEMU/libvirt processes in separate mount
+# namespaces. If our temporary mounts propagate into one of those namespaces,
+# the dm-crypt mapping can remain busy even after this namespace unmounts it.
+# Isolate the entire encrypted build so its mount tree cannot propagate.
+if [[ "${VIBRALI_ENCRYPTED_PRIVATE_NS:-0}" != "1" ]]; then
+  command -v unshare >/dev/null 2>&1 || fail "missing command: unshare"
+  exec env VIBRALI_ENCRYPTED_PRIVATE_NS=1 \
+    unshare --mount --propagation private bash "$0" "$@"
+fi
+
 for cmd in truncate losetup cryptsetup mount umount mountpoint qemu-img install chroot grep; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
