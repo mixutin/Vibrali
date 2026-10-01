@@ -63,6 +63,9 @@ jobs:
       - name: Remove CI-only image
         run: sudo rm -rf dist/.ci
 
+      - name: Hand release artifacts back to runner user
+        run: sudo chown -R "$(id -u):$(id -g)" dist
+
       - name: Split assets that exceed GitHub's practical single-file size
         run: |
           cd dist
