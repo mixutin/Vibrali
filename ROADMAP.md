@@ -329,7 +329,7 @@ Goal: losing the USB should not automatically expose the user's projects and cre
 - [x] Do not require a specific TPM to unlock
 - [x] Add recovery-key workflow
 - [x] Verify encrypted boot through removable UEFI path
-- [x] Test kernel/initramfs updates on encrypted installs
+- [ ] Test kernel/initramfs updates on encrypted installs
 - [x] Add secure password guidance
 - [x] Review default services and listening ports
 - [x] Disable unnecessary services
