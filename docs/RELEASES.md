@@ -127,3 +127,22 @@ sudo VIBRALI_ZSTD_LEVEL=19 ./scripts/build-release-images.sh
 
 Accepted levels are 1 through 19. The selected value is recorded in
 `BUILD_INFO.txt` so release provenance includes the compression setting.
+
+
+## Root filesystem headroom gate
+
+Full-profile release builds must finish package installation with at least **4 GiB free**
+on the root filesystem before image conversion and compression begin. This protects the
+release pipeline from silently drifting back toward a nearly-full image as profiles grow.
+
+The threshold can be changed for controlled build experiments with
+`VIBRALI_MIN_RELEASE_FREE_GIB`, but it must remain a positive integer. The resulting
+`BUILD_INFO.txt` records:
+
+- `root_size_bytes`
+- `root_used_bytes`
+- `root_free_bytes`
+- `min_release_free_gib`
+
+This makes storage growth visible in release provenance and turns insufficient capacity
+into an early, explicit build failure rather than a late dpkg or first-boot failure.
