@@ -200,15 +200,13 @@ grep -q '/etc/crypttab' scripts/install-to-usb.sh
 grep -Fxq 'grub-efi-amd64-signed' packages/base.txt
 grep -Fxq 'shim-signed' packages/base.txt
 grep -Fxq 'sbsigntool' packages/base.txt
-for package in btrfs-progs cryptsetup debootstrap dnsutils gdisk gparted grub-efi-amd64-signed mdadm mtr-tiny network-manager nvme-cli parted sbsigntool shim-signed smartmontools sudo testdisk xfsprogs; do
+for package in btrfs-progs ca-certificates cryptsetup debootstrap dnsutils gdisk gparted grub-efi-amd64-signed mdadm mtr-tiny network-manager nvme-cli parted sbsigntool shim-signed smartmontools sudo testdisk util-linux xfsprogs; do
   grep -Fxq "$package" rescue/config/package-lists/vibrali-rescue.list.chroot || {
     echo "rescue package missing: $package" >&2
     exit 1
   }
 done
-grep -q '^SOURCE=/usr/share/vibrali-source
-grep -q 'Name=Install Vibrali' rescue/config/includes.chroot/usr/share/applications/vibrali-install.desktop
-grep -q -- '--uefi-secure-boot' scripts/install-to-usb.sh
+grep -q '^SOURCE=/usr/share/vibrali-sourcegrep -q -- '--uefi-secure-boot' scripts/install-to-usb.sh
 grep -q 'sbverify --list /boot/efi/EFI/BOOT/BOOTX64.EFI' scripts/install-to-usb.sh
 grep -q 'sbverify --list /boot/efi/EFI/BOOT/grubx64.efi' scripts/install-to-usb.sh
 grep -q 'VIBRALI-CI-SECURE' scripts/ci/vibrali-ci-probe
