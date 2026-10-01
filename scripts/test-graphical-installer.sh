@@ -13,13 +13,13 @@ chmod +x "$TMP/repo/scripts/"*.sh
 
 cat > "$TMP/bin/lsblk" <<'EOF'
 #!/usr/bin/env bash
-if [[ "$*" == "-dnpo NAME,SIZE,MODEL,TRAN,TYPE,RM" ]]; then
-  echo "/dev/fake 64G TestDisk usb disk 1"
-elif [[ "$*" == "-dnpo NAME,SIZE,MODEL,SERIAL,TRAN /dev/fake" ]]; then
-  echo "/dev/fake 64G TestDisk SERIAL usb"
-else
-  exit 1
-fi
+case "$*" in
+  "-dnpo NAME,SIZE,TYPE,RM") echo "/dev/fake 64G disk 1" ;;
+  "-dn -o MODEL /dev/fake") echo "Test Disk Model" ;;
+  "-dn -o TRAN /dev/fake") echo "usb" ;;
+  "-dnpo NAME,SIZE,MODEL,SERIAL,TRAN /dev/fake") echo "/dev/fake 64G TestDisk SERIAL usb" ;;
+  *) exit 1 ;;
+esac
 EOF
 
 cat > "$TMP/bin/zenity" <<'EOF'
