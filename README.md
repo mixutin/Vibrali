@@ -212,3 +212,6 @@ Encrypted source installs: see [docs/ENCRYPTION.md](docs/ENCRYPTION.md).
 
 
 Secure Boot design: see [docs/SECURE_BOOT.md](docs/SECURE_BOOT.md).
+
+
+Rescue media: see [docs/RESCUE_ISO.md](docs/RESCUE_ISO.md).
