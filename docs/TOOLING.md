@@ -93,3 +93,12 @@ The `network` profile also installs ProjectDiscovery Subfinder from its pinned u
 release archive. Vibrali verifies the exact SHA-256 from the versioned release before
 extracting the amd64 binary into `/usr/local/bin/subfinder`. This keeps the tool current
 without using an unpinned `go install` or arbitrary installer script.
+
+
+### Memory forensics
+
+The `forensics` profile installs Volatility 3 from a pinned PyPI wheel. Vibrali verifies
+the exact wheel SHA-256 before installation and uses `pip --no-index --no-deps` inside an
+isolated venv with Debian-packaged support libraries exposed through
+`--system-site-packages`. This avoids downloading unpinned transitive Python packages at
+install time. The external-tool audit checks the pinned Volatility version against PyPI.
