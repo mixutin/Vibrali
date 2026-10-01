@@ -33,6 +33,7 @@ required=(
   scripts/test-graphical-installer.sh
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
+  scripts/verify-release-headroom.sh
   scripts/test-qemu-release.sh
   scripts/test-qemu-secure-boot.sh
   scripts/test-release-installer.sh

@@ -48,6 +48,9 @@ jobs:
       - name: Verify release artifacts
         run: ./scripts/verify-release-artifacts.sh dist
 
+      - name: Verify release filesystem headroom
+        run: ./scripts/verify-release-headroom.sh dist
+
       - name: Smoke-test release installer
         run: ./scripts/test-release-installer.sh dist
 
