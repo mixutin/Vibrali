@@ -1,8 +1,8 @@
 # Secure Boot architecture
 
-Vibrali does not yet claim Secure Boot support. This document records the v1 architecture
-so implementation can be reviewed against a stable design before the roadmap checkboxes
-for signed EFI artifacts and hardware validation are completed.
+Vibrali now installs a Debian-signed shim/GRUB removable-media chain, but does not yet
+claim general Secure Boot hardware support. Signed artifacts are verified during install;
+real-firmware validation remains a separate release gate.
 
 ## Decision
 
@@ -31,10 +31,12 @@ computer. The intended Secure Boot layout on the EFI System Partition is therefo
 /EFI/BOOT/grubx64.efi   Debian-signed GRUB
 ~~~
 
-The exact helper binaries required by shim (for example MokManager/fallback helpers) must
-also be copied when the implementation is added.
+The installer invokes Debian's patched `grub-install` with `--uefi-secure-boot`,
+`--removable` and `--no-nvram`. Debian's signed shim and signed GRUB packages therefore
+populate the standard removable path without creating a firmware NVRAM dependency.
 
-The existing `--removable --no-nvram` portability rule remains mandatory.
+The installer then runs `sbverify --list` on both `BOOTX64.EFI` and `grubx64.efi`; a
+missing or unsigned artifact is a hard post-install verification failure.
 
 ## Kernel and module policy
 
@@ -65,12 +67,13 @@ passphrase after the signed boot chain loads it.
 
 Before Vibrali claims Secure Boot support, all of the following must be proven:
 
-1. signed shim and signed GRUB are installed on the removable EFI path;
+1. ~~signed shim and signed GRUB are installed on the removable EFI path;~~ implemented and verified during install;
 2. the normal Debian kernel boots with Secure Boot enabled;
 3. the same USB boots with Secure Boot enabled on multiple supported PCs;
 4. kernel/initramfs/GRUB upgrades preserve that boot path;
 5. failure behavior for unsigned third-party modules is documented;
 6. recovery instructions restore the signed removable-media path.
 
-Until those checks pass, project documentation should continue to describe Secure Boot as
-not yet supported rather than telling users it works.
+Until the remaining boot and hardware checks pass, project documentation should describe
+the signed boot chain as implemented but Secure Boot hardware compatibility as not yet
+validated.
