@@ -50,6 +50,9 @@ jobs:
       - name: Boot-test QEMU image
         run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
 
+      - name: Secure-Boot-test QEMU image
+        run: sudo ./scripts/test-qemu-secure-boot.sh dist/.ci/vibrali-qemu-ci.qcow2
+
       - name: Clean CI-only image
         if: always()
         run: sudo rm -rf dist/.ci

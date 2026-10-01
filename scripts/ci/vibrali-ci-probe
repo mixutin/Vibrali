@@ -2,7 +2,10 @@
 set -euo pipefail
 
 SERIAL="$(cat /sys/class/dmi/id/product_serial 2>/dev/null || true)"
-[[ "$SERIAL" == "VIBRALI-CI" ]] || exit 0
+case "$SERIAL" in
+  VIBRALI-CI|VIBRALI-CI-SECURE) ;;
+  *) exit 0 ;;
+esac
 
 STATE_DIR=/var/lib/vibrali/ci
 COUNT_FILE="$STATE_DIR/boot-count"
@@ -75,6 +78,15 @@ check_nonroot_dumpcap() {
 }
 
 # shellcheck disable=SC2317
+check_secure_boot_enabled() {
+  local variable value
+  variable="$(find /sys/firmware/efi/efivars -maxdepth 1 -type f -name 'SecureBoot-*' -print -quit 2>/dev/null || true)"
+  [[ -n "$variable" ]] || return 1
+  value="$(od -An -t u1 "$variable" 2>/dev/null | awk '{print $NF}')"
+  [[ "$value" == "1" ]]
+}
+
+# shellcheck disable=SC2317
 check_32bit_build() {
   local dir
   dir="$(mktemp -d)"
@@ -110,6 +122,9 @@ check "root-writable" test -w /
 check "nftables-active" systemctl is-active --quiet nftables
 check "nftables-baseline-loaded" nft list table inet vibrali
 check "apparmor-active" systemctl is-active --quiet apparmor
+if [[ "$SERIAL" == "VIBRALI-CI-SECURE" ]]; then
+  check "secure-boot-enabled" check_secure_boot_enabled
+fi
 
 check "tool-base-python" python3 --version
 check "tool-base-pipx" pipx --version

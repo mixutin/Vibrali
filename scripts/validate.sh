@@ -32,6 +32,7 @@ required=(
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
   scripts/test-qemu-release.sh
+  scripts/test-qemu-secure-boot.sh
   scripts/test-release-installer.sh
   .github/workflows/release.yml
   .github/workflows/rolling-build.yml
@@ -199,6 +200,10 @@ grep -Fxq 'sbsigntool' packages/base.txt
 grep -q -- '--uefi-secure-boot' scripts/install-to-usb.sh
 grep -q 'sbverify --list /boot/efi/EFI/BOOT/BOOTX64.EFI' scripts/install-to-usb.sh
 grep -q 'sbverify --list /boot/efi/EFI/BOOT/grubx64.efi' scripts/install-to-usb.sh
+grep -q 'VIBRALI-CI-SECURE' scripts/ci/vibrali-ci-probe
+grep -q 'secure-boot-enabled' scripts/ci/vibrali-ci-probe
+grep -q 'OVMF_CODE_4M.secboot.fd' scripts/test-qemu-secure-boot.sh
+grep -q 'OVMF_VARS_4M.ms.fd' scripts/test-qemu-secure-boot.sh
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale

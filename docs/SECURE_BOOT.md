@@ -88,6 +88,17 @@ The recovery procedure in [RECOVERY.md](RECOVERY.md) reinstalls current signed s
 packages, rebuilds the removable path, and verifies both EFI signatures before rebooting.
 This is also the recovery path after replacing obsolete signed boot artifacts.
 
+## Automated OVMF Secure Boot smoke test
+
+Release and rolling CI include a separate OVMF boot using the Secure Boot firmware image
+and Microsoft-enrolled variable store provided by Ubuntu's `ovmf` package. The VM uses a
+distinct SMBIOS serial so the guest probe requires the UEFI `SecureBoot` variable to be
+set to `1` before reporting success.
+
+This proves the published Debian-signed shim -> GRUB -> kernel path can execute under an
+enrolled Secure Boot firmware in QEMU. It does **not** replace the real-hardware Secure
+Boot matrix because vendor firmware policies and implementations still vary.
+
 ## Implementation gate
 
 Before Vibrali claims Secure Boot support, all of the following must be proven:
