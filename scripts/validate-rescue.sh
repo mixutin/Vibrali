@@ -9,6 +9,7 @@ required=(
   scripts/build-rescue-iso.sh
   .github/workflows/rescue-build.yml
   rescue/config/package-lists/vibrali-rescue.list.chroot
+  rescue/config/archives/vibrali-security.list.chroot
   rescue/config/includes.chroot/usr/local/bin/vibrali-rescue-install
   rescue/config/includes.chroot/usr/share/applications/vibrali-install.desktop
   rescue/config/includes.chroot/etc/skel/Desktop/vibrali-install.desktop
@@ -33,6 +34,8 @@ grep -Fq 'SOURCE=/usr/share/vibrali-source' rescue/config/includes.chroot/usr/lo
 grep -Fq 'scripts/install-to-usb.sh' rescue/config/includes.chroot/usr/local/bin/vibrali-rescue-install
 grep -Fq 'Name=Install Vibrali' rescue/config/includes.chroot/usr/share/applications/vibrali-install.desktop
 grep -Fq 'Name=Install Vibrali' rescue/config/includes.chroot/etc/skel/Desktop/vibrali-install.desktop
+grep -Fq 'trixie-security' rescue/config/archives/vibrali-security.list.chroot
+grep -Fq -- '--security false' scripts/build-rescue-iso.sh
 
 bash -n scripts/build-rescue-iso.sh
 bash -n rescue/config/includes.chroot/usr/local/bin/vibrali-rescue-install
