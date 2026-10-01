@@ -192,6 +192,12 @@ grep -q -- '--encrypt-root' <(./scripts/install-to-usb.sh --help)
 grep -q 'cryptsetup-initramfs' scripts/install-to-usb.sh
 grep -q 'VIBRALI_CRYPT' scripts/install-to-usb.sh
 grep -q '/etc/crypttab' scripts/install-to-usb.sh
+grep -Fxq 'grub-efi-amd64-signed' packages/base.txt
+grep -Fxq 'shim-signed' packages/base.txt
+grep -Fxq 'sbsigntool' packages/base.txt
+grep -q -- '--uefi-secure-boot' scripts/install-to-usb.sh
+grep -q 'sbverify --list /boot/efi/EFI/BOOT/BOOTX64.EFI' scripts/install-to-usb.sh
+grep -q 'sbverify --list /boot/efi/EFI/BOOT/grubx64.efi' scripts/install-to-usb.sh
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale

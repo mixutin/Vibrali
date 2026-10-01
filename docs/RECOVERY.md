@@ -76,13 +76,14 @@ Confirm `/boot` contains a kernel and matching initramfs before rebooting.
 Inside the chroot, with the EFI partition mounted at `/boot/efi`:
 
 ~~~bash
-apt install --reinstall grub-efi-amd64-bin grub2-common
+apt install --reinstall grub-efi-amd64-bin grub-efi-amd64-signed grub2-common shim-signed sbsigntool
 grub-install \
   --target=x86_64-efi \
   --efi-directory=/boot/efi \
   --bootloader-id=Vibrali \
   --removable \
   --no-nvram \
+  --uefi-secure-boot \
   --recheck
 update-grub
 ~~~
@@ -91,9 +92,12 @@ Confirm:
 
 ~~~bash
 test -f /boot/efi/EFI/BOOT/BOOTX64.EFI
+test -f /boot/efi/EFI/BOOT/grubx64.efi
+sbverify --list /boot/efi/EFI/BOOT/BOOTX64.EFI
+sbverify --list /boot/efi/EFI/BOOT/grubx64.efi
 ~~~
 
-The `--removable --no-nvram` behavior is important: the USB should not depend on a firmware boot entry stored on the rescue computer.
+The `--removable --no-nvram` behavior is important: the USB should not depend on a firmware boot entry stored on the rescue computer. `--uefi-secure-boot` restores Debian's signed shim/GRUB chain.
 
 ## Repair legacy BIOS GRUB
 
