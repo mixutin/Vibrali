@@ -40,6 +40,7 @@ chmod 0755 "$WORK/config/includes.chroot/etc/skel/Desktop/vibrali-install.deskto
     --architectures amd64 \
     --binary-images iso-hybrid \
     --debian-installer none \
+    --security false \
     --archive-areas "main contrib non-free-firmware" \
     --bootappend-live "boot=live components username=vibrali hostname=vibrali-rescue"
   lb build
