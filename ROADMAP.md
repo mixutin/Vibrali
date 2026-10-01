@@ -254,14 +254,14 @@ Goal: one USB should boot and remain usable across a broad range of x86_64 PCs.
 - [ ] Verify common Realtek Wi-Fi firmware
 - [ ] Verify common MediaTek Wi-Fi firmware
 - [ ] Verify common USB Ethernet chipsets
-- [ ] Document proprietary firmware limitations
+- [x] Document proprietary firmware limitations
 
 ### Graphics and display
 
 - [ ] Intel integrated graphics validation
 - [ ] AMD integrated graphics validation
-- [ ] AMD discrete graphics notes
-- [ ] NVIDIA compatibility notes
+- [x] AMD discrete graphics notes
+- [x] NVIDIA compatibility notes
 - [ ] HiDPI validation
 - [ ] External-monitor validation
 - [ ] Multiple-monitor validation
@@ -282,7 +282,7 @@ Goal: one USB should boot and remain usable across a broad range of x86_64 PCs.
 - [ ] Add known-problematic hardware
 - [ ] Add Wi-Fi adapter matrix
 - [ ] Add USB Ethernet matrix
-- [ ] Add enclosure/USB SSD recommendations
+- [x] Add enclosure/USB SSD recommendations
 
 ### Phase 3 exit gate
 
