@@ -19,7 +19,7 @@ fail() {
 
 [[ $EUID -eq 0 ]] || fail "run this builder as root"
 
-for cmd in truncate losetup cryptsetup mount umount mountpoint qemu-img install chroot grep lsinitramfs; do
+for cmd in truncate losetup cryptsetup mount umount mountpoint qemu-img install chroot grep; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
 
@@ -103,7 +103,7 @@ chroot "$MOUNT" update-grub
 
 latest_initrd="$(find "$MOUNT/boot" -maxdepth 1 -type f -name 'initrd.img-*' | sort -V | tail -n 1)"
 [[ -n "$latest_initrd" ]] || fail "no initramfs found after regeneration"
-lsinitramfs "$latest_initrd" | grep -Fq 'cryptsetup-keys.d/vibrali-root.key' ||
+chroot "$MOUNT" lsinitramfs "/boot/${latest_initrd##*/}" | grep -Fq 'cryptsetup-keys.d/vibrali-root.key' ||
   fail "CI LUKS key was not embedded in initramfs"
 
 for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
