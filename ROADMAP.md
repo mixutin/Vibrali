@@ -345,7 +345,7 @@ Goal: losing the USB should not automatically expose the user's projects and cre
 - [x] Decide signing architecture
 - [x] Add signed EFI/boot artifacts
 - [ ] Test Secure Boot on real hardware
-- [ ] Document key rotation/recovery
+- [x] Document key rotation/recovery
 - [ ] Remove "disable Secure Boot" requirement for supported configurations
 
 ### Phase 5 exit gate
