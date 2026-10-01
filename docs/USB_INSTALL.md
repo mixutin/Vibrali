@@ -152,7 +152,7 @@ Legacy BIOS GRUB is attempted as well.
 Shut the host down cleanly after installation, move the drive to the target computer,
 open its firmware boot menu and select the USB device.
 
-Vibrali installs Debian-signed shim and GRUB artifacts on the removable EFI path, but Secure Boot has not yet passed the project's multi-machine hardware validation. If a target firmware rejects the current preview image, disable Secure Boot temporarily and record the hardware in the compatibility notes.
+Vibrali installs Debian-signed shim and GRUB artifacts on the removable EFI path. Keep Secure Boot enabled when the target firmware accepts that chain; disabling Secure Boot is not a normal installation requirement. Multi-machine hardware validation is still incomplete, so if a target firmware rejects the current preview image, disabling Secure Boot temporarily is a troubleshooting workaround—record that hardware in the compatibility notes.
 
 Once booted, Vibrali behaves like a normal full Linux installation: use APT normally, create files, install development environments and upgrade the kernel.
 
