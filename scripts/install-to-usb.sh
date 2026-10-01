@@ -608,6 +608,23 @@ if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq forensics; then
   rm -f "$TARGET/tmp/volatility3.whl"
 fi
 
+if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq web; then
+  BURP_JAR="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" burpsuite-desktop)"
+  install -Dm0644 "$BURP_JAR" "$TARGET/opt/vibrali/burpsuite/burpsuite-desktop.jar"
+  cat > "$TARGET/usr/local/bin/burpsuite" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec java -jar /opt/vibrali/burpsuite/burpsuite-desktop.jar "$@"
+EOF
+  chmod 0755 "$TARGET/usr/local/bin/burpsuite"
+fi
+
+if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq reverse; then
+  CUTTER_APPIMAGE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" cutter)"
+  install -Dm0755 "$CUTTER_APPIMAGE" "$TARGET/opt/vibrali/cutter/Cutter.AppImage"
+  ln -sfn /opt/vibrali/cutter/Cutter.AppImage "$TARGET/usr/local/bin/cutter"
+fi
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
