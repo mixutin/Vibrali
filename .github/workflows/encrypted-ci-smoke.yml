@@ -1,0 +1,52 @@
+name: Encrypted CI Smoke
+
+on:
+  push:
+    branches:
+      - "encrypted-ci-test/**"
+    paths:
+      - "scripts/build-encrypted-ci-image.sh"
+      - "scripts/install-to-usb.sh"
+      - "scripts/test-qemu-release.sh"
+      - "scripts/ci/**"
+      - "packages/base.txt"
+      - "packages/desktop.txt"
+      - "config/**"
+      - ".github/workflows/encrypted-ci-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: encrypted-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  encrypted:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install encrypted image test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap gdisk dosfstools e2fsprogs grub2-common \
+            grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
+            zstd rsync curl cryptsetup psmisc
+
+      - name: Syntax-check focused scripts
+        run: |
+          bash -n scripts/build-encrypted-ci-image.sh
+          bash -n scripts/install-to-usb.sh
+          bash -n scripts/test-qemu-release.sh
+
+      - name: Build encrypted QEMU smoke image
+        run: sudo ./scripts/build-encrypted-ci-image.sh dist/.ci
+
+      - name: Boot-test encrypted QEMU image
+        env:
+          VIBRALI_QEMU_SERIAL: VIBRALI-CI-CRYPT
+        run: sudo -E ./scripts/test-qemu-release.sh dist/.ci/vibrali-encrypted-ci.qcow2
