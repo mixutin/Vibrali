@@ -38,6 +38,7 @@ chmod 0755 "$WORK/config/includes.chroot/etc/skel/Desktop/vibrali-install.deskto
     --mode debian \
     --distribution trixie \
     --architectures amd64 \
+    --linux-flavours amd64 \
     --binary-images iso-hybrid \
     --debian-installer none \
     --security false \
