@@ -63,6 +63,31 @@ installer may use the same signed EFI/GRUB chain once implemented. Its separate 
 `/boot` remains compatible with this design; the initramfs prompts for the LUKS
 passphrase after the signed boot chain loads it.
 
+## Key rotation and recovery
+
+Vibrali does not own the default Secure Boot signing keys. Trust rotation therefore
+follows Debian's signed package updates and the platform firmware's trust database rather
+than a Vibrali-specific key ceremony.
+
+For the baseline portable chain:
+
+- update `shim-signed`, `grub-efi-amd64-signed`, the Debian kernel and related boot
+  packages through normal APT updates;
+- after boot-package updates, preserve the removable/no-NVRAM install path by reinstalling
+  GRUB with `--uefi-secure-boot --removable --no-nvram`;
+- verify `EFI/BOOT/BOOTX64.EFI` and `EFI/BOOT/grubx64.efi` with `sbverify --list`;
+- do not enroll a Vibrali-owned MOK as part of the default image;
+- if a firmware trust-database update rejects an older shim, recover using current Debian
+  signed packages from trusted rescue media, then rebuild the removable EFI chain.
+
+A user-created MOK for a third-party DKMS module is separate from this baseline. Its
+private key, certificate, enrollment and revocation are the user's responsibility, and a
+MOK enrolled on one computer should not be treated as portable trust state for the USB.
+
+The recovery procedure in [RECOVERY.md](RECOVERY.md) reinstalls current signed shim/GRUB
+packages, rebuilds the removable path, and verifies both EFI signatures before rebooting.
+This is also the recovery path after replacing obsolete signed boot artifacts.
+
 ## Implementation gate
 
 Before Vibrali claims Secure Boot support, all of the following must be proven:
@@ -72,7 +97,7 @@ Before Vibrali claims Secure Boot support, all of the following must be proven:
 3. the same USB boots with Secure Boot enabled on multiple supported PCs;
 4. kernel/initramfs/GRUB upgrades preserve that boot path;
 5. failure behavior for unsigned third-party modules is documented;
-6. recovery instructions restore the signed removable-media path.
+6. ~~recovery instructions restore the signed removable-media path.~~ documented and signature-checked.
 
 Until the remaining boot and hardware checks pass, project documentation should describe
 the signed boot chain as implemented but Secure Boot hardware compatibility as not yet
