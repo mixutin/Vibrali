@@ -2,3 +2,4 @@
 gef|2026.01|https://raw.githubusercontent.com/hugsy/gef/2026.01/gef.py|04cdfe961f1e9151933d32cf6b548d9e6a76a1aef8b27c020c575b8d4264ed20|MIT|file|github-release:hugsy/gef
 neofetch|7.1.0|https://raw.githubusercontent.com/dylanaraps/neofetch/7.1.0/neofetch|3dc33493e54029fb1528251552093a9f9a2894fcf94f9c3a6f809136a42348c7|MIT|file|github-release:dylanaraps/neofetch
 subfinder|2.16.0|https://github.com/projectdiscovery/subfinder/releases/download/v2.16.0/subfinder_2.16.0_linux_amd64.zip|1b7f9c608e9a5bd59e609a5e09710d63c5485e92d3d49dc2c16eb4fdbe10cb60|MIT|archive|github-release:projectdiscovery/subfinder
+volatility3|2.28.2|https://files.pythonhosted.org/packages/8a/26/548439f5192e496fff7f54d41d8762fa8f3712d53c8441b9f57d7c7a8310/volatility3-2.28.2-py3-none-any.whl|0461d6dd71b9ddbaf70c96e079c06efdf174ac65383b3dcf10dd165181fbd3c3|VSL|file|pypi:volatility3
