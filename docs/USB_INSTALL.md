@@ -202,7 +202,7 @@ Once writing begins, a failed decompression or `dd` write is treated as a partia
 
 If personalization is interrupted after the new root filesystem is mounted, the exit cleanup attempts to unmount it before removing temporary files.
 
-The guided installer requires a target of at least 24 GiB because the current full-profile release image uses a 24 GiB raw-disk layout. The practical workstation recommendation remains 64 GB or larger.
+The guided installer requires a target of at least 32 GiB because the current full-profile release image uses a 32 GiB raw-disk layout. The practical workstation recommendation remains 64 GB or larger.
 
 ## Re-running the guided installer
 

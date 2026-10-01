@@ -229,6 +229,14 @@ grep -Fxq 'libfuse2t64' packages/reverse.txt
 grep -Fxq 'default-jdk-headless' packages/reverse.txt
 bash ./scripts/validate-tool-profiles.sh
 
+grep -Fq 'MIN_TARGET_GIB=32' site/install.sh || {
+  echo "guided installer minimum must match the 32 GiB release image" >&2
+  exit 1
+}
+grep -Fq 'current full-profile release image uses a 32 GiB raw-disk layout' docs/USB_INSTALL.md || {
+  echo "USB install docs must match the 32 GiB release image" >&2
+  exit 1
+}
 grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-32G}"' scripts/build-release-images.sh || {
   echo "release image size default must stay in scripts/build-release-images.sh" >&2
   exit 1
