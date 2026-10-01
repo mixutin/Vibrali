@@ -5,13 +5,16 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALLER="$ROOT/scripts/install-to-usb.sh"
 TMPDIR="$(mktemp -d)"
 BIG_IMAGE="$TMPDIR/vibrali-big.img"
+MID_IMAGE="$TMPDIR/vibrali-mid.img"
 SMALL_IMAGE="$TMPDIR/vibrali-small.img"
 BIG_LOOP=""
+MID_LOOP=""
 SMALL_LOOP=""
 
 cleanup() {
   set +e
   [[ -z "$BIG_LOOP" ]] || losetup -d "$BIG_LOOP" 2>/dev/null || true
+  [[ -z "$MID_LOOP" ]] || losetup -d "$MID_LOOP" 2>/dev/null || true
   [[ -z "$SMALL_LOOP" ]] || losetup -d "$SMALL_LOOP" 2>/dev/null || true
   rm -rf "$TMPDIR"
 }
@@ -40,6 +43,17 @@ grep -q 'Dry run complete' <<<"$dry_output" || fail "dry-run did not complete"
 
 after_hash="$(dd if="$BIG_LOOP" bs=1M count=1 status=none | sha256sum | awk '{print $1}')"
 [[ "$before_hash" == "$after_hash" ]] || fail "dry-run changed the target device"
+
+truncate -s 16G "$MID_IMAGE"
+MID_LOOP="$(losetup --find --show "$MID_IMAGE")"
+
+set +e
+full_output="$("$INSTALLER" --device "$MID_LOOP" --profiles all --dry-run 2>&1)"
+full_status=$?
+set -e
+[[ $full_status -ne 0 ]] || fail "undersized full-profile target unexpectedly passed preflight"
+grep -q 'full Vibrali profile set requires at least 24 GiB' <<<"$full_output" ||
+  fail "full-profile capacity error did not show the expected requirement"
 
 truncate -s 8G "$SMALL_IMAGE"
 SMALL_LOOP="$(losetup --find --show "$SMALL_IMAGE")"
