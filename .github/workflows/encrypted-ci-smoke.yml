@@ -44,9 +44,9 @@ jobs:
           bash -n scripts/test-qemu-release.sh
 
       - name: Build encrypted QEMU smoke image
-        run: sudo ./scripts/build-encrypted-ci-image.sh dist/.ci
+        run: sudo bash ./scripts/build-encrypted-ci-image.sh dist/.ci
 
       - name: Boot-test encrypted QEMU image
         env:
           VIBRALI_QEMU_SERIAL: VIBRALI-CI-CRYPT
-        run: sudo -E ./scripts/test-qemu-release.sh dist/.ci/vibrali-encrypted-ci.qcow2
+        run: sudo -E bash ./scripts/test-qemu-release.sh dist/.ci/vibrali-encrypted-ci.qcow2
