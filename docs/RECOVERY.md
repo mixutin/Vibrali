@@ -99,6 +99,8 @@ sbverify --list /boot/efi/EFI/BOOT/grubx64.efi
 
 The `--removable --no-nvram` behavior is important: the USB should not depend on a firmware boot entry stored on the rescue computer. `--uefi-secure-boot` restores Debian's signed shim/GRUB chain.
 
+If Secure Boot trust changed after a firmware or Debian signing-key transition, recover with current Debian `shim-signed` and `grub-efi-amd64-signed` packages from trusted rescue media, repeat the signed removable install above, and require both `sbverify` checks to succeed before rebooting.
+
 ## Repair legacy BIOS GRUB
 
 If legacy BIOS support is needed and the disk still has the BIOS Boot partition:
