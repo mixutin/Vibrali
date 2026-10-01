@@ -215,7 +215,7 @@ bash ./scripts/validate-external-tools.sh
 grep -q 'github-release:' external-tools/manifest.txt
 bash ./scripts/validate-tool-profiles.sh
 
-grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-24G}"' scripts/build-release-images.sh || {
+grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-32G}"' scripts/build-release-images.sh || {
   echo "release image size default must stay in scripts/build-release-images.sh" >&2
   exit 1
 }
