@@ -148,7 +148,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify ffuf
 - [x] Verify Gobuster
 - [x] Verify Wfuzz
-- [ ] Add Burp Suite Community using pinned verified upstream release
+- [x] Add Burp Suite Community using pinned verified upstream release
 - [x] Add Chromium-based testing browser
 - [x] Add browser proxy/certificate setup documentation
 
@@ -157,7 +157,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify Hashcat
 - [x] Verify John the Ripper
 - [x] Verify Hydra
-- [ ] Add optional large wordlist profile
+- [x] Add optional large wordlist profile
 - [x] Document GPU acceleration limitations/compatibility
 - [x] Verify common Kerberos/LDAP tooling
 
@@ -179,7 +179,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify QEMU user-mode
 - [x] Verify APKTool
 - [ ] Add Ghidra using pinned verified upstream release
-- [ ] Add Rizin/Cutter or equivalent
+- [x] Add Rizin/Cutter or equivalent
 - [x] Add Java runtime required by reverse-engineering tools
 
 ### Forensics
