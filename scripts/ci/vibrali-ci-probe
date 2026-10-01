@@ -3,7 +3,7 @@ set -euo pipefail
 
 SERIAL="$(cat /sys/class/dmi/id/product_serial 2>/dev/null || true)"
 case "$SERIAL" in
-  VIBRALI-CI|VIBRALI-CI-SECURE) ;;
+  VIBRALI-CI|VIBRALI-CI-SECURE|VIBRALI-CI-CRYPT) ;;
   *) exit 0 ;;
 esac
 
@@ -124,6 +124,10 @@ check "nftables-baseline-loaded" nft list table inet vibrali
 check "apparmor-active" systemctl is-active --quiet apparmor
 if [[ "$SERIAL" == "VIBRALI-CI-SECURE" ]]; then
   check "secure-boot-enabled" check_secure_boot_enabled
+fi
+if [[ "$SERIAL" == "VIBRALI-CI-CRYPT" ]]; then
+  check "encrypted-root-active" test -e /dev/mapper/vibrali-ci-root
+  check "crypttab-configured" grep -Fq "vibrali-ci-root UUID=" /etc/crypttab
 fi
 
 check "tool-base-python" python3 --version
