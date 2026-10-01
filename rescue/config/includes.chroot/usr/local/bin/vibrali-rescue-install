@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SOURCE=/usr/share/vibrali-source
+
+if [[ ! -x "$SOURCE/scripts/install-to-usb.sh" ]]; then
+  echo "Vibrali source installer is missing from the rescue image." >&2
+  exit 1
+fi
+
+exec sudo "$SOURCE/scripts/install-to-usb.sh" "$@"
