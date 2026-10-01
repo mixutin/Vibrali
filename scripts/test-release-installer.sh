@@ -21,6 +21,44 @@ write_manifest() {
   )
 }
 
+test_sigstore_verification() {
+  local fixture="$TEST_TMP/sigstore"
+  local work="$TEST_TMP/sigstore-work"
+  local log="$TEST_TMP/cosign.log"
+
+  mkdir -p "$fixture" "$work"
+  printf 'manifest-fixture\n' > "$fixture/SHA256SUMS"
+  printf '{"fixture":true}\n' > "$fixture/$SIGSTORE_BUNDLE_NAME"
+
+  cosign() {
+    printf '%s\n' "$*" > "$log"
+    return 0
+  }
+
+  verify_manifest_signature "file://$fixture" "$work"
+  unset -f cosign
+
+  grep -q -- '--bundle' "$log" || fail "cosign verification did not receive the Sigstore bundle"
+  grep -q -- '--certificate-identity-regexp' "$log" || fail "cosign verification did not pin the workflow identity"
+  grep -Fq 'https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/' "$log" || fail "cosign verification used the wrong workflow identity"
+  grep -q -- '--certificate-oidc-issuer' "$log" || fail "cosign verification did not pin the GitHub Actions OIDC issuer"
+}
+
+test_bad_sigstore_signature() {
+  local fixture="$TEST_TMP/bad-sigstore"
+  local work="$TEST_TMP/bad-sigstore-work"
+
+  mkdir -p "$fixture" "$work"
+  printf 'manifest-fixture\n' > "$fixture/SHA256SUMS"
+  printf '{"fixture":true}\n' > "$fixture/$SIGSTORE_BUNDLE_NAME"
+
+  cosign() { return 1; }
+  if (verify_manifest_signature "file://$fixture" "$work"); then
+    unset -f cosign
+    fail "invalid Sigstore signature unexpectedly succeeded"
+  fi
+  unset -f cosign
+}
 test_direct_download() {
   local fixture="$TEST_TMP/direct"
   local work="$TEST_TMP/direct-work"
@@ -186,6 +224,8 @@ test_piped_entrypoint() {
 test_release_tag_parser
 test_existing_install_still_requires_confirmation
 test_piped_entrypoint
+test_sigstore_verification
+test_bad_sigstore_signature
 test_direct_download
 test_split_download
 test_resumed_download

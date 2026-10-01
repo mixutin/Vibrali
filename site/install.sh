@@ -6,6 +6,9 @@ STABLE_BASE="https://github.com/$REPO/releases/latest/download"
 RELEASES_API="https://api.github.com/repos/$REPO/releases?per_page=1"
 BASE=""
 IMAGE_NAME="vibrali-usb-amd64.img.zst"
+SIGSTORE_BUNDLE_NAME="SHA256SUMS.sigstore.json"
+COSIGN_IDENTITY_REGEXP='^https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/(tags/v.+|heads/release-preview/.+)$'
+COSIGN_OIDC_ISSUER="https://token.actions.githubusercontent.com"
 TTY=/dev/tty
 TMP=""
 DOWNLOADED_IMAGE=""
@@ -80,6 +83,26 @@ download_file() {
   mv -f "$partial" "$destination"
 }
 
+verify_manifest_signature() {
+  local base="$1"
+  local tmp="$2"
+
+  if ! command -v cosign >/dev/null 2>&1; then
+    warn "Cosign is not installed; continuing with SHA-256 verification only. See the release docs for signature verification."
+    return 0
+  fi
+
+  curl -fsSL --retry 2 --retry-connrefused "$base/$SIGSTORE_BUNDLE_NAME" -o "$tmp/$SIGSTORE_BUNDLE_NAME" ||
+    die "Cosign is available, but the release signature bundle could not be downloaded."
+
+  cosign verify-blob "$tmp/SHA256SUMS" \
+    --bundle "$tmp/$SIGSTORE_BUNDLE_NAME" \
+    --certificate-identity-regexp "$COSIGN_IDENTITY_REGEXP" \
+    --certificate-oidc-issuer "$COSIGN_OIDC_ISSUER" >/dev/null ||
+    die "Release manifest signature verification failed."
+
+  ok "Release manifest signature verified"
+}
 download_release() {
   local base="$1"
   local tmp="$2"
@@ -92,6 +115,8 @@ download_release() {
   say "[1/5] Downloading release manifest"
   curl -fsSL --retry 2 --retry-connrefused "$base/SHA256SUMS" -o "$tmp/SHA256SUMS" ||
     die "The selected Vibrali release does not contain a downloadable checksum manifest."
+
+  verify_manifest_signature "$base" "$tmp"
 
   say "[2/5] Downloading the latest Vibrali USB image"
 
@@ -154,7 +179,7 @@ main() {
 
   banner
   say "Portable full-system USB installer"
-  printf "This will download the latest signed-by-checksum Vibrali image and write it to a disk.\n\n"
+  printf "This will download the latest Vibrali image, verify its checksum, and authenticate the manifest with Sigstore when Cosign is available.\n\n"
 
   for cmd in curl lsblk findmnt sha256sum zstd dd mount mountpoint chroot awk sed grep mv blockdev readlink; do
     command -v "$cmd" >/dev/null 2>&1 || die "Missing required command: $cmd"

@@ -48,6 +48,8 @@ understands split USB images and reconstructs them before checksum verification.
 
 The guided installer prefers GitHub's latest stable release. Before the first stable release exists, it falls back to the newest published preview release. Permanent 404 responses are not retried as transient network failures, so a repository with no published image fails quickly with an explicit message instead of repeatedly requesting a missing checksum file.
 
+When `cosign` is available on the host, the guided installer also downloads `SHA256SUMS.sigstore.json` and verifies the checksum manifest against the Vibrali release workflow identity and GitHub Actions OIDC issuer before downloading/trusting the image hash. If Cosign is not installed, the installer prints an explicit warning and continues with SHA-256 verification; users who require authenticated release provenance should install Cosign or follow the manual verification steps below.
+
 The QEMU development image retains the documented initial password. The USB release image
 does not: the guided installer sets a new password after flashing.
 

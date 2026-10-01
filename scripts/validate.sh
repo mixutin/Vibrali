@@ -203,6 +203,8 @@ grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale
 bash ./scripts/test-installer-cli.sh
+grep -q 'COSIGN_IDENTITY_REGEXP' site/install.sh
+grep -q 'verify_manifest_signature' site/install.sh
 bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
 grep -q 'github-release:' external-tools/manifest.txt
