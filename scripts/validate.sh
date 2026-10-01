@@ -223,6 +223,7 @@ grep -q '^cutter|2\.5\.0|' external-tools/manifest.txt
 grep -q '^ghidra|Ghidra_12\.1\.4_build|' external-tools/manifest.txt
 grep -q 'fetch-external-tool.sh" burpsuite-desktop' scripts/install-to-usb.sh
 grep -q 'fetch-external-tool.sh" cutter' scripts/install-to-usb.sh
+grep -Fq 'VOLATILITY_WHEEL_NAME="volatility3-2.28.2-py3-none-any.whl"' scripts/install-to-usb.sh
 grep -q 'fetch-external-tool.sh" ghidra' scripts/install-to-usb.sh
 grep -Fxq 'default-jre' packages/web.txt
 grep -Fxq 'libfuse2t64' packages/reverse.txt
