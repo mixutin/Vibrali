@@ -46,6 +46,10 @@ check_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
+has_profile() {
+  grep -Fxq "$1" /etc/vibrali/profiles 2>/dev/null
+}
+
 # shellcheck disable=SC2317
 check_socat_ncat_loopback() {
   local dir port server
@@ -138,6 +142,7 @@ check "tool-base-jq" jq --version
 check "tool-desktop-firefox" check_command firefox-esr
 check "tool-desktop-chromium" chromium --version
 
+if has_profile network; then
 check "tool-network-nmap" nmap --version
 check "tool-network-masscan" check_command masscan
 check "tool-network-tcpdump" tcpdump --version
@@ -152,7 +157,9 @@ check "tool-network-proxychains" check_command proxychains4
 check "tool-network-subfinder" subfinder -version
 check "network-socat-ncat-loopback" check_socat_ncat_loopback
 check "network-nonroot-dumpcap" check_nonroot_dumpcap
+fi
 
+if has_profile web; then
 check "tool-web-sqlmap" sqlmap --version
 check "tool-web-nikto" check_command nikto
 check "tool-web-ffuf" check_command ffuf
@@ -160,13 +167,19 @@ check "tool-web-gobuster" check_command gobuster
 check "tool-web-wfuzz" check_command wfuzz
 check "tool-web-burp-launcher" check_command burpsuite
 check "tool-web-burp-artifact" test -s /opt/vibrali/burpsuite/burpsuite-desktop.jar
+fi
 
+if has_profile auth-audit; then
 check "tool-auth-hashcat" hashcat --version
 check "tool-auth-john" check_command john
 check "tool-auth-hydra" check_command hydra
+fi
+if has_profile directory-services; then
 check "tool-directory-kinit" check_command kinit
 check "tool-directory-ldapsearch" check_command ldapsearch
+fi
 
+if has_profile pwn; then
 check "tool-pwn-gcc" gcc --version
 check "tool-pwn-gef" gdb -q -nx -batch \
   -ex "source /usr/local/lib/vibrali/gef.py" \
@@ -177,7 +190,9 @@ check "tool-pwn-pwntools" python3 -c 'import pwn'
 check "tool-pwn-readelf" readelf --version
 check "tool-pwn-objdump" objdump --version
 check "tool-pwn-32bit-build" check_32bit_build
+fi
 
+if has_profile reverse; then
 check "tool-reverse-gdb" gdb --version
 check "tool-reverse-lldb" lldb --version
 check "tool-reverse-strace" strace -V
@@ -191,9 +206,13 @@ check "tool-reverse-patchelf" patchelf --version
 check "tool-reverse-nasm" nasm -v
 check "tool-reverse-cutter-launcher" check_command cutter
 check "tool-reverse-cutter-artifact" test -x /opt/vibrali/cutter/Cutter.AppImage
+fi
 
+if has_profile crypto; then
 check "tool-crypto-openssl" openssl version
+fi
 
+if has_profile forensics; then
 check "tool-forensics-binwalk" check_command binwalk
 check "tool-forensics-sleuthkit" check_command tsk_recover
 check "tool-forensics-autopsy" check_command autopsy
@@ -203,29 +222,42 @@ check "tool-forensics-foremost" check_command foremost
 check "tool-forensics-testdisk" check_command testdisk
 check "tool-forensics-photorec" check_command photorec
 check "tool-forensics-volatility3" vol --help
+fi
 
+if has_profile wireless; then
 check "tool-wireless-aircrack" check_command aircrack-ng
 check "tool-wireless-hcxtools" check_command hcxpcapngtool
 check "tool-wireless-reaver" check_command reaver
 check "tool-wireless-bully" check_command bully
+fi
 
+if has_profile directory-services; then
 check "tool-directory-impacket" python3 -c 'import impacket'
+fi
+if has_profile defensive; then
 check "tool-defensive-lynis" check_command lynis
+fi
+if has_profile containers; then
 check "tool-containers-podman" podman --version
 check "tool-containers-buildah" buildah --version
 check "tool-containers-skopeo" skopeo --version
+fi
+if has_profile dev-runtimes; then
 check "tool-dev-go" go version
 check "tool-dev-rust" rustc --version
 check "tool-dev-cargo" cargo --version
 check "tool-dev-node" node --version
 check "tool-dev-npm" npm --version
+fi
 
+if has_profile wordlists; then
 check "tool-wordlists-cewl" check_command cewl
 check "tool-wordlists-crunch" check_command crunch
 check "tool-wordlists-cupp" check_command cupp
 check "tool-wordlists-american-large" test -s /usr/share/dict/american-english-large
 check "tool-wordlists-british-large" test -s /usr/share/dict/british-english-large
 check "tool-wordlists-french" test -s /usr/share/dict/french
+fi
 
 if [[ $count -eq 1 ]]; then
   printf 'vibrali-qemu-persistence\n' > "$PERSIST_FILE"
@@ -283,10 +315,12 @@ EOF
   fi
   rm -rf "$package_root" /tmp/vibrali-ci-marker.deb
 
-  if runuser -u vibrali -- podman volume create "$CONTAINER_VOLUME" >/dev/null 2>&1; then
-    pass "container-volume-created"
-  else
-    fail "container-volume-created"
+  if has_profile containers; then
+    if runuser -u vibrali -- podman volume create "$CONTAINER_VOLUME" >/dev/null 2>&1; then
+      pass "container-volume-created"
+    else
+      fail "container-volume-created"
+    fi
   fi
 else
   if grep -qx 'vibrali-qemu-persistence' "$PERSIST_FILE" 2>/dev/null; then
@@ -304,10 +338,12 @@ else
 
   check "package-file-persisted" test -f /usr/local/share/vibrali-ci-package-marker
 
-  if runuser -u vibrali -- podman volume exists "$CONTAINER_VOLUME"; then
-    pass "container-volume-persisted"
-  else
-    fail "container-volume-persisted"
+  if has_profile containers; then
+    if runuser -u vibrali -- podman volume exists "$CONTAINER_VOLUME"; then
+      pass "container-volume-persisted"
+    else
+      fail "container-volume-persisted"
+    fi
   fi
 fi
 
