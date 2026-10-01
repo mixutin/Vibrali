@@ -34,6 +34,9 @@ jobs:
       - name: Validate repository
         run: ./scripts/validate.sh
 
+      - name: Validate rescue configuration
+        run: ./scripts/validate-rescue.sh
+
       - name: Build rescue ISO
         run: sudo ./scripts/build-rescue-iso.sh dist
 
