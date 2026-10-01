@@ -7,10 +7,10 @@ Current profiles:
 - base — kernel, firmware, compilers, Python, Git and system utilities
 - desktop — XFCE, LightDM and NetworkManager
 - network — Nmap, Masscan, packet capture, tunnelling and protocol utilities
-- web — SQLMap, Nikto, ffuf, Gobuster, Wfuzz and reconnaissance tools
+- web — Burp Suite Desktop, SQLMap, Nikto, ffuf, Gobuster, Wfuzz and reconnaissance tools
 - auth-audit — Hashcat, John, Hydra and password-auditing utilities
 - pwn — compilers, pwntools and exploit-development dependencies
-- reverse — GDB, LLDB, QEMU user-mode, APKTool, Valgrind and binary utilities
+- reverse — Cutter/Rizin, GDB, LLDB, QEMU user-mode, APKTool, Valgrind and binary utilities
 - crypto — OpenSSL, PARI/GP, SymPy, gmpy2, PyCryptodome and Z3
 - forensics — Binwalk, Sleuth Kit, Autopsy, YARA and filesystem/media utilities
 - wireless — Aircrack-ng, hcxtools, Reaver, Bully and wireless utilities
@@ -18,16 +18,18 @@ Current profiles:
 - defensive — Lynis and local integrity/rootkit inspection helpers
 - containers — rootless Podman, Buildah, Skopeo and compose-compatible lab tooling
 - dev-runtimes — optional Go, Rust/Cargo and Node.js/npm toolchains
+- wordlists — CeWL, Crunch, CUPP and packaged large language dictionaries
 
 The native installer always installs the `base` and `desktop` manifests and supports optional security profiles with `--profiles all|none|name1,name2`. Use `--list-profiles` to see the available optional profiles.
 
 ## External tools
 
-Some important security tools are not packaged in Debian 13. Those should eventually be
-installed from their official upstream releases with pinned versions and checksums.
+Some important security tools are not packaged in Debian 13. Vibrali installs selected
+ones from official upstream releases with pinned versions and exact checksums.
 
-Planned external integrations include tools such as Burp Suite Community, Ghidra, Rizin,
-modern Go/Rust reconnaissance utilities and optional CTF-specific environments.
+Current pinned integrations include Burp Suite Desktop, Cutter/Rizin, Subfinder,
+Volatility 3, GEF and Neofetch. Ghidra remains a separate roadmap integration until its
+reviewed pinned path lands on `main`.
 
 Vibrali should not curl arbitrary community install scripts into root. External tooling
 must have a reviewable source, version and verification path.
@@ -51,7 +53,10 @@ verifies both new downloads and cached copies before returning a path to the cal
 it never executes the downloaded file. See `external-tools/README.md` for the policy and
 review checklist.
 
-Verified pinned entries currently include Neofetch 7.1.0 and GEF 2026.01. GEF is installed from the exact tagged `gef.py` bytes under `/usr/local/lib/vibrali/gef.py`; Vibrali's default `.gdbinit` sources that local verified copy rather than running GEF's network installer.
+Verified pinned entries include Neofetch 7.1.0, GEF 2026.01, Subfinder 2.16.0,
+Volatility 3 2.28.2, Burp Suite Desktop 2026.9 and Cutter 2.5.0. GEF is installed from
+the exact tagged `gef.py` bytes under `/usr/local/lib/vibrali/gef.py`; Vibrali's default
+`.gdbinit` sources that local verified copy rather than running GEF's network installer.
 
 ## Profile reference
 
@@ -78,13 +83,10 @@ release-image builds. Non-Debian tools are not merely listed: the installer call
 `scripts/fetch-external-tool.sh` for each shipped external artifact, verifies the pinned
 SHA-256, and installs the verified file into the target filesystem.
 
-Tools still listed in the roadmap as future integrations (for example Burp Suite, Ghidra,
-Rizin/Cutter, larger wordlists, and memory-forensics additions) are intentionally not
-advertised as already-installed Vibrali tools. Their individual roadmap items remain open
-until they have a reproducible installation path.
-
-The remaining Phase 2 exit gate is runtime evidence from a completed release-image smoke
-test; source-level installability alone does not replace that booted-image check.
+The remaining Phase 2 work is intentionally narrower: Ghidra is still tracked separately,
+and hardware-dependent workflows such as wireless monitor mode require physical devices.
+Release smoke tests verify installed command/artifact contracts, but GUI interaction and
+hardware-specific capabilities still need release and physical validation.
 
 
 ### Modern recon
@@ -102,3 +104,27 @@ the exact wheel SHA-256 before installation and uses `pip --no-index --no-deps` 
 isolated venv with Debian-packaged support libraries exposed through
 `--system-site-packages`. This avoids downloading unpinned transitive Python packages at
 install time. The external-tool audit checks the pinned Volatility version against PyPI.
+
+
+### Burp Suite Desktop
+
+The `web` profile installs PortSwigger's unified Burp Suite Desktop 2026.9 JAR from
+the official release endpoint. The exact upstream SHA-256 is pinned in
+`external-tools/manifest.txt`, and the installer places the verified JAR under
+`/opt/vibrali/burpsuite/` with a stable `burpsuite` launcher. Current Burp releases use
+one desktop build for Community and Professional; choose Community Edition in Burp when
+starting without a Professional license.
+
+### Cutter / Rizin
+
+The `reverse` profile installs Cutter 2.5.0 from the official x86_64 AppImage with its
+published SHA-256. Cutter bundles the Rizin analysis engine, so Vibrali exposes a stable
+`cutter` launcher while keeping the upstream artifact intact under
+`/opt/vibrali/cutter/`.
+
+### Wordlists
+
+The optional `wordlists` profile stays within Debian packages: CeWL, Crunch and CUPP
+provide generators, while the packaged American/British large dictionaries and French
+dictionary live under `/usr/share/dict`. Keeping this profile optional avoids making
+the minimal install carry extra dictionary data.

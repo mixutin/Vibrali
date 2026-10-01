@@ -1,0 +1,7 @@
+cewl
+crunch
+cupp
+dictionaries-common
+wamerican-large
+wbritish-large
+wfrench

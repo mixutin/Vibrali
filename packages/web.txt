@@ -1,3 +1,4 @@
+default-jre
 dirb
 dirsearch
 dnsrecon

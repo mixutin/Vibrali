@@ -28,6 +28,7 @@ required=(
   packages/base.txt
   packages/desktop.txt
   packages/network.txt
+  packages/wordlists.txt
   scripts/install-to-usb.sh
   scripts/vibrali-installer-gui.sh
   scripts/test-graphical-installer.sh
@@ -217,6 +218,12 @@ grep -q 'verify_manifest_signature' site/install.sh
 bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
 grep -q 'github-release:' external-tools/manifest.txt
+grep -q '^burpsuite-desktop|2026\.9|' external-tools/manifest.txt
+grep -q '^cutter|2\.5\.0|' external-tools/manifest.txt
+grep -q 'fetch-external-tool.sh" burpsuite-desktop' scripts/install-to-usb.sh
+grep -q 'fetch-external-tool.sh" cutter' scripts/install-to-usb.sh
+grep -Fxq 'default-jre' packages/web.txt
+grep -Fxq 'libfuse2t64' packages/reverse.txt
 bash ./scripts/validate-tool-profiles.sh
 
 grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-32G}"' scripts/build-release-images.sh || {
