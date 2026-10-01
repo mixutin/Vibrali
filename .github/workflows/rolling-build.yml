@@ -39,8 +39,6 @@ jobs:
         run: ./scripts/audit-external-tools.sh
 
       - name: Build USB and QEMU images
-        env:
-          VIBRALI_IMAGE_SIZE: 12G
         run: sudo -E ./scripts/build-release-images.sh dist
 
       - name: Verify release artifacts
