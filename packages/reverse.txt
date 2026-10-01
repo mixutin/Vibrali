@@ -4,6 +4,7 @@ default-jre-headless
 elfutils
 gdb
 gdb-multiarch
+libfuse2t64
 lldb
 ltrace
 nasm
