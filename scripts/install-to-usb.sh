@@ -17,8 +17,8 @@ ENCRYPT_ROOT=0
 CRYPT_NAME="vibrali-root"
 LUKS_PASSWORD=""
 MIN_DEVICE_GIB=12
+FULL_PROFILE_MIN_DEVICE_GIB=24
 RECOMMENDED_DEVICE_GIB=64
-MIN_DEVICE_BYTES=$((MIN_DEVICE_GIB * 1024 * 1024 * 1024))
 RECOMMENDED_DEVICE_BYTES=$((RECOMMENDED_DEVICE_GIB * 1024 * 1024 * 1024))
 
 list_optional_profiles() {
@@ -131,6 +131,31 @@ for profile in "${SELECTED_PROFILES[@]}"; do
   SELECTED_MANIFESTS+=("$ROOT_DIR/packages/$profile.txt")
 done
 
+FULL_PROFILE_INSTALL=0
+mapfile -t AVAILABLE_OPTIONAL_PROFILES < <(list_optional_profiles)
+if (( ${#SELECTED_PROFILES[@]} == ${#AVAILABLE_OPTIONAL_PROFILES[@]} )); then
+  FULL_PROFILE_INSTALL=1
+  for profile in "${AVAILABLE_OPTIONAL_PROFILES[@]}"; do
+    found=0
+    for selected in "${SELECTED_PROFILES[@]}"; do
+      if [[ "$selected" == "$profile" ]]; then
+        found=1
+        break
+      fi
+    done
+    if [[ $found -ne 1 ]]; then
+      FULL_PROFILE_INSTALL=0
+      break
+    fi
+  done
+fi
+
+REQUIRED_DEVICE_GIB=$MIN_DEVICE_GIB
+if [[ $FULL_PROFILE_INSTALL -eq 1 ]]; then
+  REQUIRED_DEVICE_GIB=$FULL_PROFILE_MIN_DEVICE_GIB
+fi
+REQUIRED_DEVICE_BYTES=$((REQUIRED_DEVICE_GIB * 1024 * 1024 * 1024))
+
 command -v lsblk >/dev/null 2>&1 || {
   echo "Missing required command: lsblk" >&2
   exit 1
@@ -163,8 +188,12 @@ DEVICE_SIZE_BYTES="$(lsblk -bdn -o SIZE "$DEVICE" | tr -d '[:space:]')"
   echo "Could not determine target size for $DEVICE." >&2
   exit 1
 }
-if (( DEVICE_SIZE_BYTES < MIN_DEVICE_BYTES )); then
-  echo "Target is too small: Vibrali requires at least ${MIN_DEVICE_GIB} GiB." >&2
+if (( DEVICE_SIZE_BYTES < REQUIRED_DEVICE_BYTES )); then
+  if [[ $FULL_PROFILE_INSTALL -eq 1 ]]; then
+    echo "Target is too small: the full Vibrali profile set requires at least ${REQUIRED_DEVICE_GIB} GiB." >&2
+  else
+    echo "Target is too small: Vibrali requires at least ${REQUIRED_DEVICE_GIB} GiB." >&2
+  fi
   exit 1
 fi
 
@@ -191,7 +220,7 @@ if ((${#SELECTED_PROFILES[@]} > 0)); then
 else
   echo "Optional profiles: none"
 fi
-echo "Minimum target size:     ${MIN_DEVICE_GIB} GiB"
+echo "Minimum target size:     ${REQUIRED_DEVICE_GIB} GiB"
 echo "Recommended target size: ${RECOMMENDED_DEVICE_GIB} GiB"
 if [[ $ENCRYPT_ROOT -eq 1 ]]; then
   echo "Root encryption:          LUKS2 (portable passphrase unlock; no TPM dependency)"

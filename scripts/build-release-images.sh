@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${1:-$ROOT/dist}"
-SIZE="${VIBRALI_IMAGE_SIZE:-12G}"
+SIZE="${VIBRALI_IMAGE_SIZE:-24G}"
 RAW="$OUT/vibrali-amd64.raw"
 USB="$OUT/vibrali-usb-amd64.img.zst"
 VM="$OUT/vibrali-qemu-amd64.qcow2.zst"
