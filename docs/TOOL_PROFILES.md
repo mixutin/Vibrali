@@ -9,10 +9,10 @@ The package manifests under `packages/` are authoritative. This document explain
 | `base` | Portable Debian foundation and development shell | `python3 --version` | Git, curl/wget, jq, compilers, Python, SSH client, tmux, rsync, firmware, kernel |
 | `desktop` | XFCE workstation and browser | `firefox-esr` present | XFCE, LightDM, NetworkManager, Firefox ESR, terminal, clipboard, archive tools |
 | `network` | Network discovery, capture and tunnelling | `nmap --version` | Nmap, Masscan, tcpdump/TShark, Ncat, Socat, OpenVPN, WireGuard, proxychains |
-| `web` | Web reconnaissance and testing | `sqlmap --version` | SQLMap, ffuf, Gobuster, Nikto, Wfuzz, WhatWeb, dirsearch |
+| `web` | Web reconnaissance and testing | `sqlmap --version` + pinned Burp artifact | Burp Suite Desktop, SQLMap, ffuf, Gobuster, Nikto, Wfuzz, WhatWeb, dirsearch |
 | `auth-audit` | Password/hash authentication auditing | `hashcat --version` | Hashcat, John, Hydra, HashID, Crunch |
 | `pwn` | Exploit development and CTF binaries | `gcc --version` | GCC, Clang, make, pwntools, Ruby |
-| `reverse` | Native/mobile reverse engineering and debugging | `gdb --version` | GDB, LLDB, strace/ltrace, binutils, QEMU user-mode, APKTool, Valgrind |
+| `reverse` | Native/mobile reverse engineering and debugging | `gdb --version` + pinned Cutter artifact | Cutter/Rizin, GDB, LLDB, strace/ltrace, binutils, QEMU user-mode, APKTool, Valgrind |
 | `crypto` | Cryptography/math scripting | `openssl version` | OpenSSL, PARI/GP, SymPy, gmpy2, PyCryptodome, Z3 |
 | `forensics` | Filesystem/media/file analysis | `yara --version` | YARA, Sleuth Kit, Autopsy, Binwalk, ExifTool, foremost, TestDisk |
 | `wireless` | Wi-Fi assessment workflows | `aircrack-ng` present | Aircrack-ng, hcxtools, Reaver, Bully, iw, rfkill, macchanger |
@@ -20,6 +20,7 @@ The package manifests under `packages/` are authoritative. This document explain
 | `defensive` | Local host inspection | `lynis` present | Lynis, chkrootkit |
 | `containers` | Rootless container/lab workflows | `podman --version` | Podman, Buildah, Skopeo, podman-compose, fuse-overlayfs |
 | `dev-runtimes` | Optional CTF/dev language runtimes | `go version`, `rustc --version`, `node --version` | Go, Rust/Cargo, Node.js/npm |
+| `wordlists` | Wordlist generation and packaged dictionaries | CeWL/Crunch/CUPP + dictionary files | CeWL, Crunch, CUPP, large American/British dictionaries, French dictionary |
 
 ## Listing and selecting profiles
 
@@ -43,7 +44,7 @@ Install a subset:
 ~~~bash
 sudo ./scripts/install-to-usb.sh \
   --device /dev/sdX \
-  --profiles web,network,forensics,containers,dev-runtimes \
+  --profiles web,network,forensics,containers,dev-runtimes,wordlists \
   --yes-really-erase
 ~~~
 
@@ -60,7 +61,7 @@ sudo ./scripts/install-to-usb.sh \
 
 Source validation checks that advertised representative packages remain in the correct manifests.
 
-The full QEMU release smoke test goes further. Release images are built with all profiles, then the guest checks a broad runtime matrix across the shipped CLI toolset: core network scanners/capture clients, web tools, password-audit tools, compilers/pwntools/binutils, reverse-engineering/debuggers, forensics utilities, wireless clients, directory-service clients and defensive tooling. A failed command check blocks publication.
+The full QEMU release smoke test goes further. Release images are built with all profiles, then the guest checks a broad runtime matrix across the shipped CLI toolset: core network scanners/capture clients, web tools, password-audit tools, compilers/pwntools/binutils, reverse-engineering/debuggers, forensics utilities, wireless clients, directory-service clients, defensive tooling and wordlist generators/dictionary files. A failed command check blocks publication.
 
 A command-presence/runtime smoke check is not a claim that every feature of a tool works on every machine. Wireshark capture permissions for the normal desktop user, wireless monitor mode, GPU acceleration, USB adapters, graphical acceleration and similar hardware-dependent behavior still require physical validation.
 
