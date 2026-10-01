@@ -93,3 +93,11 @@ The `network` profile also installs ProjectDiscovery Subfinder from its pinned u
 release archive. Vibrali verifies the exact SHA-256 from the versioned release before
 extracting the amd64 binary into `/usr/local/bin/subfinder`. This keeps the tool current
 without using an unpinned `go install` or arbitrary installer script.
+
+
+### Ghidra
+
+The `reverse` profile installs Ghidra 12.1.4 from the official NSA GitHub release. The
+release ZIP is pinned by exact SHA-256 and unpacked under
+`/opt/vibrali/ghidra_12.1.4_PUBLIC`; `/usr/local/bin/ghidra` is a stable launcher.
+The profile uses Debian's default JDK 21 rather than downloading a separate Java runtime.
