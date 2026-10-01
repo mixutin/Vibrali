@@ -18,15 +18,20 @@ command -v zenity >/dev/null 2>&1 || {
 command -v lsblk >/dev/null 2>&1 || die "Missing required command: lsblk"
 [[ -x "$INSTALLER" ]] || die "Vibrali source installer not found at $INSTALLER"
 
-mapfile -t DISK_ROWS < <(
-  lsblk -dnpo NAME,SIZE,MODEL,TRAN,TYPE,RM |
-    awk '$5 == "disk" {
-      model=$3
-      if ($4 != "") model=model " (" $4 ")"
-      removable=($6 == "1" ? "removable" : "fixed")
-      printf "%s|%s|%s|%s\n", $1, $2, model, removable
-    }'
-)
+DISK_ROWS=()
+while read -r path size type removable; do
+  [[ "$type" == "disk" ]] || continue
+  model="$(lsblk -dn -o MODEL "$path" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+  tran="$(lsblk -dn -o TRAN "$path" | tr -d '[:space:]')"
+  [[ -n "$model" ]] || model="Unknown model"
+  [[ -n "$tran" ]] && model="$model ($tran)"
+  if [[ "$removable" == "1" ]]; then
+    kind="removable"
+  else
+    kind="fixed"
+  fi
+  DISK_ROWS+=("$path|$size|$model|$kind")
+done < <(lsblk -dnpo NAME,SIZE,TYPE,RM)
 
 ((${#DISK_ROWS[@]} > 0)) || die "No whole-disk install targets were detected."
 
