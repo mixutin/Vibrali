@@ -598,6 +598,20 @@ if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq network; then
   rm -f "$TARGET/tmp/vibrali-subfinder.zip"
 fi
 
+if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq reverse; then
+  GHIDRA_ARCHIVE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" ghidra)"
+  install -Dm0644 "$GHIDRA_ARCHIVE" "$TARGET/tmp/vibrali-ghidra.zip"
+  rm -rf "$TARGET/opt/vibrali/ghidra_12.1.4_PUBLIC"
+  mkdir -p "$TARGET/opt/vibrali"
+  chroot "$TARGET" unzip -q /tmp/vibrali-ghidra.zip -d /opt/vibrali
+  cat > "$TARGET/usr/local/bin/ghidra" <<'EOF'
+#!/usr/bin/env bash
+exec /opt/vibrali/ghidra_12.1.4_PUBLIC/ghidraRun "$@"
+EOF
+  chmod 0755 "$TARGET/usr/local/bin/ghidra"
+  rm -f "$TARGET/tmp/vibrali-ghidra.zip"
+fi
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
