@@ -158,6 +158,8 @@ check "tool-web-nikto" check_command nikto
 check "tool-web-ffuf" check_command ffuf
 check "tool-web-gobuster" check_command gobuster
 check "tool-web-wfuzz" check_command wfuzz
+check "tool-web-burp-launcher" check_command burpsuite
+check "tool-web-burp-artifact" test -s /opt/vibrali/burpsuite/burpsuite-desktop.jar
 
 check "tool-auth-hashcat" hashcat --version
 check "tool-auth-john" check_command john
@@ -186,6 +188,8 @@ check "tool-reverse-java" java -version
 check "tool-reverse-valgrind" valgrind --version
 check "tool-reverse-patchelf" patchelf --version
 check "tool-reverse-nasm" nasm -v
+check "tool-reverse-cutter-launcher" check_command cutter
+check "tool-reverse-cutter-artifact" test -x /opt/vibrali/cutter/Cutter.AppImage
 
 check "tool-crypto-openssl" openssl version
 
@@ -214,6 +218,13 @@ check "tool-dev-rust" rustc --version
 check "tool-dev-cargo" cargo --version
 check "tool-dev-node" node --version
 check "tool-dev-npm" npm --version
+
+check "tool-wordlists-cewl" check_command cewl
+check "tool-wordlists-crunch" check_command crunch
+check "tool-wordlists-cupp" check_command cupp
+check "tool-wordlists-american-large" test -s /usr/share/dict/american-english-large
+check "tool-wordlists-british-large" test -s /usr/share/dict/british-english-large
+check "tool-wordlists-french" test -s /usr/share/dict/french
 
 if [[ $count -eq 1 ]]; then
   printf 'vibrali-qemu-persistence\n' > "$PERSIST_FILE"
