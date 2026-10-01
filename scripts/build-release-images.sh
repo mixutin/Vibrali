@@ -15,6 +15,7 @@ CHROOT_MOUNTS=()
 BUILD_INFO="$OUT/BUILD_INFO.txt"
 PACKAGE_VERSIONS="$OUT/PACKAGE_VERSIONS.txt"
 ZSTD_LEVEL="${VIBRALI_ZSTD_LEVEL:-10}"
+MIN_FREE_GIB="${VIBRALI_MIN_RELEASE_FREE_GIB:-4}"
 PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
 PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
 
@@ -28,12 +29,18 @@ if [[ ! "$ZSTD_LEVEL" =~ ^[0-9]+$ ]] || (( ZSTD_LEVEL < 1 || ZSTD_LEVEL > 19 ));
   exit 2
 fi
 
+if [[ ! "$MIN_FREE_GIB" =~ ^[0-9]+$ ]] || (( MIN_FREE_GIB < 1 )); then
+  echo "VIBRALI_MIN_RELEASE_FREE_GIB must be a positive integer." >&2
+  exit 2
+fi
+MIN_FREE_BYTES=$((MIN_FREE_GIB * 1024 * 1024 * 1024))
+
 mkdir -p "$OUT"
 rm -f "$RAW" "$USB" "$VM" "$QCOW" "$OUT/SHA256SUMS" "$BUILD_INFO" "$PACKAGE_VERSIONS"
 mkdir -p "$CI_MOUNT"
 rm -f "$CI_QCOW"
 
-for cmd in truncate losetup qemu-img zstd sha256sum mount umount mountpoint install mkdir ln rm chroot; do
+for cmd in truncate losetup qemu-img zstd sha256sum mount umount mountpoint install mkdir ln rm chroot df; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing command: $cmd" >&2
     exit 1
@@ -98,6 +105,24 @@ fi
 [[ -n "$SOURCE_COMMIT" ]] || SOURCE_COMMIT=unknown
 DEBIAN_SUITE="$(awk -F= '$1 == "VERSION_CODENAME" {gsub(/"/, "", $2); print $2}' "$CI_MOUNT/etc/os-release")"
 PROFILES="$(tr '\n' ',' < "$CI_MOUNT/etc/vibrali/profiles" | sed 's/,$//')"
+ROOT_SIZE_BYTES="$(df -B1 --output=size "$CI_MOUNT" | tail -n 1 | tr -d '[:space:]')"
+ROOT_USED_BYTES="$(df -B1 --output=used "$CI_MOUNT" | tail -n 1 | tr -d '[:space:]')"
+ROOT_FREE_BYTES="$(df -B1 --output=avail "$CI_MOUNT" | tail -n 1 | tr -d '[:space:]')"
+
+for value in "$ROOT_SIZE_BYTES" "$ROOT_USED_BYTES" "$ROOT_FREE_BYTES"; do
+  [[ "$value" =~ ^[0-9]+$ ]] || {
+    echo "Could not determine release root filesystem capacity." >&2
+    exit 1
+  }
+done
+
+if (( ROOT_FREE_BYTES < MIN_FREE_BYTES )); then
+  echo "Refusing to publish image with less than ${MIN_FREE_GIB} GiB free on the root filesystem." >&2
+  echo "Root filesystem: size=$ROOT_SIZE_BYTES used=$ROOT_USED_BYTES free=$ROOT_FREE_BYTES bytes" >&2
+  exit 1
+fi
+
+echo "Release root headroom: $ROOT_FREE_BYTES bytes free (minimum ${MIN_FREE_GIB} GiB)."
 
 {
   printf 'Package\tVersion\n'
@@ -110,6 +135,10 @@ PROFILES="$(tr '\n' ',' < "$CI_MOUNT/etc/vibrali/profiles" | sed 's/,$//')"
   printf 'architecture=amd64\n'
   printf 'image_size=%s\n' "$SIZE"
   printf 'zstd_level=%s\n' "$ZSTD_LEVEL"
+  printf 'root_size_bytes=%s\n' "$ROOT_SIZE_BYTES"
+  printf 'root_used_bytes=%s\n' "$ROOT_USED_BYTES"
+  printf 'root_free_bytes=%s\n' "$ROOT_FREE_BYTES"
+  printf 'min_release_free_gib=%s\n' "$MIN_FREE_GIB"
   printf 'profiles=%s\n' "$PROFILES"
   printf 'github_ref=%s\n' "${GITHUB_REF:-local}"
   printf 'github_run_id=%s\n' "${GITHUB_RUN_ID:-local}"
