@@ -600,12 +600,13 @@ fi
 
 if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq forensics; then
   VOLATILITY_WHEEL="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" volatility3)"
-  install -Dm0644 "$VOLATILITY_WHEEL" "$TARGET/tmp/volatility3.whl"
+  VOLATILITY_WHEEL_NAME="volatility3-2.28.2-py3-none-any.whl"
+  install -Dm0644 "$VOLATILITY_WHEEL" "$TARGET/tmp/$VOLATILITY_WHEEL_NAME"
   chroot "$TARGET" python3 -m venv --system-site-packages /opt/vibrali/volatility3
-  chroot "$TARGET" /opt/vibrali/volatility3/bin/pip install --no-index --no-deps /tmp/volatility3.whl
+  chroot "$TARGET" /opt/vibrali/volatility3/bin/pip install --no-index --no-deps "/tmp/$VOLATILITY_WHEEL_NAME"
   ln -sfn /opt/vibrali/volatility3/bin/vol "$TARGET/usr/local/bin/vol"
   ln -sfn /opt/vibrali/volatility3/bin/volshell "$TARGET/usr/local/bin/volshell"
-  rm -f "$TARGET/tmp/volatility3.whl"
+  rm -f "$TARGET/tmp/$VOLATILITY_WHEEL_NAME"
 fi
 
 if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq web; then
