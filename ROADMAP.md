@@ -191,7 +191,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify ExifTool
 - [x] Verify foremost
 - [x] Verify TestDisk/PhotoRec
-- [ ] Add memory-forensics tooling with pinned versions where possible
+- [x] Add memory-forensics tooling with pinned versions where possible
 
 ### Wireless
 

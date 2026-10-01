@@ -27,7 +27,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [[ "$sha" =~ ^[0-9a-f]{64}$ ]] || { echo "manifest line $line_no: invalid SHA-256" >&2; exit 1; }
   [[ -n "$license" && "$license" != *[[:space:]]* ]] || { echo "manifest line $line_no: missing/invalid license" >&2; exit 1; }
   [[ "$kind" == "file" || "$kind" == "archive" ]] || { echo "manifest line $line_no: invalid kind" >&2; exit 1; }
-  [[ "$update_source" == "none" || "$update_source" =~ ^github-(release|tag):[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || {
+  [[ "$update_source" == "none" || "$update_source" =~ ^github-(release|tag):[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ || "$update_source" =~ ^pypi:[A-Za-z0-9_.-]+$ ]] || {
     echo "manifest line $line_no: invalid update source" >&2
     exit 1
   }

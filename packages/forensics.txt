@@ -2,6 +2,9 @@ autopsy
 binwalk
 foremost
 libimage-exiftool-perl
+python3-capstone
+python3-pefile
+python3-yara
 scalpel
 sleuthkit
 steghide

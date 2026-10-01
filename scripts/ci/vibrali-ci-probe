@@ -197,6 +197,7 @@ check "tool-forensics-exiftool" exiftool -ver
 check "tool-forensics-foremost" check_command foremost
 check "tool-forensics-testdisk" check_command testdisk
 check "tool-forensics-photorec" check_command photorec
+check "tool-forensics-volatility3" vol --help
 
 check "tool-wireless-aircrack" check_command aircrack-ng
 check "tool-wireless-hcxtools" check_command hcxpcapngtool
