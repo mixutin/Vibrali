@@ -598,6 +598,16 @@ if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq network; then
   rm -f "$TARGET/tmp/vibrali-subfinder.zip"
 fi
 
+if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq forensics; then
+  VOLATILITY_WHEEL="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" volatility3)"
+  install -Dm0644 "$VOLATILITY_WHEEL" "$TARGET/tmp/volatility3.whl"
+  chroot "$TARGET" python3 -m venv --system-site-packages /opt/vibrali/volatility3
+  chroot "$TARGET" /opt/vibrali/volatility3/bin/pip install --no-index --no-deps /tmp/volatility3.whl
+  ln -sfn /opt/vibrali/volatility3/bin/vol "$TARGET/usr/local/bin/vol"
+  ln -sfn /opt/vibrali/volatility3/bin/volshell "$TARGET/usr/local/bin/volshell"
+  rm -f "$TARGET/tmp/volatility3.whl"
+fi
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
