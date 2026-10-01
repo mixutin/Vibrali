@@ -26,19 +26,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install live-build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y live-build rsync
-
       - name: Validate repository
         run: ./scripts/validate.sh
 
       - name: Validate rescue configuration
         run: bash ./scripts/validate-rescue.sh
 
-      - name: Build rescue ISO
-        run: sudo bash ./scripts/build-rescue-iso.sh dist
+      - name: Build rescue ISO on Debian 13
+        run: |
+          docker run --rm --privileged \
+            -v "$PWD:/work" \
+            -w /work \
+            debian:trixie \
+            bash -lc 'apt-get update && apt-get install -y live-build rsync && bash ./scripts/build-rescue-iso.sh dist'
 
       - name: Verify rescue ISO
         run: |
