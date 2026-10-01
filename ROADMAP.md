@@ -178,7 +178,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify strace/ltrace
 - [x] Verify QEMU user-mode
 - [x] Verify APKTool
-- [ ] Add Ghidra using pinned verified upstream release
+- [x] Add Ghidra using pinned verified upstream release
 - [ ] Add Rizin/Cutter or equivalent
 - [x] Add Java runtime required by reverse-engineering tools
 
