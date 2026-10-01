@@ -97,9 +97,17 @@ for source in /dev /proc /sys /run; do
   CHROOT_MOUNTS+=("$target")
 done
 
+kernel_pkg="$(chroot "$MOUNT" dpkg-query -W -f='${binary:Package}\n' 'linux-image-[0-9]*-amd64' 2>/dev/null | sort -V | tail -n 1)"
+[[ -n "$kernel_pkg" ]] || fail "could not identify installed Debian kernel package"
+
+echo "Reinstalling $kernel_pkg to exercise encrypted kernel/initramfs hooks..."
+chroot "$MOUNT" apt-get update
+chroot "$MOUNT" env DEBIAN_FRONTEND=noninteractive apt-get install --reinstall -y "$kernel_pkg"
+
 echo "Regenerating encrypted initramfs and GRUB..."
 chroot "$MOUNT" update-initramfs -u -k all
 chroot "$MOUNT" update-grub
+printf '%s\n' "$kernel_pkg" > "$MOUNT/etc/vibrali/ci-encrypted-kernel-package"
 
 latest_initrd="$(find "$MOUNT/boot" -maxdepth 1 -type f -name 'initrd.img-*' | sort -V | tail -n 1)"
 [[ -n "$latest_initrd" ]] || fail "no initramfs found after regeneration"
