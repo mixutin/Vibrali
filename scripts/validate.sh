@@ -33,6 +33,7 @@ required=(
   scripts/verify-release-artifacts.sh
   scripts/test-qemu-release.sh
   scripts/test-release-installer.sh
+  .github/workflows/release.yml
   .github/workflows/rolling-build.yml
   scripts/ci/vibrali-ci-probe
   scripts/ci/vibrali-ci-probe.service
@@ -206,5 +207,16 @@ bash ./scripts/test-release-installer.sh
 bash ./scripts/validate-external-tools.sh
 grep -q 'github-release:' external-tools/manifest.txt
 bash ./scripts/validate-tool-profiles.sh
+
+grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-24G}"' scripts/build-release-images.sh || {
+  echo "release image size default must stay in scripts/build-release-images.sh" >&2
+  exit 1
+}
+for workflow in .github/workflows/release.yml .github/workflows/rolling-build.yml; do
+  if grep -q 'VIBRALI_IMAGE_SIZE' "$workflow"; then
+    echo "$workflow must not override VIBRALI_IMAGE_SIZE; the builder is the single source of truth" >&2
+    exit 1
+  fi
+done
 
 echo "Vibrali repository validation passed."
