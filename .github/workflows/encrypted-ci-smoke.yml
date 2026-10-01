@@ -35,13 +35,17 @@ jobs:
           sudo apt-get install -y \
             debootstrap gdisk dosfstools e2fsprogs grub2-common \
             grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
-            zstd rsync curl cryptsetup psmisc
+            zstd rsync curl cryptsetup psmisc shellcheck
 
       - name: Syntax-check focused scripts
         run: |
           bash -n scripts/build-encrypted-ci-image.sh
           bash -n scripts/install-to-usb.sh
           bash -n scripts/test-qemu-release.sh
+
+      - name: ShellCheck focused encrypted path
+        run: |
+          shellcheck -e SC2016 -x             scripts/build-encrypted-ci-image.sh             scripts/ci/vibrali-ci-probe
 
       - name: Build encrypted QEMU smoke image
         run: sudo bash ./scripts/build-encrypted-ci-image.sh dist/.ci
