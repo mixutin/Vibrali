@@ -83,6 +83,14 @@ KEYFILE_PATTERN=/etc/cryptsetup-keys.d/*.key
 EOF
 chmod 0600 "$MOUNT/etc/cryptsetup-initramfs/conf-hook"
 
+# The initramfs intentionally contains a CI-only unlock key. Keep the generated
+# image private even on a shared build host.
+if grep -q '^UMASK=' "$MOUNT/etc/initramfs-tools/initramfs.conf"; then
+  sed -i 's/^UMASK=.*/UMASK=0077/' "$MOUNT/etc/initramfs-tools/initramfs.conf"
+else
+  printf '\nUMASK=0077\n' >> "$MOUNT/etc/initramfs-tools/initramfs.conf"
+fi
+
 install -Dm0755 "$ROOT/scripts/ci/vibrali-ci-probe" "$MOUNT/usr/local/sbin/vibrali-ci-probe"
 install -Dm0644 "$ROOT/scripts/ci/vibrali-ci-probe.service" "$MOUNT/etc/systemd/system/vibrali-ci-probe.service"
 mkdir -p "$MOUNT/etc/systemd/system/graphical.target.wants"
@@ -111,8 +119,9 @@ printf '%s\n' "$kernel_pkg" > "$MOUNT/etc/vibrali/ci-encrypted-kernel-package"
 
 latest_initrd="$(find "$MOUNT/boot" -maxdepth 1 -type f -name 'initrd.img-*' | sort -V | tail -n 1)"
 [[ -n "$latest_initrd" ]] || fail "no initramfs found after regeneration"
-chroot "$MOUNT" lsinitramfs "/boot/${latest_initrd##*/}" | grep -Fq 'cryptsetup-keys.d/vibrali-root.key' ||
-  fail "CI LUKS key was not embedded in initramfs"
+INITRAMFS_KEY_PATH="cryptroot/keyfiles/$CRYPT_NAME.key"
+chroot "$MOUNT" lsinitramfs "/boot/${latest_initrd##*/}" | grep -Fxq "$INITRAMFS_KEY_PATH" ||
+  fail "CI LUKS key was not embedded in initramfs at $INITRAMFS_KEY_PATH"
 
 for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
   mountpoint -q "${CHROOT_MOUNTS[$i]}" && umount -R "${CHROOT_MOUNTS[$i]}"

@@ -238,6 +238,14 @@ grep -Fq 'current full-profile release image uses a 32 GiB raw-disk layout' docs
   echo "USB install docs must match the 32 GiB release image" >&2
   exit 1
 }
+grep -Fq 'cryptroot/keyfiles/$CRYPT_NAME.key' scripts/build-encrypted-ci-image.sh || {
+  echo "encrypted CI initramfs check must use Debian cryptroot keyfile path" >&2
+  exit 1
+}
+grep -Fq 'UMASK=0077' scripts/build-encrypted-ci-image.sh || {
+  echo "encrypted CI initramfs must use a restrictive umask" >&2
+  exit 1
+}
 grep -Fq 'SIZE="${VIBRALI_IMAGE_SIZE:-32G}"' scripts/build-release-images.sh || {
   echo "release image size default must stay in scripts/build-release-images.sh" >&2
   exit 1
