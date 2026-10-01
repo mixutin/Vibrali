@@ -1,6 +1,6 @@
 apktool
 binutils
-default-jre-headless
+default-jdk-headless
 elfutils
 gdb
 gdb-multiarch
