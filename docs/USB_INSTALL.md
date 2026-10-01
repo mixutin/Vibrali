@@ -21,7 +21,7 @@ The steps below describe the slower developer/source installation path.
 ## Recommended hardware
 
 Use a USB 3.x SSD or an NVMe/SATA SSD in a good USB enclosure. The source installer
-enforces a 12 GiB minimum for reduced-profile source installs and 24 GiB for the full
+enforces a 12 GiB minimum for reduced-profile source installs and 32 GiB for the full
 profile set. 64 GB is the practical recommendation for a full pentesting workstation. 128 GB or more leaves much more room for tools, captures,
 VMs, wordlists and CTF files.
 
