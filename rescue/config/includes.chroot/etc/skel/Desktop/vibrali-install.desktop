@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Vibrali
+Comment=Install a full writable Vibrali system to removable storage
+Exec=xfce4-terminal --hold -e /usr/local/bin/vibrali-rescue-install
+Icon=drive-removable-media
+Terminal=false
+Categories=System;
