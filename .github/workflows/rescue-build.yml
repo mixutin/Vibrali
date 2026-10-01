@@ -35,10 +35,10 @@ jobs:
         run: ./scripts/validate.sh
 
       - name: Validate rescue configuration
-        run: ./scripts/validate-rescue.sh
+        run: bash ./scripts/validate-rescue.sh
 
       - name: Build rescue ISO
-        run: sudo ./scripts/build-rescue-iso.sh dist
+        run: sudo bash ./scripts/build-rescue-iso.sh dist
 
       - name: Verify rescue ISO
         run: |
