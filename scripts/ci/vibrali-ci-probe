@@ -135,7 +135,7 @@ check "tool-desktop-firefox" check_command firefox-esr
 check "tool-desktop-chromium" chromium --version
 
 check "tool-network-nmap" nmap --version
-check "tool-network-masscan" masscan --version
+check "tool-network-masscan" check_command masscan
 check "tool-network-tcpdump" tcpdump --version
 check "tool-network-tshark" tshark --version
 check "tool-network-socat" check_command socat
