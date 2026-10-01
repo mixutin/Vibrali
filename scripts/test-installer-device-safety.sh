@@ -52,7 +52,7 @@ full_output="$("$INSTALLER" --device "$MID_LOOP" --profiles all --dry-run 2>&1)"
 full_status=$?
 set -e
 [[ $full_status -ne 0 ]] || fail "undersized full-profile target unexpectedly passed preflight"
-grep -q 'full Vibrali profile set requires at least 24 GiB' <<<"$full_output" ||
+grep -q 'full Vibrali profile set requires at least 32 GiB' <<<"$full_output" ||
   fail "full-profile capacity error did not show the expected requirement"
 
 truncate -s 8G "$SMALL_IMAGE"
