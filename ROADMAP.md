@@ -391,7 +391,7 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 - [x] Include network diagnostics
 - [x] Include filesystem recovery tools
 - [x] Add "install Vibrali" launcher
-- [ ] Add graphical USB installer
+- [x] Add graphical USB installer
 - [x] Add recovery workflow for broken GRUB
 - [x] Add recovery workflow for broken initramfs
 - [x] Add recovery workflow for LUKS installs
