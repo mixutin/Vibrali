@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${1:-$ROOT/dist}"
-SIZE="${VIBRALI_IMAGE_SIZE:-24G}"
+SIZE="${VIBRALI_IMAGE_SIZE:-32G}"
 RAW="$OUT/vibrali-amd64.raw"
 USB="$OUT/vibrali-usb-amd64.img.zst"
 VM="$OUT/vibrali-qemu-amd64.qcow2.zst"
@@ -75,7 +75,7 @@ trap cleanup EXIT
 [[ -s "$PROBE_SOURCE" ]] || { echo "Missing CI guest probe: $PROBE_SOURCE" >&2; exit 1; }
 [[ -s "$PROBE_UNIT_SOURCE" ]] || { echo "Missing CI guest probe unit: $PROBE_UNIT_SOURCE" >&2; exit 1; }
 
-echo "Building Vibrali portable disk on $LOOP..."
+echo "Building Vibrali portable disk on $LOOP ($SIZE raw image)..."
 VIBRALI_PASSWORD=vibrali "$ROOT/scripts/install-to-usb.sh" \
   --device "$LOOP" \
   --username vibrali \
