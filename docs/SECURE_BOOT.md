@@ -4,6 +4,8 @@ Vibrali now installs a Debian-signed shim/GRUB removable-media chain, but does n
 claim general Secure Boot hardware support. Signed artifacts are verified during install;
 real-firmware validation remains a separate release gate.
 
+Secure Boot is no longer expected to be disabled as a prerequisite. On firmware that accepts the Debian-signed chain, leave it enabled. Disabling it is only a fallback diagnostic/workaround for hardware that has not yet passed Vibrali's compatibility validation.
+
 ## Decision
 
 Use Debian's existing amd64 Secure Boot trust chain rather than creating a Vibrali-owned
