@@ -185,6 +185,7 @@ check "tool-reverse-ltrace" check_command ltrace
 check "tool-reverse-qemu-user" check_command qemu-x86_64
 check "tool-reverse-apktool" check_command apktool
 check "tool-reverse-java" java -version
+check "tool-reverse-ghidra" test -x /opt/vibrali/ghidra_12.1.4_PUBLIC/support/analyzeHeadless
 check "tool-reverse-valgrind" valgrind --version
 check "tool-reverse-patchelf" patchelf --version
 check "tool-reverse-nasm" nasm -v
