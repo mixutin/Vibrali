@@ -1,0 +1,45 @@
+name: Rescue ISO Build Test
+
+on:
+  pull_request:
+    paths:
+      - "rescue/**"
+      - "scripts/build-rescue-iso.sh"
+      - "scripts/install-to-usb.sh"
+      - "packages/**"
+      - "config/**"
+      - "external-tools/**"
+      - ".github/workflows/rescue-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rescue-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install live-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build rsync
+
+      - name: Validate repository
+        run: ./scripts/validate.sh
+
+      - name: Build rescue ISO
+        run: sudo ./scripts/build-rescue-iso.sh dist
+
+      - name: Verify rescue ISO
+        run: |
+          test -s dist/vibrali-rescue-amd64.iso
+          test -s dist/vibrali-rescue-amd64.iso.sha256
+          sha256sum -c dist/vibrali-rescue-amd64.iso.sha256
+          file dist/vibrali-rescue-amd64.iso
