@@ -137,7 +137,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Confirm Socat/Netcat workflows
 - [x] Add common DNS/WHOIS/recon helpers
 - [x] Add useful VPN/tunnelling helpers
-- [ ] Add optional modern recon tools from verified upstream releases
+- [x] Add optional modern recon tools from verified upstream releases
 
 ### Web testing
 

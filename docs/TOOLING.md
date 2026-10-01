@@ -85,3 +85,11 @@ until they have a reproducible installation path.
 
 The remaining Phase 2 exit gate is runtime evidence from a completed release-image smoke
 test; source-level installability alone does not replace that booted-image check.
+
+
+### Modern recon
+
+The `network` profile also installs ProjectDiscovery Subfinder from its pinned upstream
+release archive. Vibrali verifies the exact SHA-256 from the versioned release before
+extracting the amd64 binary into `/usr/local/bin/subfinder`. This keeps the tool current
+without using an unpinned `go install` or arbitrary installer script.

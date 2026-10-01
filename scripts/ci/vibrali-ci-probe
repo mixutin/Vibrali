@@ -149,6 +149,7 @@ check "tool-network-whois" check_command whois
 check "tool-network-openvpn" check_command openvpn
 check "tool-network-wireguard" check_command wg
 check "tool-network-proxychains" check_command proxychains4
+check "tool-network-subfinder" subfinder -version
 check "network-socat-ncat-loopback" check_socat_ncat_loopback
 check "network-nonroot-dumpcap" check_nonroot_dumpcap
 

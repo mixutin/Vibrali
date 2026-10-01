@@ -590,6 +590,14 @@ install -Dm0755 "$NEOFETCH_SOURCE" "$TARGET/usr/local/lib/vibrali/neofetch"
 GEF_SOURCE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" gef)"
 install -Dm0644 "$GEF_SOURCE" "$TARGET/usr/local/lib/vibrali/gef.py"
 
+if printf '%s\n' "${SELECTED_PROFILES[@]}" | grep -Fxq network; then
+  SUBFINDER_ARCHIVE="$(bash "$ROOT_DIR/scripts/fetch-external-tool.sh" subfinder)"
+  install -Dm0644 "$SUBFINDER_ARCHIVE" "$TARGET/tmp/vibrali-subfinder.zip"
+  chroot "$TARGET" unzip -p /tmp/vibrali-subfinder.zip subfinder > "$TARGET/usr/local/bin/subfinder"
+  chmod 0755 "$TARGET/usr/local/bin/subfinder"
+  rm -f "$TARGET/tmp/vibrali-subfinder.zip"
+fi
+
 echo "$HOSTNAME" > "$TARGET/etc/hostname"
 cat > "$TARGET/etc/hosts" <<EOF
 127.0.0.1 localhost
