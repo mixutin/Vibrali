@@ -83,15 +83,17 @@ There is no persistence.conf or OverlayFS layer in the primary installation mode
 | Area | Examples |
 | --- | --- |
 | Network | Nmap, tcpdump, Wireshark/TShark, Socat, Netcat, DNS tools |
-| Web | curl, wget, jq, Firefox ESR |
-| Reverse engineering | GDB, LLDB, binutils, strace, ltrace |
+| Web | Firefox ESR, Burp Suite Desktop, SQLMap, ffuf, Gobuster, Wfuzz |
+| Reverse engineering | GDB, LLDB, Cutter/Rizin, binutils, strace, ltrace |
 | Development | GCC, Clang, make, Python 3, pip, virtualenv |
+| Wordlists | CeWL, Crunch, CUPP, large English dictionaries, French dictionary |
 | Forensics | binwalk, Sleuth Kit, ExifTool, foremost, TestDisk |
 | Wireless | Aircrack-ng, iw, wireless-tools, rfkill |
 | Workflow | Git, tmux, ripgrep, fd, rsync, OpenSSH |
 
-Tool manifests live under packages/. The plan is to grow these into modular profiles
-for web, network, pwn, reversing, crypto, forensics and wireless work.
+Tool manifests live under `packages/`. Optional profiles cover web, network, authentication
+auditing, pwn, reversing, crypto, forensics, wireless, directory services, defensive
+tooling, containers, development runtimes and wordlists.
 
 ## Install to a USB
 
@@ -155,8 +157,9 @@ Vibrali is being designed for a broad x86_64 hardware target rather than one spe
 PC. The installer uses UUID-based mounts and installs GRUB to the standard removable EFI
 path.
 
-For the first development builds, **Secure Boot should be disabled**. Signed boot support
-is a later milestone.
+Vibrali installs Debian-signed shim/GRUB artifacts on the standard removable EFI path for
+supported UEFI Secure Boot configurations. Real-hardware Secure Boot coverage remains a
+release validation gate; see [docs/SECURE_BOOT.md](docs/SECURE_BOOT.md).
 
 A fast USB 3.x SSD or NVMe enclosure is strongly preferred over a cheap flash drive.
 A full Linux installation generates considerably more writes than a conventional Live
