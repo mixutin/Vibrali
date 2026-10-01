@@ -2,13 +2,8 @@ autopsy
 binwalk
 foremost
 libimage-exiftool-perl
-python3-arrow
 python3-capstone
-python3-cryptography
 python3-pefile
-python3-pil
-python3-pycryptodome
-python3-snappy
 python3-yara
 scalpel
 sleuthkit
