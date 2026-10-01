@@ -42,7 +42,7 @@ require_packages pwn \
   clang gcc gcc-multilib gdb libc6-dev-i386 make python3-pwntools
 
 require_packages reverse \
-  apktool default-jre-headless gdb lldb ltrace qemu-user strace
+  apktool default-jdk-headless gdb lldb ltrace qemu-user strace
 
 require_packages crypto \
   openssl pari-gp python3-sympy python3-z3
