@@ -29,6 +29,8 @@ required=(
   packages/desktop.txt
   packages/network.txt
   scripts/install-to-usb.sh
+  scripts/vibrali-installer-gui.sh
+  scripts/test-graphical-installer.sh
   scripts/build-release-images.sh
   scripts/verify-release-artifacts.sh
   scripts/test-qemu-release.sh
@@ -208,6 +210,7 @@ grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale
 bash ./scripts/test-installer-cli.sh
+bash ./scripts/test-graphical-installer.sh
 grep -q 'COSIGN_IDENTITY_REGEXP' site/install.sh
 grep -q 'verify_manifest_signature' site/install.sh
 bash ./scripts/test-release-installer.sh
