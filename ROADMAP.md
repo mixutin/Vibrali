@@ -178,7 +178,7 @@ Goal: provide a broad Kali-like starter environment while keeping tooling modula
 - [x] Verify strace/ltrace
 - [x] Verify QEMU user-mode
 - [x] Verify APKTool
-- [ ] Add Ghidra using pinned verified upstream release
+- [x] Add Ghidra using pinned verified upstream release
 - [x] Add Rizin/Cutter or equivalent
 - [x] Add Java runtime required by reverse-engineering tools
 
@@ -386,12 +386,12 @@ Goal: installing Vibrali should be safe enough for normal users and recoverable 
 
 ### Live / rescue system
 
-- [ ] Build bootable Live/rescue ISO
-- [ ] Include disk/partition repair tools
-- [ ] Include network diagnostics
-- [ ] Include filesystem recovery tools
-- [ ] Add "install Vibrali" launcher
-- [ ] Add graphical USB installer
+- [x] Build bootable Live/rescue ISO
+- [x] Include disk/partition repair tools
+- [x] Include network diagnostics
+- [x] Include filesystem recovery tools
+- [x] Add "install Vibrali" launcher
+- [x] Add graphical USB installer
 - [x] Add recovery workflow for broken GRUB
 - [x] Add recovery workflow for broken initramfs
 - [x] Add recovery workflow for LUKS installs

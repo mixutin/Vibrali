@@ -1,0 +1,48 @@
+name: Rescue ISO Build Test
+
+on:
+  pull_request:
+    paths:
+      - "rescue/**"
+      - "scripts/build-rescue-iso.sh"
+      - "scripts/install-to-usb.sh"
+      - "packages/**"
+      - "config/**"
+      - "external-tools/**"
+      - ".github/workflows/rescue-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rescue-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate repository
+        run: ./scripts/validate.sh
+
+      - name: Validate rescue configuration
+        run: bash ./scripts/validate-rescue.sh
+
+      - name: Build rescue ISO on Debian 13
+        run: |
+          docker run --rm --privileged \
+            -v "$PWD:/work" \
+            -w /work \
+            debian:trixie \
+            bash -lc 'apt-get update && apt-get install -y live-build rsync && bash ./scripts/build-rescue-iso.sh dist'
+
+      - name: Verify rescue ISO
+        run: |
+          test -s dist/vibrali-rescue-amd64.iso
+          test -s dist/vibrali-rescue-amd64.iso.sha256
+          sha256sum -c dist/vibrali-rescue-amd64.iso.sha256
+          file dist/vibrali-rescue-amd64.iso

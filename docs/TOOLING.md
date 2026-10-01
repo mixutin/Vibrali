@@ -10,7 +10,7 @@ Current profiles:
 - web — Burp Suite Desktop, SQLMap, Nikto, ffuf, Gobuster, Wfuzz and reconnaissance tools
 - auth-audit — Hashcat, John, Hydra and password-auditing utilities
 - pwn — compilers, pwntools and exploit-development dependencies
-- reverse — Cutter/Rizin, GDB, LLDB, QEMU user-mode, APKTool, Valgrind and binary utilities
+- reverse — Ghidra, Cutter/Rizin, GDB, LLDB, QEMU user-mode, APKTool, Valgrind and binary utilities
 - crypto — OpenSSL, PARI/GP, SymPy, gmpy2, PyCryptodome and Z3
 - forensics — Binwalk, Sleuth Kit, Autopsy, YARA and filesystem/media utilities
 - wireless — Aircrack-ng, hcxtools, Reaver, Bully and wireless utilities
@@ -27,9 +27,8 @@ The native installer always installs the `base` and `desktop` manifests and supp
 Some important security tools are not packaged in Debian 13. Vibrali installs selected
 ones from official upstream releases with pinned versions and exact checksums.
 
-Current pinned integrations include Burp Suite Desktop, Cutter/Rizin, Subfinder,
-Volatility 3, GEF and Neofetch. Ghidra remains a separate roadmap integration until its
-reviewed pinned path lands on `main`.
+Current pinned integrations include Burp Suite Desktop, Cutter/Rizin, Ghidra, Subfinder,
+Volatility 3, GEF and Neofetch.
 
 Vibrali should not curl arbitrary community install scripts into root. External tooling
 must have a reviewable source, version and verification path.
@@ -54,7 +53,7 @@ it never executes the downloaded file. See `external-tools/README.md` for the po
 review checklist.
 
 Verified pinned entries include Neofetch 7.1.0, GEF 2026.01, Subfinder 2.16.0,
-Volatility 3 2.28.2, Burp Suite Desktop 2026.9 and Cutter 2.5.0. GEF is installed from
+Volatility 3 2.28.2, Burp Suite Desktop 2026.9, Cutter 2.5.0 and Ghidra 12.1.4. GEF is installed from
 the exact tagged `gef.py` bytes under `/usr/local/lib/vibrali/gef.py`; Vibrali's default
 `.gdbinit` sources that local verified copy rather than running GEF's network installer.
 
@@ -83,8 +82,7 @@ release-image builds. Non-Debian tools are not merely listed: the installer call
 `scripts/fetch-external-tool.sh` for each shipped external artifact, verifies the pinned
 SHA-256, and installs the verified file into the target filesystem.
 
-The remaining Phase 2 work is intentionally narrower: Ghidra is still tracked separately,
-and hardware-dependent workflows such as wireless monitor mode require physical devices.
+The remaining Phase 2 work is intentionally hardware-focused after the pinned tooling integrations.
 Release smoke tests verify installed command/artifact contracts, but GUI interaction and
 hardware-specific capabilities still need release and physical validation.
 
@@ -128,3 +126,10 @@ The optional `wordlists` profile stays within Debian packages: CeWL, Crunch and 
 provide generators, while the packaged American/British large dictionaries and French
 dictionary live under `/usr/share/dict`. Keeping this profile optional avoids making
 the minimal install carry extra dictionary data.
+
+### Ghidra
+
+The `reverse` profile installs Ghidra 12.1.4 from the official NSA GitHub release. The
+release ZIP is pinned by exact SHA-256 and unpacked under
+`/opt/vibrali/ghidra_12.1.4_PUBLIC`; `/usr/local/bin/ghidra` is a stable launcher.
+The profile uses Debian's default JDK 21 rather than downloading a separate Java runtime.

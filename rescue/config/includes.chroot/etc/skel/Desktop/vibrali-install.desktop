@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Vibrali
+Comment=Graphically install a full writable Vibrali system to removable storage
+Exec=bash /usr/share/vibrali-source/scripts/vibrali-installer-gui.sh
+Icon=drive-removable-media
+Terminal=false
+Categories=System;
