@@ -84,7 +84,7 @@ There is no persistence.conf or OverlayFS layer in the primary installation mode
 | --- | --- |
 | Network | Nmap, tcpdump, Wireshark/TShark, Socat, Netcat, DNS tools |
 | Web | Firefox ESR, Burp Suite Desktop, SQLMap, ffuf, Gobuster, Wfuzz |
-| Reverse engineering | GDB, LLDB, Cutter/Rizin, binutils, strace, ltrace |
+| Reverse engineering | Ghidra, Cutter/Rizin, GDB, LLDB, binutils, strace, ltrace |
 | Development | GCC, Clang, make, Python 3, pip, virtualenv |
 | Wordlists | CeWL, Crunch, CUPP, large English dictionaries, French dictionary |
 | Forensics | binwalk, Sleuth Kit, ExifTool, foremost, TestDisk |
@@ -215,3 +215,6 @@ Encrypted source installs: see [docs/ENCRYPTION.md](docs/ENCRYPTION.md).
 
 
 Secure Boot design: see [docs/SECURE_BOOT.md](docs/SECURE_BOOT.md).
+
+
+Rescue media: see [docs/RESCUE_ISO.md](docs/RESCUE_ISO.md).
