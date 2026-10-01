@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUT="${1:-$ROOT/dist/.ci}"
+SIZE="${VIBRALI_ENCRYPTED_CI_SIZE:-16G}"
+RAW="$OUT/vibrali-encrypted-ci.raw"
+QCOW="$OUT/vibrali-encrypted-ci.qcow2"
+MOUNT="$OUT/encrypted-root"
+CRYPT_NAME="vibrali-ci-root"
+LUKS_PASSWORD="${VIBRALI_LUKS_PASSWORD:-vibrali-ci-luks}"
+LOOP=""
+CHROOT_MOUNTS=()
+
+fail() {
+  echo "encrypted CI image build failed: $*" >&2
+  exit 1
+}
+
+[[ $EUID -eq 0 ]] || fail "run this builder as root"
+
+for cmd in truncate losetup cryptsetup mount umount mountpoint qemu-img install chroot grep lsinitramfs; do
+  command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
+done
+
+mkdir -p "$OUT" "$MOUNT"
+rm -f "$RAW" "$QCOW"
+
+cleanup() {
+  set +e
+  local i
+  for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
+    mountpoint -q "${CHROOT_MOUNTS[$i]}" && umount -R "${CHROOT_MOUNTS[$i]}"
+  done
+  mountpoint -q "$MOUNT/boot/efi" && umount "$MOUNT/boot/efi"
+  mountpoint -q "$MOUNT/boot" && umount "$MOUNT/boot"
+  mountpoint -q "$MOUNT" && umount "$MOUNT"
+  cryptsetup status "$CRYPT_NAME" >/dev/null 2>&1 && cryptsetup close "$CRYPT_NAME"
+  [[ -z "$LOOP" ]] || losetup -d "$LOOP" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+truncate -s "$SIZE" "$RAW"
+LOOP="$(losetup --find --show "$RAW")"
+
+echo "Building encrypted Vibrali CI disk on $LOOP..."
+VIBRALI_PASSWORD=vibrali VIBRALI_LUKS_PASSWORD="$LUKS_PASSWORD" \
+  "$ROOT/scripts/install-to-usb.sh" \
+    --device "$LOOP" \
+    --username vibrali \
+    --hostname vibrali \
+    --profiles none \
+    --encrypt-root \
+    --yes-really-erase \
+    --non-interactive
+
+EFI_PART="${LOOP}p2"
+BOOT_PART="${LOOP}p3"
+CRYPT_PART="${LOOP}p4"
+
+printf '%s' "$LUKS_PASSWORD" | cryptsetup open --key-file - "$CRYPT_PART" "$CRYPT_NAME"
+mount "/dev/mapper/$CRYPT_NAME" "$MOUNT"
+mount "$BOOT_PART" "$MOUNT/boot"
+mount "$EFI_PART" "$MOUNT/boot/efi"
+
+KEY_DIR="$MOUNT/etc/cryptsetup-keys.d"
+KEY_FILE="$KEY_DIR/vibrali-root.key"
+mkdir -p "$KEY_DIR"
+printf 'vibrali-ci-auto-unlock-key\n' > "$KEY_FILE"
+chmod 0600 "$KEY_FILE"
+
+printf '%s' "$LUKS_PASSWORD" |
+  cryptsetup luksAddKey --batch-mode --key-file - "$CRYPT_PART" "$KEY_FILE"
+
+LUKS_UUID="$(cryptsetup luksUUID "$CRYPT_PART")"
+cat > "$MOUNT/etc/crypttab" <<EOF
+$CRYPT_NAME UUID=$LUKS_UUID /etc/cryptsetup-keys.d/vibrali-root.key luks,initramfs
+EOF
+
+mkdir -p "$MOUNT/etc/cryptsetup-initramfs"
+cat > "$MOUNT/etc/cryptsetup-initramfs/conf-hook" <<'EOF'
+KEYFILE_PATTERN=/etc/cryptsetup-keys.d/*.key
+EOF
+chmod 0600 "$MOUNT/etc/cryptsetup-initramfs/conf-hook"
+
+install -Dm0755 "$ROOT/scripts/ci/vibrali-ci-probe" "$MOUNT/usr/local/sbin/vibrali-ci-probe"
+install -Dm0644 "$ROOT/scripts/ci/vibrali-ci-probe.service" "$MOUNT/etc/systemd/system/vibrali-ci-probe.service"
+mkdir -p "$MOUNT/etc/systemd/system/graphical.target.wants"
+ln -sfn /etc/systemd/system/vibrali-ci-probe.service \
+  "$MOUNT/etc/systemd/system/graphical.target.wants/vibrali-ci-probe.service"
+
+for source in /dev /proc /sys /run; do
+  target="$MOUNT$source"
+  mkdir -p "$target"
+  mount --rbind "$source" "$target"
+  mount --make-rslave "$target"
+  CHROOT_MOUNTS+=("$target")
+done
+
+echo "Regenerating encrypted initramfs and GRUB..."
+chroot "$MOUNT" update-initramfs -u -k all
+chroot "$MOUNT" update-grub
+
+latest_initrd="$(find "$MOUNT/boot" -maxdepth 1 -type f -name 'initrd.img-*' | sort -V | tail -n 1)"
+[[ -n "$latest_initrd" ]] || fail "no initramfs found after regeneration"
+lsinitramfs "$latest_initrd" | grep -Fq 'cryptsetup-keys.d/vibrali-root.key' ||
+  fail "CI LUKS key was not embedded in initramfs"
+
+for ((i=${#CHROOT_MOUNTS[@]}-1; i>=0; i--)); do
+  mountpoint -q "${CHROOT_MOUNTS[$i]}" && umount -R "${CHROOT_MOUNTS[$i]}"
+done
+CHROOT_MOUNTS=()
+
+sync
+umount "$MOUNT/boot/efi"
+umount "$MOUNT/boot"
+umount "$MOUNT"
+cryptsetup close "$CRYPT_NAME"
+losetup -d "$LOOP"
+LOOP=""
+
+qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$QCOW"
+rm -f "$RAW"
+
+echo "Encrypted CI image: $QCOW"
