@@ -41,6 +41,7 @@ require_packages auth-audit \
 require_packages pwn \
   clang gcc gcc-multilib gdb libc6-dev-i386 make python3-pwntools
 
+# Ghidra requires a JDK, not only a headless JRE.
 require_packages reverse \
   apktool default-jdk-headless gdb lldb ltrace qemu-user strace
 
