@@ -301,7 +301,7 @@ Goal: a Vibrali USB should survive real daily use, upgrades and abrupt environme
 - [x] Persistent system configuration
 - [x] Persistent kernel/initramfs updates
 - [ ] Test APT full-upgrade on physical USB
-- [ ] Test repeated package install/remove cycles
+- [x] Test repeated package install/remove cycles
 - [ ] Test filesystem recovery after unclean shutdown
 - [x] Add automatic TRIM where supported
 - [x] Tune mount options for SSD/flash workload
