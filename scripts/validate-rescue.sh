@@ -36,6 +36,7 @@ grep -Fq 'Name=Install Vibrali' rescue/config/includes.chroot/usr/share/applicat
 grep -Fq 'Name=Install Vibrali' rescue/config/includes.chroot/etc/skel/Desktop/vibrali-install.desktop
 grep -Fq 'trixie-security' rescue/config/archives/vibrali-security.list.chroot
 grep -Fq -- '--security false' scripts/build-rescue-iso.sh
+grep -Fq -- '--linux-flavours amd64' scripts/build-rescue-iso.sh
 
 bash -n scripts/build-rescue-iso.sh
 bash -n rescue/config/includes.chroot/usr/local/bin/vibrali-rescue-install
