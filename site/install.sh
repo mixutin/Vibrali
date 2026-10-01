@@ -7,7 +7,7 @@ RELEASES_API="https://api.github.com/repos/$REPO/releases?per_page=1"
 BASE=""
 IMAGE_NAME="vibrali-usb-amd64.img.zst"
 SIGSTORE_BUNDLE_NAME="SHA256SUMS.sigstore.json"
-COSIGN_IDENTITY_REGEXP='^https://github\\.com/mixutin/Vibrali/\\.github/workflows/release\\.yml@refs/(tags/v.+|heads/release-preview/.+)$'
+COSIGN_IDENTITY_REGEXP='^https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/(tags/v.+|heads/release-preview/.+)$'
 COSIGN_OIDC_ISSUER="https://token.actions.githubusercontent.com"
 TTY=/dev/tty
 TMP=""
