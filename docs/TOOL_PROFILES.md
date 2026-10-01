@@ -12,7 +12,7 @@ The package manifests under `packages/` are authoritative. This document explain
 | `web` | Web reconnaissance and testing | `sqlmap --version` + pinned Burp artifact | Burp Suite Desktop, SQLMap, ffuf, Gobuster, Nikto, Wfuzz, WhatWeb, dirsearch |
 | `auth-audit` | Password/hash authentication auditing | `hashcat --version` | Hashcat, John, Hydra, HashID, Crunch |
 | `pwn` | Exploit development and CTF binaries | `gcc --version` | GCC, Clang, make, pwntools, Ruby |
-| `reverse` | Native/mobile reverse engineering and debugging | `gdb --version` + pinned Cutter artifact | Cutter/Rizin, GDB, LLDB, strace/ltrace, binutils, QEMU user-mode, APKTool, Valgrind |
+| `reverse` | Native/mobile reverse engineering and debugging | `gdb --version` + pinned Ghidra/Cutter artifacts | Ghidra, Cutter/Rizin, GDB, LLDB, strace/ltrace, binutils, QEMU user-mode, APKTool, Valgrind |
 | `crypto` | Cryptography/math scripting | `openssl version` | OpenSSL, PARI/GP, SymPy, gmpy2, PyCryptodome, Z3 |
 | `forensics` | Filesystem/media/file analysis | `yara --version` | YARA, Sleuth Kit, Autopsy, Binwalk, ExifTool, foremost, TestDisk |
 | `wireless` | Wi-Fi assessment workflows | `aircrack-ng` present | Aircrack-ng, hcxtools, Reaver, Bully, iw, rfkill, macchanger |
