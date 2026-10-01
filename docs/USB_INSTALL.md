@@ -21,8 +21,8 @@ The steps below describe the slower developer/source installation path.
 ## Recommended hardware
 
 Use a USB 3.x SSD or an NVMe/SATA SSD in a good USB enclosure. The source installer
-enforces a 12 GiB absolute minimum, but 64 GB is the practical recommendation for a
-full pentesting workstation. 128 GB or more leaves much more room for tools, captures,
+enforces a 12 GiB minimum for reduced-profile source installs and 24 GiB for the full
+profile set. 64 GB is the practical recommendation for a full pentesting workstation. 128 GB or more leaves much more room for tools, captures,
 VMs, wordlists and CTF files.
 
 ## Build-host dependencies
@@ -202,7 +202,7 @@ Once writing begins, a failed decompression or `dd` write is treated as a partia
 
 If personalization is interrupted after the new root filesystem is mounted, the exit cleanup attempts to unmount it before removing temporary files.
 
-The guided installer requires a target of at least 12 GiB because current release images use a 12 GiB raw-disk layout. The practical workstation recommendation remains 64 GB or larger.
+The guided installer requires a target of at least 24 GiB because the current full-profile release image uses a 24 GiB raw-disk layout. The practical workstation recommendation remains 64 GB or larger.
 
 ## Re-running the guided installer
 
