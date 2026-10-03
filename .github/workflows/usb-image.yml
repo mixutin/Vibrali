@@ -1,0 +1,140 @@
+name: Rolling USB Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/**"
+      - "config/**"
+      - "external-tools/**"
+      - "scripts/install-to-usb.sh"
+      - "scripts/build-release-images.sh"
+      - "scripts/verify-release-artifacts.sh"
+      - "scripts/verify-release-headroom.sh"
+      - "scripts/test-release-installer.sh"
+      - "scripts/test-qemu-release.sh"
+      - "scripts/ci/**"
+      - ".github/workflows/usb-image.yml"
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: vibrali-rolling-usb
+  cancel-in-progress: true
+jobs:
+  usb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      VIBRALI_BUILD_QEMU_RELEASE: "0"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install image build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap gdisk dosfstools e2fsprogs grub2-common \
+            grub-efi-amd64-bin grub-pc-bin qemu-utils qemu-system-x86 ovmf \
+            zstd rsync curl shellcheck cryptsetup
+
+      - name: Validate source
+        run: |
+          chmod +x scripts/*.sh site/install.sh
+          ./scripts/validate.sh
+          shellcheck -e SC2016 -x scripts/*.sh scripts/ci/vibrali-ci-probe site/install.sh
+
+      - name: Build rolling USB image
+        run: sudo -E ./scripts/build-release-images.sh dist
+      - name: Verify USB release artifacts
+        env:
+          VIBRALI_EXPECT_QEMU: "0"
+        run: ./scripts/verify-release-artifacts.sh dist
+
+      - name: Verify release filesystem headroom
+        run: ./scripts/verify-release-headroom.sh dist
+
+      - name: Smoke-test release installer
+        run: ./scripts/test-release-installer.sh dist
+
+      - name: Boot-test rolling image
+        run: sudo ./scripts/test-qemu-release.sh dist/.ci/vibrali-qemu-ci.qcow2
+
+      - name: Remove CI-only image
+        run: sudo rm -rf dist/.ci
+
+      - name: Hand release artifacts back to runner user
+        run: sudo chown -R "$(id -u):$(id -g)" dist
+
+      - name: Split oversized GitHub assets
+        run: |
+          cd dist
+          for f in *.zst; do
+            [ -f "$f" ] || continue
+            size=$(stat -c %s "$f")
+            if [ "$size" -gt 1900000000 ]; then
+              split -b 1800M -d -a 2 "$f" "$f.part-"
+              rm "$f"
+            fi
+          done
+          ls -lh
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign checksum manifest
+        run: cosign sign-blob --yes --bundle dist/SHA256SUMS.sigstore.json dist/SHA256SUMS
+
+      - name: Verify checksum signature identity
+        shell: bash
+        run: |
+          signer_identity="https://github.com/${GITHUB_WORKFLOW_REF}"
+          cosign verify-blob dist/SHA256SUMS \
+            --bundle dist/SHA256SUMS.sigstore.json \
+            --certificate-identity "$signer_identity" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+
+      - name: Move rolling tag to this build
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f rolling "$GITHUB_SHA"
+          git push origin refs/tags/rolling --force
+
+      - name: Publish rolling USB release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          notes="$(printf '%s\n\n%s\n%s\n\n%s' \
+            "Automatically built USB snapshot from main at $GITHUB_SHA." \
+            "Use the guided installer:" \
+            "curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash" \
+            "The checksum manifest is signed with Sigstore by this workflow.")"
+          if gh release view rolling >/dev/null 2>&1; then
+            gh api "repos/$GITHUB_REPOSITORY/releases/tags/rolling" --jq '.assets[].id' |
+              while read -r asset_id; do
+                [ -n "$asset_id" ] &&
+                  gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id"
+              done
+            gh release edit rolling \
+              --title "Vibrali Rolling USB" \
+              --prerelease \
+              --notes "$notes"
+          else
+            gh release create rolling \
+              --title "Vibrali Rolling USB" \
+              --prerelease \
+              --target "$GITHUB_SHA" \
+              --notes "$notes"
+          fi
+
+          gh release upload rolling dist/* --clobber

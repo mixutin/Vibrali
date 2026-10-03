@@ -107,7 +107,11 @@ curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash
 
 It downloads the latest prebuilt image, verifies SHA-256, displays the target disk model,
 size and serial, requires an explicit destructive confirmation, writes with progress,
-and then asks you to set the Vibrali password and hostname.
+and then asks you to set the Vibrali password and hostname. Split GitHub release assets
+are downloaded in parallel to reduce install time.
+
+Relevant changes on `main` automatically rebuild the USB image and refresh the `rolling`
+pre-release. Tagged releases continue to publish the full USB + QEMU release set.
 
 Prefer downloading and reviewing the script first if you do not normally pipe scripts
 from the network into a shell.

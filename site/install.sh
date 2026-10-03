@@ -3,12 +3,14 @@ set -Eeuo pipefail
 
 REPO="mixutin/Vibrali"
 STABLE_BASE="https://github.com/$REPO/releases/latest/download"
+ROLLING_BASE="https://github.com/$REPO/releases/download/rolling"
 RELEASES_API="https://api.github.com/repos/$REPO/releases?per_page=1"
 BASE=""
 IMAGE_NAME="vibrali-usb-amd64.img.zst"
 SIGSTORE_BUNDLE_NAME="SHA256SUMS.sigstore.json"
-COSIGN_IDENTITY_REGEXP='^https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/(tags/v.+|heads/release-preview/.+)$'
+COSIGN_IDENTITY_REGEXP='^https://github\.com/mixutin/Vibrali/\.github/workflows/(release|usb-image)\.yml@refs/(tags/v.+|heads/release-preview/.+|heads/main)$'
 COSIGN_OIDC_ISSUER="https://token.actions.githubusercontent.com"
+DOWNLOAD_JOBS="${VIBRALI_DOWNLOAD_JOBS:-4}"
 TTY=/dev/tty
 TMP=""
 DOWNLOADED_IMAGE=""
@@ -60,6 +62,11 @@ resolve_release_base() {
     return 0
   fi
 
+  if curl -fsIL "$ROLLING_BASE/SHA256SUMS" >/dev/null 2>&1; then
+    printf '%s\n' "$ROLLING_BASE"
+    return 0
+  fi
+
   metadata="$(curl -fsSL --retry 2 --retry-connrefused "$RELEASES_API" 2>/dev/null || true)"
   tag="$(printf '%s\n' "$metadata" | latest_release_tag_from_json)"
 
@@ -70,16 +77,19 @@ resolve_release_base() {
 download_file() {
   local url="$1"
   local destination="$2"
+  local quiet="${3:-0}"
   local partial="${destination}.partial"
+  local -a curl_args=(
+    -fL --retry 5 --retry-all-errors --continue-at -
+  )
 
-  curl -fL \
-    --retry 5 \
-    --retry-all-errors \
-    --continue-at - \
-    --progress-bar \
-    "$url" \
-    -o "$partial" || return 1
+  if [[ "$quiet" == "1" ]]; then
+    curl_args+=(--silent --show-error)
+  else
+    curl_args+=(--progress-bar)
+  fi
 
+  curl "${curl_args[@]}" "$url" -o "$partial" || return 1
   mv -f "$partial" "$destination"
 }
 
@@ -108,7 +118,7 @@ download_release() {
   local tmp="$2"
   local image_name="$3"
   local image="$tmp/$image_name"
-  local expected actual found part n
+  local expected actual part n pid failed
 
   mkdir -p "$tmp"
 
@@ -124,22 +134,42 @@ download_release() {
     download_file "$base/$image_name" "$image" ||
       die "Image download failed. Re-run the installer to retry safely."
   else
-    warn "Release is split into multiple GitHub assets; assembling locally."
-    : > "$image"
-    found=0
+    local -a parts=() pids=()
+    warn "Release is split into multiple GitHub assets; downloading chunks in parallel."
     for n in $(seq -w 0 49); do
       part="$image_name.part-$n"
       if curl -fsIL "$base/$part" >/dev/null 2>&1; then
-        download_file "$base/$part" "$tmp/$part" ||
-          die "Image part download failed ($part). Re-run the installer to retry safely."
-        cat "$tmp/$part" >> "$image"
-        rm -f "$tmp/$part"
-        found=1
-      elif [[ $found -eq 1 ]]; then
+        parts+=("$part")
+      elif (( ${#parts[@]} > 0 )); then
         break
       fi
     done
-    [[ $found -eq 1 ]] || die "Could not find the USB image in the latest release."
+    (( ${#parts[@]} > 0 )) || die "Could not find the USB image in the latest release."
+
+    say "Downloading ${#parts[@]} image chunks with up to $DOWNLOAD_JOBS parallel transfers"
+    for part in "${parts[@]}"; do
+      download_file "$base/$part" "$tmp/$part" 1 &
+      pids+=("$!")
+      if (( ${#pids[@]} >= DOWNLOAD_JOBS )); then
+        failed=0
+        for pid in "${pids[@]}"; do
+          if ! wait "$pid"; then failed=1; fi
+        done
+        pids=()
+        (( failed == 0 )) || die "One or more image chunks failed to download. Re-run the installer to retry safely."
+      fi
+    done
+    failed=0
+    for pid in "${pids[@]}"; do
+      if ! wait "$pid"; then failed=1; fi
+    done
+    (( failed == 0 )) || die "One or more image chunks failed to download. Re-run the installer to retry safely."
+
+    : > "$image"
+    for part in "${parts[@]}"; do
+      cat "$tmp/$part" >> "$image"
+      rm -f "$tmp/$part"
+    done
   fi
 
   expected="$(awk -v f="$image_name" '$2 == f {print $1}' "$tmp/SHA256SUMS")"
@@ -174,6 +204,7 @@ main() {
   local IMAGE TARGET root_source root_parent ROOT_PART POST HOSTNAME PASS1 PASS2
 
   [[ -r "$TTY" ]] || die "Run this installer from an interactive terminal."
+  [[ "$DOWNLOAD_JOBS" =~ ^[1-8]$ ]] || die "VIBRALI_DOWNLOAD_JOBS must be an integer from 1 through 8."
   trap cleanup EXIT
   TMP="$(mktemp -d)"
 
@@ -192,7 +223,9 @@ main() {
   if ! BASE="$(resolve_release_base)"; then
     die "No published Vibrali image release exists yet. The installer is ready, but a release image must be published first."
   fi
-  if [[ "$BASE" != "$STABLE_BASE" ]]; then
+  if [[ "$BASE" == "$ROLLING_BASE" ]]; then
+    warn "No stable release exists yet; using the automatically built rolling USB snapshot."
+  elif [[ "$BASE" != "$STABLE_BASE" ]]; then
     warn "No stable release exists yet; using the newest published preview (${BASE##*/})."
   fi
 

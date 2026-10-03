@@ -13,6 +13,12 @@ curl -fsSL https://mixutin.github.io/Vibrali/install.sh | bash
 The USB release image is prebuilt, checksum-verified and locked until the installer asks
 you to choose a new password. This is substantially faster than bootstrapping every
 package locally. Release images contain the full optional security-tool profile set.
+When GitHub has split the image into multiple release assets, the guided installer
+fetches several chunks concurrently before reassembling and verifying the image.
+
+Changes on `main` that affect the installed system automatically rebuild the USB image
+and refresh the `rolling` pre-release, so a prebuilt image is available without creating
+a version tag first. Stable releases are preferred automatically when one exists.
 
 ## Source install
 

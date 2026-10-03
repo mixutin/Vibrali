@@ -15,6 +15,7 @@ CHROOT_MOUNTS=()
 BUILD_INFO="$OUT/BUILD_INFO.txt"
 PACKAGE_VERSIONS="$OUT/PACKAGE_VERSIONS.txt"
 ZSTD_LEVEL="${VIBRALI_ZSTD_LEVEL:-10}"
+BUILD_QEMU_RELEASE="${VIBRALI_BUILD_QEMU_RELEASE:-1}"
 MIN_FREE_GIB="${VIBRALI_MIN_RELEASE_FREE_GIB:-4}"
 PROBE_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe"
 PROBE_UNIT_SOURCE="$ROOT/scripts/ci/vibrali-ci-probe.service"
@@ -31,6 +32,10 @@ fi
 
 if [[ ! "$MIN_FREE_GIB" =~ ^[0-9]+$ ]] || (( MIN_FREE_GIB < 1 )); then
   echo "VIBRALI_MIN_RELEASE_FREE_GIB must be a positive integer." >&2
+  exit 2
+fi
+if [[ "$BUILD_QEMU_RELEASE" != "0" && "$BUILD_QEMU_RELEASE" != "1" ]]; then
+  echo "VIBRALI_BUILD_QEMU_RELEASE must be 0 or 1." >&2
   exit 2
 fi
 MIN_FREE_BYTES=$((MIN_FREE_GIB * 1024 * 1024 * 1024))
@@ -186,10 +191,14 @@ fi
 sync
 umount "$CI_MOUNT"
 
-echo "Creating clean QEMU release image..."
-qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$QCOW"
-zstd -T0 "-$ZSTD_LEVEL" -f "$QCOW" -o "$VM"
-rm -f "$QCOW"
+if [[ "$BUILD_QEMU_RELEASE" == "1" ]]; then
+  echo "Creating clean QEMU release image..."
+  qemu-img convert -p -f raw -O qcow2 -c "$RAW" "$QCOW"
+  zstd -T0 "-$ZSTD_LEVEL" -f "$QCOW" -o "$VM"
+  rm -f "$QCOW"
+else
+  echo "Skipping public QEMU release image (USB-only build)."
+fi
 
 LOCK_MOUNT="$CI_MOUNT"
 mount "$ROOT_PART" "$LOCK_MOUNT"
@@ -210,7 +219,12 @@ umount "$LOCK_MOUNT"
 echo "Compressing locked USB image..."
 zstd -T0 "-$ZSTD_LEVEL" -f "$RAW" -o "$USB"
 
-sha256sum "$USB" "$VM" "$BUILD_INFO" "$PACKAGE_VERSIONS" | sed "s#$OUT/##" > "$OUT/SHA256SUMS"
+CHECKSUM_INPUTS=("$USB")
+if [[ "$BUILD_QEMU_RELEASE" == "1" ]]; then
+  CHECKSUM_INPUTS+=("$VM")
+fi
+CHECKSUM_INPUTS+=("$BUILD_INFO" "$PACKAGE_VERSIONS")
+sha256sum "${CHECKSUM_INPUTS[@]}" | sed "s#$OUT/##" > "$OUT/SHA256SUMS"
 rm -f "$RAW"
 
 echo "Release images:"

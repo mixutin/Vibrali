@@ -40,7 +40,7 @@ test_sigstore_verification() {
 
   grep -q -- '--bundle' "$log" || fail "cosign verification did not receive the Sigstore bundle"
   grep -q -- '--certificate-identity-regexp' "$log" || fail "cosign verification did not pin the workflow identity"
-  grep -Fq 'https://github\.com/mixutin/Vibrali/\.github/workflows/release\.yml@refs/' "$log" || fail "cosign verification used the wrong workflow identity"
+  grep -Fq 'https://github\.com/mixutin/Vibrali/\.github/workflows/(release|usb-image)\.yml@refs/' "$log" || fail "cosign verification used the wrong workflow identity"
   grep -q -- '--certificate-oidc-issuer' "$log" || fail "cosign verification did not pin the GitHub Actions OIDC issuer"
 }
 

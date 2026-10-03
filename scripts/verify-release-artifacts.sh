@@ -8,6 +8,7 @@ USB="$DIST/vibrali-usb-amd64.img.zst"
 VM="$DIST/vibrali-qemu-amd64.qcow2.zst"
 BUILD_INFO="$DIST/BUILD_INFO.txt"
 PACKAGE_VERSIONS="$DIST/PACKAGE_VERSIONS.txt"
+EXPECT_QEMU="${VIBRALI_EXPECT_QEMU:-1}"
 TMPDIR="$(mktemp -d)"
 
 cleanup() {
@@ -24,18 +25,20 @@ for cmd in sha256sum zstd python3 dd stat sort awk sed grep head wc; do
   command -v "$cmd" >/dev/null 2>&1 || fail "missing command: $cmd"
 done
 
-for path in "$CHECKSUMS" "$USB" "$VM" "$BUILD_INFO" "$PACKAGE_VERSIONS"; do
+[[ "$EXPECT_QEMU" == "0" || "$EXPECT_QEMU" == "1" ]] ||
+  fail "VIBRALI_EXPECT_QEMU must be 0 or 1"
+
+required_paths=("$CHECKSUMS" "$USB" "$BUILD_INFO" "$PACKAGE_VERSIONS")
+expected_artifacts=(BUILD_INFO.txt PACKAGE_VERSIONS.txt vibrali-usb-amd64.img.zst)
+if [[ "$EXPECT_QEMU" == "1" ]]; then
+  required_paths+=("$VM")
+  expected_artifacts+=(vibrali-qemu-amd64.qcow2.zst)
+fi
+for path in "${required_paths[@]}"; do
   [[ -s "$path" ]] || fail "missing or empty artifact: $path"
 done
 
-expected_names="$(
-  printf '%s\n' \
-    'BUILD_INFO.txt' \
-    'PACKAGE_VERSIONS.txt' \
-    'vibrali-qemu-amd64.qcow2.zst' \
-    'vibrali-usb-amd64.img.zst' |
-    sort
-)"
+expected_names="$(printf '%s\n' "${expected_artifacts[@]}" | sort)"
 actual_names="$(
   awk '{print $2}' "$CHECKSUMS" |
     sed 's/^\*//' |
@@ -50,7 +53,9 @@ actual_names="$(
 )
 
 zstd -t "$USB"
-zstd -t "$VM"
+if [[ "$EXPECT_QEMU" == "1" ]]; then
+  zstd -t "$VM"
+fi
 
 grep -Eq '^source_commit=([0-9a-f]{40}|unknown)$' "$BUILD_INFO" ||
   fail "BUILD_INFO.txt is missing a valid source commit"
@@ -87,17 +92,21 @@ VM_PREFIX="$TMPDIR/qcow-prefix.bin"
 
 # The current layout places the ext4 root just after the 512 MiB EFI partition.
 # 520 MiB is enough to include the GPT, EFI FAT32 boot sector and root ext4
-# superblock while avoiding a full 12 GiB decompression.
+# superblock without decompressing the whole USB image.
 extract_prefix "$USB" "$USB_PREFIX" 520
-extract_prefix "$VM" "$VM_PREFIX" 1
+python_args=("$USB_PREFIX")
+if [[ "$EXPECT_QEMU" == "1" ]]; then
+  extract_prefix "$VM" "$VM_PREFIX" 1
+  python_args+=("$VM_PREFIX")
+fi
 
-python3 - "$USB_PREFIX" "$VM_PREFIX" <<'PY'
+python3 - "${python_args[@]}" <<'PY'
 from pathlib import Path
 import struct
 import sys
 
 usb = Path(sys.argv[1]).read_bytes()
-qcow = Path(sys.argv[2]).read_bytes()
+qcow = Path(sys.argv[2]).read_bytes() if len(sys.argv) > 2 else None
 sector = 512
 
 def fail(message: str) -> None:
@@ -156,12 +165,13 @@ label = usb[superblock + 0x78:superblock + 0x88].split(b"\x00", 1)[0].decode(
 if label != "VIBRALI_ROOT":
     fail(f"unexpected root filesystem label: {label!r}")
 
-if qcow[:4] != b"QFI\xfb":
-    fail("QEMU artifact is not a QCOW2 image")
+if qcow is not None:
+    if qcow[:4] != b"QFI\xfb":
+        fail("QEMU artifact is not a QCOW2 image")
 
-version = struct.unpack_from(">I", qcow, 4)[0]
-if version not in (2, 3):
-    fail(f"unsupported QCOW2 version: {version}")
+    version = struct.unpack_from(">I", qcow, 4)[0]
+    if version not in (2, 3):
+        fail(f"unsupported QCOW2 version: {version}")
 
 print("release image structure: ok")
 PY
