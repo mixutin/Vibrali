@@ -27,8 +27,12 @@ Boot with the repository helper:
 
 The helper uses KVM when available, boots through OVMF/UEFI, starts the guest at
 1920x1080 by default, enables fit-to-window rendering, and forwards host TCP port 2222
-to guest SSH port 22. When `remote-viewer` is installed it uses SPICE automatically;
-Vibrali includes `spice-vdagent` so the guest can follow viewer resize events.
+to guest SSH port 22. It gives the system disk explicit UEFI boot priority, disables the
+virtual NIC PXE ROM, and keeps NVRAM state per image path. If an image is replaced at the
+same path, the helper refreshes its NVRAM automatically so stale firmware entries cannot
+send the VM into iPXE. Set `VIBRALI_VM_RESET_NVRAM=on` to force a reset manually.
+When `remote-viewer` is installed it uses SPICE automatically; Vibrali includes
+`spice-vdagent` so the guest can follow viewer resize events.
 
 Override the display size or resources when needed:
 
