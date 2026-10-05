@@ -36,6 +36,7 @@ required=(
   scripts/verify-release-artifacts.sh
   scripts/verify-release-headroom.sh
   scripts/test-qemu-release.sh
+  scripts/run-qemu-vm.sh
   scripts/test-qemu-secure-boot.sh
   scripts/test-release-installer.sh
   .github/workflows/release.yml
@@ -66,11 +67,18 @@ required=(
   config/rootfs/usr/share/applications/vibrali-welcome.desktop
   assets/brand/vibrali-logo.png
   assets/brand/vibrali-wallpaper-default.png
+  config/rootfs/usr/share/backgrounds/vibrali/default.png
 )
 
 for path in "${required[@]}"; do
   test -s "$path" || { echo "missing or empty: $path" >&2; exit 1; }
 done
+
+cmp -s assets/brand/vibrali-wallpaper-default.png \
+  config/rootfs/usr/share/backgrounds/vibrali/default.png || {
+  echo "default wallpaper copy does not match canonical branding asset" >&2
+  exit 1
+}
 
 for path in \
   config/rootfs/usr/local/sbin/vibrali-ci-probe \
@@ -209,6 +217,7 @@ grep -q 'secure-boot-enabled' scripts/ci/vibrali-ci-probe
 grep -q 'OVMF_CODE_4M.secboot.fd' scripts/test-qemu-secure-boot.sh
 grep -q 'OVMF_VARS_4M.ms.fd' scripts/test-qemu-secure-boot.sh
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
+grep -Fxq 'spice-vdagent' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt
 grep -q '/Gdk/WindowScalingFactor' config/rootfs/usr/local/bin/vibrali-display-scale
 bash ./scripts/test-installer-cli.sh

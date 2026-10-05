@@ -18,6 +18,7 @@ plymouth-themes
 power-profiles-daemon
 qt5-style-kvantum
 screenfetch
+spice-vdagent
 starship
 thunar-archive-plugin
 x11-xserver-utils

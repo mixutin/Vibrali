@@ -129,8 +129,10 @@ folders, SSH/Git setup, storage-health checks and backups.
 ## Default desktop
 
 Vibrali boots into a preconfigured XFCE environment with its own wallpaper, logo,
-LightDM greeter, Plymouth splash and GRUB identity. Arc Dark, Papirus Dark, JetBrains
-Mono and a cyan/violet terminal palette provide the default visual language.
+LightDM greeter, Plymouth splash and GRUB identity. The canonical default wallpaper is
+`assets/brand/vibrali-wallpaper-default.png` (the dark cyan/violet dragon artwork) and
+ships as `/usr/share/backgrounds/vibrali/default.png`. Arc Dark, Papirus Dark,
+JetBrains Mono and a cyan/violet terminal palette provide the default visual language.
 
 Interactive shells use Zsh + Starship and show a branded Fastfetch summary. Fastfetch,
 legacy Neofetch 7.1.0, Screenfetch and Inxi are available out of the box.

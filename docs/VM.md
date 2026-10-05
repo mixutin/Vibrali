@@ -8,19 +8,31 @@ Download `vibrali-qemu-amd64.qcow2.zst` from the latest GitHub release and decom
 zstd -d vibrali-qemu-amd64.qcow2.zst
 ~~~
 
-Boot with QEMU/KVM:
+Boot with the repository helper:
 
 ~~~bash
-qemu-system-x86_64 \
-  -enable-kvm -cpu host -smp 4 -m 8G \
-  -drive file=vibrali-qemu-amd64.qcow2,if=virtio,format=qcow2 \
-  -nic user,model=virtio-net-pci
+./scripts/run-qemu-vm.sh /path/to/vibrali-qemu-amd64.qcow2
 ~~~
+
+The helper uses KVM when available, boots through OVMF/UEFI, starts the guest at
+1920x1080 by default, enables fit-to-window rendering, and forwards host TCP port 2222
+to guest SSH port 22. When `remote-viewer` is installed it uses SPICE automatically;
+Vibrali includes `spice-vdagent` so the guest can follow viewer resize events.
+
+Override the display size or resources when needed:
+
+~~~bash
+VIBRALI_VM_WIDTH=2560 VIBRALI_VM_HEIGHT=1440 \
+VIBRALI_VM_RAM_MB=12288 VIBRALI_VM_CPUS=6 \
+  ./scripts/run-qemu-vm.sh /path/to/vibrali-qemu-amd64.qcow2
+~~~
+
+Set `VIBRALI_VM_SPICE=off` to force the built-in GTK display. The GTK path still uses
+the requested virtual resolution and `zoom-to-fit=on`, which avoids the tiny fixed
+framebuffer experience common with bare QEMU defaults.
 
 The development VM image uses `vibrali` / `vibrali` for its initial login.
 Change that password immediately.
-
-For UEFI testing, add your distribution's OVMF firmware arguments.
 
 ## Automated release boot test
 
