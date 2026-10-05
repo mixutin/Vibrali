@@ -7,6 +7,8 @@ USERNAME="vibrali"
 HOSTNAME="vibrali"
 SUITE="trixie"
 MIRROR="https://deb.debian.org/debian"
+BRAVE_KEY_URL="https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg"
+BRAVE_SOURCES_URL="https://brave-browser-apt-release.s3.brave.com/brave-browser.sources"
 TARGET="/mnt/vibrali-target"
 CONFIRMED=0
 NONINTERACTIVE=0
@@ -563,6 +565,13 @@ if [[ $ENCRYPT_ROOT -eq 1 ]]; then
   PACKAGES+=(cryptsetup-initramfs)
 fi
 
+echo "Configuring the official Brave Browser APT repository..."
+install -d -m0755 "$TARGET/usr/share/keyrings" "$TARGET/etc/apt/sources.list.d"
+curl -fsSL --retry 3 --retry-delay 2 "$BRAVE_KEY_URL" \
+  -o "$TARGET/usr/share/keyrings/brave-browser-archive-keyring.gpg"
+curl -fsSL --retry 3 --retry-delay 2 "$BRAVE_SOURCES_URL" \
+  -o "$TARGET/etc/apt/sources.list.d/brave-browser-release.sources"
+
 echo "Installing Vibrali packages..."
 chroot "$TARGET" apt-get update
 
@@ -572,6 +581,13 @@ if printf '%s\n' "${PACKAGES[@]}" | grep -Fxq wireshark-common; then
 fi
 
 chroot "$TARGET" env DEBIAN_FRONTEND=noninteractive apt-get install -y "${PACKAGES[@]}"
+
+if chroot "$TARGET" test -x /usr/bin/brave-browser; then
+  chroot "$TARGET" update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/brave-browser 200
+  chroot "$TARGET" update-alternatives --set x-www-browser /usr/bin/brave-browser
+  chroot "$TARGET" update-alternatives --install /usr/bin/gnome-www-browser gnome-www-browser /usr/bin/brave-browser 200
+  chroot "$TARGET" update-alternatives --set gnome-www-browser /usr/bin/brave-browser
+fi
 
 echo "Applying Vibrali identity and desktop defaults..."
 rsync -rlptD --chown=0:0 "$ROOT_DIR/config/rootfs/" "$TARGET/"

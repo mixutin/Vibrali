@@ -24,8 +24,8 @@ if command -v xfconf-query >/dev/null 2>&1; then
   xfconf-query -c xsettings -p /Gtk/FontName -s "Noto Sans 10" 2>/dev/null || true
   xfconf-query -c xfwm4 -p /general/theme -s Arc-Dark 2>/dev/null || true
   xfconf-query -c xfwm4 -p /general/title_font -s "JetBrains Mono Bold 10" 2>/dev/null || true
-  xfconf-query -c xfce4-panel -p /panels/panel-1/size -s 34 2>/dev/null || true
-  xfconf-query -c xfce4-panel -p /panels/panel-1/icon-size -s 18 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/size -s 38 2>/dev/null || true
+  xfconf-query -c xfce4-panel -p /panels/panel-1/icon-size -s 20 2>/dev/null || true
   xfconf-query -c xfce4-panel -p /panels/panel-1/length -s 100 2>/dev/null || true
   xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked -s true 2>/dev/null || true
 
@@ -33,14 +33,44 @@ if command -v xfconf-query >/dev/null 2>&1; then
     xfconf-query -c xfce4-desktop -p "$prop" -s "$wallpaper" 2>/dev/null || true
   done < <(xfconf-query -c xfce4-desktop -l 2>/dev/null | grep '/last-image$' || true)
 
+  while IFS= read -r prop; do
+    xfconf-query -c xfce4-desktop -p "$prop" -s 5 2>/dev/null || true
+  done < <(xfconf-query -c xfce4-desktop -l 2>/dev/null | grep '/image-style$' || true)
+
   fallback=/backdrop/screen0/monitor0/workspace0/last-image
+  fallback_style=/backdrop/screen0/monitor0/workspace0/image-style
   xfconf-query -c xfce4-desktop -p "$fallback" --create -t string -s "$wallpaper" 2>/dev/null || true
+  xfconf-query -c xfce4-desktop -p "$fallback_style" --create -t int -s 5 2>/dev/null || true
 fi
 
-display_state_dir="$HOME/.config/vibrali"
-display_marker="$display_state_dir/display-scale-initialized"
+state_dir="$HOME/.config/vibrali"
+mkdir -p "$state_dir"
+
+rice_marker="$state_dir/desktop-rice-initialized"
+if [[ ! -e "$rice_marker" ]] && command -v xfconf-query >/dev/null 2>&1; then
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Super>Return' --create -t string -s 'xfce4-terminal' >/dev/null 2>&1 || true
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Super>b' --create -t string -s 'brave-browser' >/dev/null 2>&1 || true
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Super>e' --create -t string -s 'thunar' >/dev/null 2>&1 || true
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Super>space' --create -t string -s 'xfce4-popup-whiskermenu' >/dev/null 2>&1 || true
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/Print' --create -t string -s 'xfce4-screenshooter' >/dev/null 2>&1 || true
+  : > "$rice_marker"
+fi
+
+browser_marker="$state_dir/default-browser-initialized"
+if [[ ! -e "$browser_marker" ]] && command -v brave-browser >/dev/null 2>&1; then
+  if command -v xdg-settings >/dev/null 2>&1; then
+    xdg-settings set default-web-browser brave-browser.desktop >/dev/null 2>&1 || true
+  fi
+  if command -v xdg-mime >/dev/null 2>&1; then
+    xdg-mime default brave-browser.desktop text/html >/dev/null 2>&1 || true
+    xdg-mime default brave-browser.desktop x-scheme-handler/http >/dev/null 2>&1 || true
+    xdg-mime default brave-browser.desktop x-scheme-handler/https >/dev/null 2>&1 || true
+  fi
+  : > "$browser_marker"
+fi
+
+display_marker="$state_dir/display-scale-initialized"
 if [[ ! -e "$display_marker" ]] && command -v vibrali-display-scale >/dev/null 2>&1; then
-  mkdir -p "$display_state_dir"
   vibrali-display-scale auto >/dev/null 2>&1 || true
   : > "$display_marker"
 fi

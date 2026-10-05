@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2329
 set -euo pipefail
 
 SERIAL="$(cat /sys/class/dmi/id/product_serial 2>/dev/null || true)"
@@ -139,8 +140,10 @@ check "tool-base-pipx" pipx --version
 check "tool-base-curl" curl --version
 check "tool-base-wget" wget --version
 check "tool-base-jq" jq --version
+check "tool-desktop-brave" brave-browser --version
 check "tool-desktop-firefox" check_command firefox-esr
 check "tool-desktop-chromium" chromium --version
+check "desktop-default-browser" grep -Fq "x-scheme-handler/https=brave-browser.desktop" /etc/xdg/mimeapps.list
 
 if has_profile network; then
 check "tool-network-nmap" nmap --version

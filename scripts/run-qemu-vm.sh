@@ -70,10 +70,10 @@ qemu_args=(
   -drive "if=pflash,format=raw,unit=1,file=$OVMF_VARS"
   -drive "file=$IMAGE,if=virtio,format=qcow2,cache=writeback,discard=unmap"
   -device "virtio-vga,xres=$WIDTH,yres=$HEIGHT"
-  -device qemu-xhci,id=xhci
-  -device usb-tablet,bus=xhci.0
+  -device "qemu-xhci,id=xhci"
+  -device "usb-tablet,bus=xhci.0"
   -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$SSH_PORT-:22"
-  -boot order=c,menu=on
+  -boot "order=c,menu=on"
 )
 
 use_spice=0

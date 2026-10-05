@@ -1,4 +1,5 @@
 arc-theme
+brave-browser
 chromium
 fastfetch
 firefox-esr

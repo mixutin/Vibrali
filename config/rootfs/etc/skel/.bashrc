@@ -1,5 +1,6 @@
 export EDITOR=vim
 export PAGER=less
+export BROWSER=brave-browser
 export PATH="$HOME/.local/bin:$PATH"
 
 HISTCONTROL=ignoreboth:erasedups

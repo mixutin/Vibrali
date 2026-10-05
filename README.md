@@ -83,7 +83,7 @@ There is no persistence.conf or OverlayFS layer in the primary installation mode
 | Area | Examples |
 | --- | --- |
 | Network | Nmap, tcpdump, Wireshark/TShark, Socat, Netcat, DNS tools |
-| Web | Firefox ESR, Burp Suite Desktop, SQLMap, ffuf, Gobuster, Wfuzz |
+| Web | Brave (default), Firefox ESR, Chromium, Burp Suite Desktop, SQLMap, ffuf, Gobuster, Wfuzz |
 | Reverse engineering | Ghidra, Cutter/Rizin, GDB, LLDB, binutils, strace, ltrace |
 | Development | GCC, Clang, make, Python 3, pip, virtualenv |
 | Wordlists | CeWL, Crunch, CUPP, large English dictionaries, French dictionary |
@@ -133,6 +133,9 @@ LightDM greeter, Plymouth splash and GRUB identity. The canonical default wallpa
 `assets/brand/vibrali-wallpaper-default.png` (the dark cyan/violet dragon artwork) and
 ships as `/usr/share/backgrounds/vibrali/default.png`. Arc Dark, Papirus Dark,
 JetBrains Mono and a cyan/violet terminal palette provide the default visual language.
+The default XFCE layout uses a compact dark top panel with Whisker, pinned Terminal,
+Brave and Files launchers, task list, system tray, audio/power controls and clock.
+Brave is the default browser for HTTP/HTTPS and HTML files.
 
 Interactive shells use Zsh + Starship and show a branded Fastfetch summary. Fastfetch,
 legacy Neofetch 7.1.0, Screenfetch and Inxi are available out of the box.

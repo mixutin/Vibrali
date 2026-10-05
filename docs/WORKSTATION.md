@@ -58,9 +58,20 @@ vibrali-toolbox reverse
 
 The toolbox does not run scans or tests automatically. It only surfaces installed commands.
 
+## Default browser
+
+Brave Browser is installed from Brave's official Debian/Ubuntu APT repository and is the
+default for HTTP, HTTPS and HTML content. XFCE's Web Browser helper also points to Brave.
+Firefox ESR and Chromium remain installed as alternate browsers for testing and
+compatibility work.
+
+The first XFCE session reinforces the Brave association with XDG defaults without
+reapplying it on every login, so users can choose a different default later.
+
 ## Firefox ESR defaults
 
-Vibrali keeps Firefox ESR close to Debian defaults while applying a small system policy:
+Vibrali keeps Firefox ESR available as a secondary browser and close to Debian defaults
+while applying a small system policy:
 
 - the Vibrali site is the default homepage;
 - Firefox telemetry is disabled;
@@ -80,7 +91,7 @@ These are `default` enterprise-policy preferences rather than locked preferences
 
 ## Web testing browsers, proxies and interception CAs
 
-Vibrali ships Firefox ESR and Chromium from Debian. It deliberately does not force a
+Vibrali ships Brave, Firefox ESR and Chromium. It deliberately does not force a
 proxy or trust an interception certificate globally: those settings are target/lab
 specific and a trusted interception CA can decrypt traffic for any site accepted by that
 browser profile.

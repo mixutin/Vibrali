@@ -33,6 +33,7 @@ required=(
   scripts/vibrali-installer-gui.sh
   scripts/test-graphical-installer.sh
   scripts/build-release-images.sh
+  scripts/build-dev-vm.sh
   scripts/verify-release-artifacts.sh
   scripts/verify-release-headroom.sh
   scripts/test-qemu-release.sh
@@ -62,6 +63,15 @@ required=(
   config/rootfs/usr/local/bin/vibrali-display-scale
   config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu
   config/rootfs/usr/lib/firefox-esr/distribution/policies.json
+  config/rootfs/etc/xdg/mimeapps.list
+  config/rootfs/etc/skel/.config/starship.toml
+  config/rootfs/etc/skel/.config/fastfetch/config.jsonc
+  config/rootfs/etc/skel/.config/xfce4/helpers.rc
+  config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+  config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+  config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+  config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+  config/rootfs/usr/share/xfce4/helpers/brave-browser.desktop
   config/rootfs/etc/xdg/autostart/vibrali-welcome.desktop
   config/rootfs/etc/xdg/autostart/vibrali-clipman.desktop
   config/rootfs/usr/share/applications/vibrali-welcome.desktop
@@ -143,6 +153,22 @@ for preference, expected in expected_preferences.items():
 if preferences["browser.sessionstore.interval"].get("Type") != "number":
     raise SystemExit("Firefox sessionstore interval must be explicitly typed as a number")
 ET.parse("config/rootfs/etc/xdg/menus/applications-merged/vibrali-security.menu")
+for xfce_xml in [
+    "config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml",
+    "config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml",
+    "config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml",
+    "config/rootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml",
+]:
+    ET.parse(xfce_xml)
+
+mimeapps = Path("config/rootfs/etc/xdg/mimeapps.list").read_text()
+for token in [
+    "text/html=brave-browser.desktop",
+    "x-scheme-handler/http=brave-browser.desktop",
+    "x-scheme-handler/https=brave-browser.desktop",
+]:
+    if token not in mimeapps:
+        raise SystemExit(f"default-browser mapping missing: {token}")
 
 categories = {
     "network": "VibraliNetwork",
@@ -162,6 +188,25 @@ for name, category in categories.items():
     if f"Categories={category};" not in text:
         raise SystemExit(f"{launcher}: missing expected category {category}")
 print("desktop security menu/browser policy: ok")
+PY
+
+python3 - <<'PY'
+from pathlib import Path
+
+bad = {}
+for path in Path("config/rootfs/etc/skel").rglob("*"):
+    if not path.is_file():
+        continue
+    try:
+        text = path.read_text()
+    except UnicodeDecodeError:
+        continue
+    codepoints = sorted({ord(ch) for ch in text if 0xE000 <= ord(ch) <= 0xF8FF})
+    if codepoints:
+        bad[str(path)] = [f"U+{cp:04X}" for cp in codepoints]
+if bad:
+    raise SystemExit(f"private-use glyphs require an undeclared icon font: {bad}")
+print("portable prompt glyphs: ok")
 PY
 
 python3 - <<'PY'
@@ -216,6 +261,11 @@ grep -q 'VIBRALI-CI-SECURE' scripts/ci/vibrali-ci-probe
 grep -q 'secure-boot-enabled' scripts/ci/vibrali-ci-probe
 grep -q 'OVMF_CODE_4M.secboot.fd' scripts/test-qemu-secure-boot.sh
 grep -q 'OVMF_VARS_4M.ms.fd' scripts/test-qemu-secure-boot.sh
+grep -Fxq 'brave-browser' packages/desktop.txt
+grep -Fq 'https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg' scripts/install-to-usb.sh
+grep -Fq 'https://brave-browser-apt-release.s3.brave.com/brave-browser.sources' scripts/install-to-usb.sh
+grep -q 'tool-desktop-brave' scripts/ci/vibrali-ci-probe
+grep -q 'desktop-default-browser' scripts/ci/vibrali-ci-probe
 grep -Fxq 'power-profiles-daemon' packages/desktop.txt
 grep -Fxq 'spice-vdagent' packages/desktop.txt
 grep -Fxq 'x11-xserver-utils' packages/desktop.txt

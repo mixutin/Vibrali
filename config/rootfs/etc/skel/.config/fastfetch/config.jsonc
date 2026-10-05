@@ -6,7 +6,7 @@
     "padding": {"right": 3}
   },
   "display": {
-    "separator": "    ",
+    "separator": "  →  ",
     "color": {"keys": "blue", "title": "magenta"}
   },
   "modules": [

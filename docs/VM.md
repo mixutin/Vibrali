@@ -8,6 +8,17 @@ Download `vibrali-qemu-amd64.qcow2.zst` from the latest GitHub release and decom
 zstd -d vibrali-qemu-amd64.qcow2.zst
 ~~~
 
+For fast local desktop testing, build only the mandatory base + desktop profiles:
+
+~~~bash
+sudo ./scripts/build-dev-vm.sh
+~~~
+
+That produces `dist-dev/vibrali-dev.qcow2` from the current source tree. The default
+development disk is 16 GiB and uses `vibrali` / `vibrali`. Override
+`VIBRALI_DEV_VM_SIZE`, `VIBRALI_DEV_VM_PROFILES` or
+`VIBRALI_DEV_VM_PASSWORD` when needed.
+
 Boot with the repository helper:
 
 ~~~bash

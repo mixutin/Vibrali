@@ -7,7 +7,7 @@ The package manifests under `packages/` are authoritative. This document explain
 | Profile | Purpose | Representative runtime check | Package highlights |
 | --- | --- | --- | --- |
 | `base` | Portable Debian foundation and development shell | `python3 --version` | Git, curl/wget, jq, compilers, Python, SSH client, tmux, rsync, firmware, kernel |
-| `desktop` | XFCE workstation and browser | `firefox-esr` present | XFCE, LightDM, NetworkManager, Firefox ESR, terminal, clipboard, archive tools |
+| `desktop` | XFCE workstation and browsers | `brave-browser` + `firefox-esr` present | XFCE, LightDM, NetworkManager, Brave (default), Firefox ESR, Chromium, terminal, clipboard, archive tools |
 | `network` | Network discovery, capture and tunnelling | `nmap --version` | Nmap, Masscan, tcpdump/TShark, Ncat, Socat, OpenVPN, WireGuard, proxychains |
 | `web` | Web reconnaissance and testing | `sqlmap --version` + pinned Burp artifact | Burp Suite Desktop, SQLMap, ffuf, Gobuster, Nikto, Wfuzz, WhatWeb, dirsearch |
 | `auth-audit` | Password/hash authentication auditing | `hashcat --version` | Hashcat, John, Hydra, HashID, Crunch |
